@@ -1,6 +1,5 @@
 <?php
-// Shady add this line
-
+//Mohamed add this line
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
