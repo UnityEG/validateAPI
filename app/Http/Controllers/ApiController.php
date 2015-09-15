@@ -99,15 +99,15 @@ class ApiController extends Controller {
         return $this->setStatusCode(500)->respondWithError($message, $description);
     }
 
-    function respondWithError($message, $description = NULL) {
+    function respondWithError($title, $detail = NULL) {
         $data = [
-            'error' => [
-                'message' => $message,
-                'status_code' => $this->getStatusCode(),
+            'errors' => [
+                'title' => $title,
+                'status' => $this->getStatusCode(),
             ]
         ];
-        if ($description != NULL) {
-            $data['error']['description'] = $description;
+        if ($detail != NULL) {
+            $data['errors']['detail'] = $detail;
         }
         return $this->respond($data);
     }
