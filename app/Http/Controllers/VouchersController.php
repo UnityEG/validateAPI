@@ -8,6 +8,10 @@ use App\Http\Requests;
 use App\Http\Controllers\ApiController;
 //Models
 use App\Http\Models\Voucher;
+use App\Http\Models\VoucherParameter;
+
+//helpers
+use App\aaa\g;
 
 class VouchersController extends ApiController {
 
@@ -34,22 +38,56 @@ class VouchersController extends ApiController {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  $input
+     * @param  $purchased_voucher_to_create
      * @return Response
      */
-    public function store( $input ) {
-        $validation_rules = [
-//            'user_id'              => 'required|integer|exists:user,id',
-//            'voucher_parameter_id' => 'required|integer|exists:voucher_parameters,id',
-//            'status' =>'required|in:valid,invalid,validated',
-//            'code'=>'reqired|integer|size:9',
-            'value'                => 'sometimes|required|numeric',
-//            'balance'              => 'sometimes|required|numeric',
-//            'is_gift'              => 'boolean',
-            'delivery_date'        => 'date_format:d/m/Y H:i',
-            'recipient_email'      => 'email',
-            'message'              => 'string',
-        ];
+    public function store( $purchased_voucher_to_create ) {
+        $voucher_parameter_object = VoucherParameter::find($purchased_voucher_to_create['voucher_parameter_id']);
+        $purchased_voucher_to_create['is_gift'] = ($voucher_parameter_object->voucher_type == 'gift') ? TRUE : FALSE;
+        $purchased_voucher_to_create['status'] = 'valid';
+        $purchased_voucher_to_create['balance'] = $purchased_voucher_to_create['value'];
+        $purchased_voucher_to_create['code'] = self::generateVoucherCode($voucher_parameter_object->voucher_type);
+        
+        // Convert local time to UTC time in order to save it in DB
+        $purchased_voucher_to_create['delivery_date'] = g::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s');
+        
+//        expiry date
+        if ( !empty($voucher_parameter_object->valid_until->year) && ($voucher_parameter_object->valid_until->year !== -1) ) {
+            $purchased_voucher_to_create['expiry_date'] = $voucher_parameter_object->valid_until;
+            
+        }//if ( !empty($voucher_parameter_object->valid_until) && !is_null( $voucher_parameter_object->valid_until) )
+        else {
+            $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'delivery_date' ]->copy();
+            switch ( $voucher_parameter_object->valid_for_units ) {
+                case 'd':
+                    $purchased_voucher_to_create[ 'expiry_date' ]->addDays( $voucher_parameter_object->valid_for_amount );
+                    break;
+                case 'w':
+                    $purchased_voucher_to_create[ 'expiry_date' ]->addWeeks( $voucher_parameter_object->valid_for_amount );
+                    break;
+                case 'm':
+                    $purchased_voucher_to_create[ 'expiry_date' ]->addMonths( $voucher_parameter_object->valid_for_amount );
+                    break;
+                default:
+            } // switch
+            // -1 second
+            $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'expiry_date' ]->subSeconds( 1 ); // toDateTimeString();
+        }
+        
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        if($purchased_voucher = Voucher::create($purchased_voucher_to_create)){
+            $voucher_parameter_update_data = [
+              'is_purchased'  => TRUE,
+                'purchased_quantity' => $voucher_parameter_object->purchased_quantity+1
+            ];
+            $voucher_parameter_object->update($voucher_parameter_update_data);
+            \Illuminate\Support\Facades\DB::commit();
+            return $purchased_voucher;
+        }//if(Voucher::create($purchased_voucher_to_create))
+        else{
+            \Illuminate\Support\Facades\DB::rollBack();
+            return array('error');
+        }
     }
 
     /**
@@ -97,6 +135,38 @@ class VouchersController extends ApiController {
      */
     public function destroy( $id ) {
         //
+    }
+    
+//    Helper Methods
+    
+    public static function generateVoucherCode($voucher_param_type) {
+        switch ( $voucher_param_type ) {
+            case 'gift':
+                $code = '3';
+                break;
+            case 'concession':
+                $code = '4';
+                break;
+            case 'deal':
+                $code = '5';
+                break;
+            case 'birthday':
+                $code = '6';
+                break;
+            case 'discount':
+                $code = '7';
+                break;
+        }//switch ( $voucher_param_type )
+        $code .= mt_rand(00000001, 99999999); // better than rand()
+        // call the same function if the barcode exists already
+        if (Voucher::where('code', '=', $code)->exists()) {
+            return self::generateVoucherCode($voucher_param_type);
+        }//if (Voucher::where('code', '=', $code)->exists())
+        if (strlen($code) < 9) {
+            return self::generateVoucherCode($voucher_param_type);
+        }
+        // otherwise, it's valid and can be used
+        return $code;
     }
 
 }
