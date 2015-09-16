@@ -54,6 +54,12 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'Purchase.instorePurchase'
     ));
     
+//    VoucherValidationLog Routes
+    Route::post('VoucherValidationLog/validateVoucher', [
+        'uses' => 'VoucherValidationLogController@validateVoucher',
+        'as' => 'VoucherValidationLog.validate'
+    ]);
+    
     Route::resource('authenticate', 'AuthenticateController', ['only' => ['index']]);
     Route::post('authenticate', 'AuthenticateController@authenticate');
 });
