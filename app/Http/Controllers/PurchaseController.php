@@ -45,13 +45,13 @@ class PurchaseController extends ApiController{
         foreach ( $request->get('data') as $purchased_voucher) {
             $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
 //            todo sending virtual voucher according to purchased voucher info
-//            todo prepare reciept for all purchased voucher
+//            todo prepare receipt for all purchased voucher
         }//foreach ( $request->get('data') as $purchased_voucher)
     }
     
     /**
-     * Create purchased voucher
-     * @param object $purchased_voucher_object
+     * Create purchased voucher In Database (vouchers table)
+     * @param object $purchased_voucher
      */
     private function createPurchasedVoucher( $purchased_voucher ) {
         $purchased_voucher_to_create = [
