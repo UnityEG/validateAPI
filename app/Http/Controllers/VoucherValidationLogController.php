@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+//Requests
 use Illuminate\Http\Request;
+use App\Http\Requests\ValidateVoucherRequest;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+//Controllers
+use App\Http\Controllers\ApiController;
 
-class VoucherValidationLogsController extends Controller
+class VoucherValidationLogController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -35,9 +37,15 @@ class VoucherValidationLogsController extends Controller
      * @param  Request  $request
      * @return Response
      */
-    public function store(Request $request)
+    public function validateVoucher(  ValidateVoucherRequest $request)
     {
-        //
+        $voucher_validate_log_data['voucher_id'] = (int)$request->get('data')['relations']['voucher']['voucher_id'];
+        $voucher_validate_log_data['value'] = ($request->get('data')['value']);
+//        todo continue preparing data ('business_id', 'user_id', 'balance', 'log')
+        $voucher_object = Voucher::find($voucher_validate_log_data['voucher_id']);
+        $new_balance = $voucher_object->balance - $voucher_validate_log_data['value'];
+//        todo update voucher information (status, balance, validation_times, last_validation_date)
+        
     }
 
     /**
