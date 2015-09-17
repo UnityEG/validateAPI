@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-//Controllers
 use App\Http\Controllers\ApiController;
-//Models
 use App\Http\Models\Voucher;
+use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ValidateVoucherRequest extends Request {
 
@@ -25,18 +25,14 @@ class ValidateVoucherRequest extends Request {
      * @return array
      */
     public function rules() {
+//        Expire validation rule
+        $this->expireVoucherValidationRule();
 //        Balance validation rule
-        \Illuminate\Support\Facades\Validator::extend( 'max_redeem_value', function($attribute, $value, $parameters) {
-            $voucher_object = Voucher::find( $parameters[ 0 ] );
-            if ( !is_null( $voucher_object ) ) {
-                return ($voucher_object->balance >= (double)$value);
-            }//if ( !is_null( $voucher_object ) )
-            return FALSE;
-        } );
-
+        $this->maxRedeemValueValidationRule();
         $voucher_validation_rules = [
-            "data.value"                        => 'required|numeric|min:1|max_redeem_value:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ][ 'voucher_id' ],
-            "data.relations.voucher.voucher_id" => ['required', 'integer', 'exists:vouchers,id' ]
+            "data.value"                        => 'required|numeric|min:1|max_redeem_value:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ][ 'voucher_id' ].'|voucher_expire:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ][ 'voucher_id' ],
+            "data.relations.voucher.voucher_id" => ['required', 'integer', 'exists:vouchers,id' ],
+            "data.relations.business.business_id" => ['required', 'integer', 'exists:business,id']
         ];
 
         return $voucher_validation_rules;
@@ -52,6 +48,7 @@ class ValidateVoucherRequest extends Request {
             'data.value.numeric'                         => 'Value must be a valid number',
             'data.value.min'                             => 'Value must be greater than zero',
             'max_redeem_value'                           => 'not enough balance',
+            'voucher_expire' => 'This voucher is invalid',
             'data.relations.voucher.voucher_id.required' => 'voucher_id is required',
             'data.relations.voucher.voucher_id.integer'  => 'voucher_id must be integer',
             'data.relations.voucher.voucher_id.exists'   => 'voucher_id does not exist'
@@ -71,6 +68,31 @@ class ValidateVoucherRequest extends Request {
         return $this->redirector->to( $this->getRedirectUrl() )
                         ->withInput( $this->except( $this->dontFlash ) )
                         ->withErrors( $errors, $this->errorBag );
+    }
+    
+//    Helper methods
+    
+    /**
+     * voucher_expire custom validation rule
+     */
+    private function expireVoucherValidationRule(  ) {
+        Validator::extend('voucher_expire', function($attribute, $value, $parameters){
+            $voucher_object = Voucher::find($parameters[0]);
+            return ('valid' === $voucher_object->status) ? TRUE : FALSE;
+        });
+    }
+    
+    /**
+     * max_redeem_value custom validation rule
+     */
+    private function maxRedeemValueValidationRule( ) {
+        Validator::extend( 'max_redeem_value', function($attribute, $value, $parameters) {
+            $voucher_object = Voucher::find( $parameters[ 0 ] );
+            if ( !is_null( $voucher_object ) ) {
+                return ($voucher_object->balance >= (double)$value);
+            }//if ( !is_null( $voucher_object ) )
+            return FALSE;
+        } );
     }
 
 }
