@@ -29,7 +29,7 @@ class PurchaseRequest extends Request {
             $rules_to_merge = [
                 'data.'.$key.'.relations.user.data.user_id' => 'required|integer|exists:users,id',
                 'data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id' => 'required|integer|exists:voucher_parameters,id',
-               'data.'.$key.'.value'                => 'sometimes|required|numeric',
+               'data.'.$key.'.value'                => 'required|numeric|min:1',
                 'data.'.$key.'.delivery_date'        => 'date_format:d/m/Y',
                 'data.'.$key.'.recipient_email'      => 'email',
                 'data.'.$key.'.message'              => 'string',
