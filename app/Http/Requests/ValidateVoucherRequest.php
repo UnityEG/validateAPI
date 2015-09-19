@@ -30,9 +30,9 @@ class ValidateVoucherRequest extends Request {
 //        Balance validation rule
         $this->maxRedeemValueValidationRule();
         $voucher_validation_rules = [
-            "data.value"                        => 'required|numeric|min:1|max_redeem_value:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ][ 'voucher_id' ].'|voucher_expire:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ][ 'voucher_id' ],
-            "data.relations.voucher.voucher_id" => ['required', 'integer', 'exists:vouchers,id' ],
-            "data.relations.business.business_id" => ['required', 'integer', 'exists:business,id']
+            "data.value"=> 'required|numeric|min:1|max_redeem_value:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ]['data'][ 'voucher_id' ].'|voucher_expire:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ]['data'][ 'voucher_id' ],
+            "data.relations.voucher.data.voucher_id" => ['required', 'integer', 'exists:vouchers,id' ],
+            "data.relations.business.data.business_id" => ['required', 'integer', 'exists:business,id']
         ];
 
         return $voucher_validation_rules;
