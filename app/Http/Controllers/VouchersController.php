@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests;
-//Controllers
+use App\aaa\g;
 use App\Http\Controllers\ApiController;
-//Models
 use App\Http\Models\Voucher;
 use App\Http\Models\VoucherParameter;
-
-//helpers
-use App\aaa\g;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class VouchersController extends ApiController {
 
@@ -74,18 +72,18 @@ class VouchersController extends ApiController {
             $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'expiry_date' ]->subSeconds( 1 ); // toDateTimeString();
         }
         
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         if($purchased_voucher = Voucher::create($purchased_voucher_to_create)){
             $voucher_parameter_update_data = [
               'is_purchased'  => TRUE,
                 'purchased_quantity' => $voucher_parameter_object->purchased_quantity+1
             ];
             $voucher_parameter_object->update($voucher_parameter_update_data);
-            \Illuminate\Support\Facades\DB::commit();
+            DB::commit();
             return $purchased_voucher;
         }//if(Voucher::create($purchased_voucher_to_create))
         else{
-            \Illuminate\Support\Facades\DB::rollBack();
+            DB::rollBack();
             return array('error');
         }
     }
@@ -99,7 +97,7 @@ class VouchersController extends ApiController {
     public function show( $id ) {
         try {
             $voucher_object = Voucher::findOrFail( $id );
-        } catch ( \Exception $ex ) {
+        } catch ( Exception $ex ) {
             return $this->respondNotFound( $ex->getMessage() );
         }
 
