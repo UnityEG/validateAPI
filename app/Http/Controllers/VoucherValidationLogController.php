@@ -68,8 +68,8 @@ class VoucherValidationLogController extends ApiController
      */
     public function validateVoucher(  ValidateVoucherRequest $request)
     {
-        $voucher_validation_log_data['voucher_id'] = (int)$request->get('data')['relations']['voucher']['voucher_id'];
-        $voucher_validation_log_data['business_id'] = (int)$request->get('data')['relations']['business']['business_id'];
+        $voucher_validation_log_data['voucher_id'] = (int)$request->get('data')['relations']['voucher']['data']['voucher_id'];
+        $voucher_validation_log_data['business_id'] = (int)$request->get('data')['relations']['business']['data']['business_id'];
         $voucher_validation_log_data['value'] = ($request->get('data')['value']);
 //        todo continue preparing data ( 'user_id') from current logged in user
 //        get voucher object related to the current validation process
