@@ -48,9 +48,9 @@ class AuthenticateController extends Controller {
         $data = array_map(function ($item) {
             return [
                 'id' => $item['id'],
-                'user_type' => $item['user_type'],
+//                'user_type' => $item['user_type'],
                 'email' => $item['email'],
-                'active' => (boolean) $item['active'],
+//                'active' => (boolean) $item['active'],
             ];
         }, $user);
 
