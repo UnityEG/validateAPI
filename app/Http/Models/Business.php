@@ -42,5 +42,24 @@ class Business extends Model {
     public function voucherValidationLogs( ) {
         return $this->hasMany('App\Http\VoucherValidationLog', 'business_id', 'id');
     }
+    
+    /**
+     * Relationship between Business Model and BusinessLogo Model (one to many)
+     * @return object
+     */
+    public function businessLogos( ) {
+        return $this->hasMany('App\Http\Models\BusinessLogo', 'business_id', 'id');
+    }
+    
+    
+//    Helpers
+    
+    /**
+     * Get Active logo object for the business
+     * @return object
+     */
+    public function getActiveLogo( ) {
+        return $this->businessLogos()->where('id', $this->logo_id)->first();
+    }
 
 }
