@@ -73,31 +73,30 @@ class PurchaseController extends ApiController{
         return $data;
     }
     
-    private function getDataForEmail($gv) {
+    private function getDataForEmail(Voucher $purchased_voucher_object) {
         
-        // todo Fix Gathering Data for email
-        $business_logo = '';//todo get business logo_id from business table
-        $m_logo_filename = (is_object($business_logo)) ? 'images/merchant/logos/' . $business_logo->pic . '.' . $business_logo->extension : 'voucher/images/validate_logo.png';
+        $business_logo_object = $purchased_voucher_object->voucherParameter->business->getActiveLogo();
+//        todo add folders in assets to hold both merchant logos and voucher_default logo
+        $business_logo_filename = (is_object($business_logo_object)) ? 'images/merchant/logos/' . $business_logo_object->name . '.' . $business_logo_object->extension : 'voucher/images/validate_logo.png';
         // get Gift Vouchers Parameter Terms Of Use
-        $x = '';//todo get use terms related to voucher parameter of the purchased voucher
-        $TermsOfUse = implode(' ● ', $terms);
-        //
+        $terms_of_use_objects = $purchased_voucher_object->voucherParameter->useTerms()->get(['name'])->toArray();//todo get use terms related to voucher parameter of the purchased voucher
+        $terms_of_use = implode(' ● ', array_pluck($terms_of_use_objects, 'name'));
         //
         $data = array(
-            'm_logo_filename' => $m_logo_filename,
-            'qr_code' => $gv->qr_code,
-            'delivery_date' => $gv->delivery_date,
-            'expiry_date' => $gv->expiry_date,
-            'voucher_value' => $gv->voucher_value,
-            'merchant_business_name' => $gv->parameter->merchant->business_name,
-            'voucher_title' => $gv->parameter->Title,
-            'TermsOfUse' => $TermsOfUse,
-            'merchant_business_address1' => $gv->parameter->merchant->address1,
-            'merchant_business_phone' => $gv->parameter->merchant->phone,
-            'merchant_business_website' => $gv->parameter->merchant->website,
-            'recipient_email' => $gv->recipient_email,
-            'customer_name' => $gv->customer->getName(),
-            'customer_email' => $gv->customer->user->email,
+            'm_logo_filename' => $business_logo_filename,
+            'qr_code' => $purchased_voucher_object->code,
+            'delivery_date' => $purchased_voucher_object->delivery_date,
+            'expiry_date' => $purchased_voucher_object->expiry_date,
+            'voucher_value' => $purchased_voucher_object->value,
+            'merchant_business_name' => $purchased_voucher_object->voucherParameter->business->business_name,
+            'voucher_title' => $purchased_voucher_object->voucherParameter->title,
+            'TermsOfUse' => $terms_of_use,
+            'merchant_business_address1' => $purchased_voucher_object->voucherParameter->business->address1,
+            'merchant_business_phone' => $purchased_voucher_object->voucherParameter->business->phone,
+            'merchant_business_website' => $purchased_voucher_object->voucherParameter->business->website,
+            'recipient_email' => $purchased_voucher_object->recipient_email,
+            'customer_name' => $purchased_voucher_object->user->getName(),
+            'customer_email' => $purchased_voucher_object->user->email,
         );
         //
         return $data;
