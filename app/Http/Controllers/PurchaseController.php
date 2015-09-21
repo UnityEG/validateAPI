@@ -26,7 +26,21 @@ class PurchaseController extends ApiController{
         $this->voucher_controller = $voucher_controller;
     }
     
-//    todo OnlinePurchase method
+    /**
+     * Purchase vouchers online
+     * @param PurchaseRequest $request
+     */
+    public function onlinePurchase(PurchaseRequest $request ) {
+//        todo go with the request to the payment gateway and wait for the response
+        foreach ( $request->get('data') as $purchased_voucher) {
+            $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
+            $this->sendVirtualVoucherMail($purchased_voucher_object);
+//            todo prepare receipt for all purchased voucher
+            $this->vouchersReceipt($purchased_voucher_object);
+        }//foreach ( $request->get('data') as $purchased_voucher)
+//      todo get total value
+//        todo send receipt email to the customer
+    }
     
     /**
      * Purchase vouchers instore
@@ -34,11 +48,7 @@ class PurchaseController extends ApiController{
      */
     public function instorePurchase(PurchaseRequest $request) {
 //        todo decisions to make with instorePurchase
-        foreach ( $request->get('data') as $purchased_voucher) {
-            $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
-            $this->generateVirtualVoucher($purchased_voucher_object);
-//            todo prepare receipt for all purchased voucher
-        }//foreach ( $request->get('data') as $purchased_voucher)
+        
     }
     
     /**
@@ -69,14 +79,12 @@ class PurchaseController extends ApiController{
         // Add $voucher_filename to $data array
         $data['voucher_filename'] = $voucher_filename;
         //
-        dd($data);
         return $data;
     }
     
     private function getDataForEmail(Voucher $purchased_voucher_object) {
         
         $business_logo_object = $purchased_voucher_object->voucherParameter->business->getActiveLogo();
-//        todo add folders in assets to hold both merchant logos and voucher_default logo
         $business_logo_filename = (is_object($business_logo_object)) ? 'images/merchant/logos/' . $business_logo_object->name . '.' . $business_logo_object->extension : 'voucher/images/validate_logo.png';
         // get Gift Vouchers Parameter Terms Of Use
         $terms_of_use_objects = $purchased_voucher_object->voucherParameter->useTerms()->get(['name'])->toArray();//todo get use terms related to voucher parameter of the purchased voucher
@@ -100,6 +108,53 @@ class PurchaseController extends ApiController{
         );
         //
         return $data;
+    }
+    
+    
+    private function sendVirtualVoucherMail(Voucher $purchased_voucher_object, $MailBodyView='email.vouchers.virtualVoucher') {
+        //
+        // Generate Virtual Voucher
+        $data = $this->generateVirtualVoucher($purchased_voucher_object);
+        //
+        
+            $data['email_to_email'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_email'];
+            $data['email_to_name'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_name'];
+        
+//        echo '<pre>';
+//        dd($data);
+        // extract $data array as variables
+        extract($data);
+        // 
+        if (ini_get('max_execution_time') < 180) {
+            ini_set('max_execution_time', 180);
+        }
+        // Send Mail with virtual voucher image attached
+        \Mail::queue($MailBodyView, $data, function($message) use ($data, $voucher_filename) {
+            //
+            $message->to($data['email_to_email'], $data['email_to_name'])->subject('Validate Voucher');
+            //$message->to('shadymag@gmail.com', 'customer_name')->subject('Voucher Purchased'); // for Testing
+            $message->attach($voucher_filename);
+        });
+        // 
+        // For security delete virtual voucher file after use it
+        $this->unlinkVirtualVoucher($voucher_filename);
+    }
+    
+    private function unlinkVirtualVoucher($voucher_filename) {
+        //
+        // For security delete virtual voucher file after use it
+        if (file_exists($voucher_filename)) {
+            unlink($voucher_filename);
+        }
+    }
+
+    public function vouchersReceipt(  Voucher $purchased_voucher_object ) {
+//        todo calculate total value for all vouchers every iteration
+        $receipt_data[] = [
+            'voucher_title' => $purchased_voucher_object->voucherParameter->title,
+            'voucher_value' => $purchased_voucher_object->value,
+            'recipient_email' => $purchased_voucher_object->recipient_email 
+        ];
     }
 
 }
