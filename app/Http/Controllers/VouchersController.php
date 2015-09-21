@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class VouchersController extends ApiController {
 
@@ -42,6 +43,7 @@ class VouchersController extends ApiController {
     public function store( $purchased_voucher_to_create ) {
         $voucher_parameter_object = VoucherParameter::find($purchased_voucher_to_create['voucher_parameter_id']);
         $purchased_voucher_to_create['is_gift'] = ($voucher_parameter_object->voucher_type == 'gift') ? TRUE : FALSE;
+        $purchased_voucher_to_create['recipient_email'] = (!empty($purchased_voucher_to_create['recipient_email'])) ? $purchased_voucher_to_create['recipient_email'] : JWTAuth::parseToken()->authenticate()->email;
         $purchased_voucher_to_create['status'] = 'valid';
         $purchased_voucher_to_create['balance'] = $purchased_voucher_to_create['value'];
         $purchased_voucher_to_create['code'] = self::generateVoucherCode($voucher_parameter_object->voucher_type);
@@ -71,7 +73,7 @@ class VouchersController extends ApiController {
             // -1 second
             $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'expiry_date' ]->subSeconds( 1 ); // toDateTimeString();
         }
-        
+        dd($purchased_voucher_to_create);
         DB::beginTransaction();
         if($purchased_voucher = Voucher::create($purchased_voucher_to_create)){
             $voucher_parameter_update_data = [
