@@ -23,7 +23,7 @@ class PurchaseRequest extends Request {
      * @return array
      */
     public function rules() {
-//        dd($this->request->get( 'data' )[0]['relations']['user']['data']['user_id']);
+//        dd($this->request->get( 'data' )[0]['recipient_email']);
         $rules = [];
         foreach ( $this->request->get( 'data' ) as $key=>$voucher_to_purchase ) {
             $rules_to_merge = [

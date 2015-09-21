@@ -102,12 +102,12 @@ class GiftVoucherValidationController extends ApiController {
      */
     public function store(Request $request) {
         //
-        // TODO: Authorization Check
+        //  Authorization Check
 //        if (!g::has('Gift Voucher Validation - Create')) {
 //            return g::back();
 //        }
         // Read Input ==========================================================
-        $input = Input::all(); // except('xxx'); // only('xxx');
+        $input = Input::all(); 
         // Validate Input ======================================================
         // Set Validation Rules
         $rules = [
@@ -146,7 +146,6 @@ class GiftVoucherValidationController extends ApiController {
         // check if Gift Voucher exseeds its NoOfUses limit
         if ($GiftVoucher->parameter->NoOfUses != null) { // if voucher is limited use
             if ($GiftVoucher->used_times >= $GiftVoucher->parameter->NoOfUses) {
-// TODO: update $GiftVoucher['status'] to be 2; // Validated 
                 // Response bad request with error description
                 return $this->respondBadRequest('The gift voucher Allowed Validations limit reached.');
             }
@@ -170,7 +169,7 @@ class GiftVoucherValidationController extends ApiController {
         // Gathering data
         // at this point items in $input array are: giftvoucher_id, value 
         $input['user_id'] = Auth::user()->id;
-        $input['date'] = date("Y-m-d H:i:s"); // TODO: no need created_at field is enough
+        $input['date'] = date("Y-m-d H:i:s"); //  no need created_at field is enough
         $input['balance'] = $GiftVoucher->voucher_balance - $input['value'];
         // build log string ----------------------------------------------------
         $isValidated = false;

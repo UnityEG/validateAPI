@@ -49,6 +49,11 @@ Route::group(['prefix' => 'v1'], function() {
     Route::resource('VoucherParameters', 'VoucherParametersController');
     
 //    Purchase Routes
+    
+    Route::post('Purchase/onlinePurchase', [
+        'uses' => 'PurchaseController@onlinePurchase',
+        'as' => 'Purchase.onlinePurchase'
+    ]);
     Route::post('Purchase/instorePurchase', array(
         'uses' => 'PurchaseController@instorePurchase',
         'as' => 'Purchase.instorePurchase'

@@ -107,7 +107,7 @@ class GiftVouchersController extends ApiController {
           if (!g::has($this->controllerTitle . ' - Check'))
           return g::back();
           //
-          $input = Input::all(); // all() // except('xxx'); // only('xxx');
+          $input = Input::all(); // all() 
 
           $rules = array('qr_code' => 'required|numeric|digits:9');
           $messages = array(
@@ -137,7 +137,7 @@ class GiftVouchersController extends ApiController {
     }
 
     public function findByMerchant($UserId) {
-        // TODO: refactor select string, it used in findByMerchant and findByMerchantAndStatus
+        //  refactor select string, it used in findByMerchant and findByMerchantAndStatus
         //
         $GiftVouchers = DB::select('select '
                         . 'gv.* '
@@ -163,7 +163,7 @@ class GiftVouchersController extends ApiController {
     }
 
     public function findByMerchantAndStatus($UserId, $StatusId) {
-        // TODO: refactor select string, it used in findByMerchant and findByMerchantAndStatus
+        //  refactor select string, it used in findByMerchant and findByMerchantAndStatus
         //
         $GiftVouchers = DB::select('select '
                         . 'gv.* '
