@@ -65,5 +65,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function voucherValidationLogs( ) {
         return $this->hasMany('App\Http\Models\VoucherValidationLog', 'user_id', 'id');
     }
+    
+    
+//    Helpers
+    
+    /**
+     * Get Formal user full name
+     * @return string
+     */
+    public function getName( ) {
+        return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name);
+    }
 
 }
