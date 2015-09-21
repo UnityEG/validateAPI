@@ -1,7 +1,10 @@
 <?php
 
 namespace App\aaa;
+
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
 class g {
 
     public static function has( $rule_name = null ) {
@@ -134,7 +137,7 @@ class g {
         $filename   = public_path( $image_name );
         //
         // Generate PNG file
-        QRcode::png( $code, $filename, QR_ECLEVEL_H, 4 );
+        \QRcode::png( $code, $filename, QR_ECLEVEL_H, 4 );
         //
         // return PNG file name
         if ( file_exists( $filename ) ) {
@@ -165,7 +168,7 @@ class g {
     }
 
     public static function voucher( $data ) {
-        //
+        //todo fix paths to different assets in public folder
         // Get variable names and values from data array
         extract( $data );
         //
