@@ -21,13 +21,10 @@ return [
     |
     | Specify the length of time (in minutes) that the token will be valid for.
     | Defaults to 1 hour
-    | 
-    | Shady: 518400 (360 days)
-    | Shady: 20160 (2 weeks)
     |
     */
 
-    'ttl' => 518400,
+    'ttl' => 60,
 
     /*
     |--------------------------------------------------------------------------
