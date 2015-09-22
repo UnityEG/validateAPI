@@ -7,6 +7,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\VouchersController;
 use App\Http\Models\Voucher;
 use App\Http\Requests\PurchaseRequest;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Description of PurchaseController
@@ -35,11 +36,10 @@ class PurchaseController extends ApiController{
         foreach ( $request->get('data') as $purchased_voucher) {
             $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
             $this->sendVirtualVoucherMail($purchased_voucher_object);
-//            todo prepare receipt for all purchased voucher
-            $this->vouchersReceipt($purchased_voucher_object);
+            $receipt_data[] =$this->vouchersReceipt($purchased_voucher_object);
+            $total_value = (!isset($total_value))? $purchased_voucher_object->value : $total_value + $purchased_voucher_object->value;
         }//foreach ( $request->get('data') as $purchased_voucher)
-//      todo get total value
-//        todo send receipt email to the customer
+        $this->sendReceiptMailToCustomer($receipt_data, $total_value);
     }
     
     /**
@@ -147,14 +147,38 @@ class PurchaseController extends ApiController{
             unlink($voucher_filename);
         }
     }
-
+    
+    /**
+     * Prepare receipt data
+     * @param Voucher $purchased_voucher_object
+     * @return array
+     */
     public function vouchersReceipt(  Voucher $purchased_voucher_object ) {
-//        todo calculate total value for all vouchers every iteration
-        $receipt_data[] = [
+        return [
             'voucher_title' => $purchased_voucher_object->voucherParameter->title,
-            'voucher_value' => $purchased_voucher_object->value,
-            'recipient_email' => $purchased_voucher_object->recipient_email 
+            'voucher_value' => g::formatCurrency($purchased_voucher_object->value),
+            'recipient_email' => $purchased_voucher_object->recipient_email ,
+            'delivery_date' => g::formatDate($purchased_voucher_object->delivery_date),
+            'expiry_date' => g::formatDate($purchased_voucher_object->expiry_date)
         ];
+        
+    }
+    
+    /**
+     * Send receipt mail to the customer
+     * @param array $receipt_data
+     * @param integer $total_value
+     */
+    public function sendReceiptMailToCustomer( $receipt_data, $total_value ) {
+        $data = [
+            'receipt_data'=>$receipt_data, 
+            'total_value'=>g::formatCurrency($total_value),
+            'customer_mail'=>JWTAuth::parseToken()->authenticate()->email
+                ];
+        \Mail::queue('email.vouchers.receipt', $data, function($message) use ($data) {
+            extract($data);
+            $message->to($customer_mail)->subject('Validate Vouchers Receipt');
+        });
     }
 
 }
