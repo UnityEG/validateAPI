@@ -14,7 +14,7 @@ class PurchaseRequest extends Request {
      * @return bool
      */
     public function authorize() {
-        return true;
+        return \Tymon\JWTAuth\Facades\JWTAuth::parseToken()->authenticate()->hasRule('purchase_voucher');
     }
 
     /**
