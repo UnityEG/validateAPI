@@ -5,6 +5,7 @@
         "This file is @generated automatically"
     ],
     "hash": "e5b63a05bd28778a2d8604ae4bf074f2",
+    "content-hash": "3f93e5fbf45bf44bbcd4d37ff6f8c8b8",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -338,16 +339,16 @@
         },
         {
             "name": "intervention/imagecache",
-            "version": "2.3.2",
+            "version": "2.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/imagecache.git",
-                "reference": "433585e8b77d0c3bef9ae332c53aa7fabdc6359e"
+                "reference": "7936b90e695daee1aafbd25221815352ef97bcbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/imagecache/zipball/433585e8b77d0c3bef9ae332c53aa7fabdc6359e",
-                "reference": "433585e8b77d0c3bef9ae332c53aa7fabdc6359e",
+                "url": "https://api.github.com/repos/Intervention/imagecache/zipball/7936b90e695daee1aafbd25221815352ef97bcbc",
+                "reference": "7936b90e695daee1aafbd25221815352ef97bcbc",
                 "shasum": ""
             },
             "require": {
@@ -387,7 +388,7 @@
                 "imagick",
                 "laravel"
             ],
-            "time": "2015-08-11 15:59:42"
+            "time": "2015-09-22 15:22:47"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -2805,16 +2806,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.8",
+            "version": "4.8.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "521720279261e5b14799cf1bb895d4b55e516f26"
+                "reference": "73fad41adb5b7bc3a494bb930d90648df1d5e74b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/521720279261e5b14799cf1bb895d4b55e516f26",
-                "reference": "521720279261e5b14799cf1bb895d4b55e516f26",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/73fad41adb5b7bc3a494bb930d90648df1d5e74b",
+                "reference": "73fad41adb5b7bc3a494bb930d90648df1d5e74b",
                 "shasum": ""
             },
             "require": {
@@ -2873,7 +2874,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-09-19 05:44:37"
+            "time": "2015-09-20 12:56:44"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

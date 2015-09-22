@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Controllers\ApiController;
 use App\Http\Requests\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ApiController;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PurchaseRequest extends Request {
 
@@ -14,7 +15,7 @@ class PurchaseRequest extends Request {
      * @return bool
      */
     public function authorize() {
-        return \Tymon\JWTAuth\Facades\JWTAuth::parseToken()->authenticate()->hasRule('purchase_voucher');
+        return JWTAuth::parseToken()->authenticate()->hasRule('purchase_voucher');
     }
 
     /**

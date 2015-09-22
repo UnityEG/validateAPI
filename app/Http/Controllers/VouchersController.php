@@ -72,8 +72,7 @@ class VouchersController extends ApiController {
             } // switch
             // -1 second
             $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'expiry_date' ]->subSeconds( 1 ); // toDateTimeString();
-        }
-        dd($purchased_voucher_to_create);
+        }//else
         DB::beginTransaction();
         if($purchased_voucher = Voucher::create($purchased_voucher_to_create)){
             $voucher_parameter_update_data = [
