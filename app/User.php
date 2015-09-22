@@ -66,6 +66,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany('App\Http\Models\VoucherValidationLog', 'user_id', 'id');
     }
     
+    /**
+     * Relationship between User Model and UserGroup Model (many to many)
+     * @return object
+     */
+    public function userGroups( ) {
+        return $this->belongsToMany('App\Http\Models\UserGroup', 'users_user_groups_rel', 'user_id', 'user_group_id');
+    }
+    
     
 //    Helpers
     
@@ -75,6 +83,21 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function getName( ) {
         return ucfirst($this->first_name) . ' ' . ucfirst($this->last_name);
+    }
+    
+    /**
+     * check if user has the rule or not
+     * @param string $rule_name
+     * @return boolean
+     */
+    public function hasRule( $rule_name) {
+        $user_groups = $this->userGroups;
+        foreach ( $user_groups as $user_group) {
+            if(is_object($user_group->rules()->where('name', $rule_name)->first())){
+                return TRUE;
+            }
+        }
+        return FALSE;
     }
 
 }
