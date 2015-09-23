@@ -7,11 +7,12 @@ use App\aaa\Transformers\Transformer;
 class VoucherParametersTransformer extends Transformer {
 
     function transform( $item ) {
+        return ["data"=>$this->beforeStandard( $item )];
+    }
+    
+    public function beforeStandard( $item ) {
         return [
             'id'                    => ( string ) $item[ 'id' ],
-            'business_id'           => ( string ) $item[ 'business_id' ],
-            'user_id'               => ( string ) $item[ 'user_id' ],
-            'voucher_image_id'      => ( string ) $item[ 'voucher_image_id' ],
             'voucher_type'          => ( string ) $item[ 'voucher_type' ],
             'title'                 => ( string ) $item[ 'title' ],
             'purchase_start'        => ( string ) $item[ 'purchase_start' ],
@@ -37,6 +38,23 @@ class VoucherParametersTransformer extends Transformer {
             'discount_percentage'   => ( string ) $item[ 'discount_percentage' ],
             'created_at'            => ( string ) $item[ 'created_at' ],
             'updated_at'            => ( string ) $item[ 'updated_at' ],
+            "relations"             => [
+                "user"          => [
+                    "data" => [
+                        'user_id' => ( string ) $item[ 'user_id' ],
+                    ]
+                ],
+                "business"      => [
+                    "data" => [
+                        'business_id' => ( string ) $item[ 'business_id' ],
+                    ]
+                ],
+                "voucher_image" => [
+                    "data" => [
+                        'voucher_image_id' => ( string ) $item[ 'voucher_image_id' ],
+                    ]
+                ],
+            ]
         ];
     }
 
