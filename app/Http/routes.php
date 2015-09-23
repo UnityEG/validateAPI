@@ -47,6 +47,17 @@ Route::group(['prefix' => 'v1'], function() {
         'uses' => 'VoucherParametersController@index'
     ]);
     Route::resource('VoucherParameters', 'VoucherParametersController');
+    Route::get('VoucherParameters/title/{voucher_title}', [
+        'uses' => 'VoucherParametersController@searchByVoucherTitle',
+        'as' => 'VoucherParameter.searchByVoucherTitle'
+    ]);
+    Route::get('VoucherParameters/business-name/{business_name}', [
+        'uses' => 'VoucherParametersController@searchByBusinessName',
+        'as' => 'VoucherParameters.searchByBusinessName'
+    ]);
+    
+//    VoucherImages Routes
+    Route::resource('VoucherImages', 'VoucherImagesController');
     
 //    Purchase Routes
     
