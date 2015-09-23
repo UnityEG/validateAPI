@@ -2,23 +2,18 @@
 
 namespace App\Http\Controllers;
 
-//Validations
-use App\Http\Requests;
-use App\Http\Requests\Vouchers\VoucherParameters\CreateVoucherParametersRequest as CreateRequest;
-use App\Http\Requests\Vouchers\VoucherParameters\UpdateVoucherParametersRequest as UpdateRequest;
-
-//Controllers
-use App\Http\Controllers\ApiController;
-
-//Models
-use App\Http\Models\VoucherParameter as VoucherParameter;
-use App\Http\Models\UseTerm as UseTerm;
-
-//Helpers
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\aaa\g;
 use App\aaa\Transformers\VoucherParametersTransformer;
+use App\Http\Controllers\ApiController;
+use App\Http\Models\Business;
+use App\Http\Models\VoucherParameter;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use SebastianBergmann\RecursionContext\Exception;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+
 
 class VoucherParametersController extends ApiController
 {
@@ -68,18 +63,18 @@ class VoucherParametersController extends ApiController
         
         $input = $this->storeUpdateHelper($input_before);
         
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         if ( !is_array( $input ) ) {
             return $input;
         }
         if($created_voucher_parameters = VoucherParameter::create( $input )){
         
         $created_voucher_parameters->useTerms()->attach($request->get('use_terms'));
-        \Illuminate\Support\Facades\DB::commit();
+        DB::commit();
             return $created_voucher_parameters;
         }//if($created_voucher_parameters = VoucherParameter::create( $input ))
         else{
-            \Illuminate\Support\Facades\DB::rollBack();
+            DB::rollBack();
             return array('error');
         }
         
@@ -95,11 +90,9 @@ class VoucherParametersController extends ApiController
     {
         try{
             $voucher_parameter_object = VoucherParameter::findOrFail($id);
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
                 return $this->respondNotFound($ex->getMessage());
         }//catch (\Exception $ex)
-        
-        
         return $this->respond($this->voucherParameterTransformer->transform($voucher_parameter_object->toArray()));
     }
 
@@ -115,9 +108,9 @@ class VoucherParametersController extends ApiController
             $voucher_parameter_object = VoucherParameter::findOrFail($id);
             
             if ( $voucher_parameter_object->is_purchased ) {
-                throw new \Exception('This voucher has been sold you cannot update it' );
+                throw new Exception('This voucher has been sold you cannot update it' );
             }//if ( $voucher_parameter_object->is_purchased )
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return $this->respondNotFound($ex->getMessage());
         }
         
@@ -135,7 +128,7 @@ class VoucherParametersController extends ApiController
     {
         try{
             $voucher_parameter_object = VoucherParameter::findOrFail($id);
-        }  catch (\Exception $e){
+        }  catch (Exception $e){
             return $this->respondNotFound();
         }//catch (\Exception $e)
         if ( $voucher_parameter_object->is_purchased ) {
@@ -148,13 +141,13 @@ class VoucherParametersController extends ApiController
 //            return with error respond
             return $input;
         }//if ( !is_array( $input ) )
-        \Illuminate\Support\Facades\DB::beginTransaction();
+        DB::beginTransaction();
         if($voucher_parameter_object->update($input)){
             $voucher_parameter_object->useTerms()->sync($request->input('use_terms'));
-            \Illuminate\Support\Facades\DB::commit();
+            DB::commit();
             return $voucher_parameter_object;
         }//if($voucher_parameter_object->update($input))
-        \Illuminate\Support\Facades\DB::rollBack();
+        DB::rollBack();
         return $this->respondBadRequest('Something went wrong while updating voucher');
     }
 
@@ -247,5 +240,39 @@ class VoucherParametersController extends ApiController
         }//switch ( $input['voucher_type'])
         
         return $input;
+    }
+    
+    /**
+     * Search for voucher parameters by title
+     * @param string $voucher_title
+     * @return collection
+     */
+    public function searchByVoucherTitle( $voucher_title) {
+        $optimized_voucher_title = strtolower(urldecode($voucher_title));
+        $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
+        
+        if ( !$voucher_parameter_exist ) {
+            return $this->respond(["data"=>"No matched result"]);
+        }//if ( !$voucher_parameter_exist )
+        
+        $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get()->toArray();
+        
+        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
+    }
+    
+    /**
+     * Search for voucher parameters by business name
+     * @param string $business_name
+     * @return Json collection
+     */
+    public function searchByBusinessName( $business_name) {
+        $optimized_business_name = strtolower(urlencode($business_name));
+        $business_exist = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->exists();
+        if ( !$business_exist ) {
+            return $this->respond(["data"=>"No matched result"]);
+        }//if ( !$business_exist )
+        $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
+        $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get()->toArray();
+        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
     }
 }
