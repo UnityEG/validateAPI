@@ -14,13 +14,29 @@ namespace App\aaa\Transformers;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 abstract class Transformer {
-
+    
+    /**
+     * Transform arrays to standard JSONAPI
+     * @param array $items
+     * @return Json
+     */
     public function transformCollection(array $items) {
-        //
-//        return  $items;
-        return array_map([$this, 'transform'], $items);
+        $array_collection = ["data" =>array_map([$this, 'beforeStandard'], $items)];
+        return $array_collection;
     }
-
+    
+    /**
+     * Prepare and return with data before applying Json API standard
+     * @param array $item
+     */
+    public function beforeStandard( $item) {
+        
+    }
+    
+    /**
+     * Get data ready for send with Json API standard
+     * @param array $item
+     */
     public function transform($item){}
 
 }
