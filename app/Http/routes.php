@@ -57,7 +57,15 @@ Route::group(['prefix' => 'v1'], function() {
     ]);
     
 //    VoucherImages Routes
-    Route::resource('VoucherImages', 'VoucherImagesController');
+    Route::post('VoucherImages/storeGiftImage', [
+        'uses' => 'VoucherImagesController@storeGiftImage',
+        'as' => 'VoucherImage.storeGiftImage'
+    ]);
+    
+    Route::delete('VoucherImages/{voucher_image_id}', [
+        'uses' => 'VoucherImagesController@destroy',
+        'as' => 'VoucherImages.destroy'
+    ]);
     
 //    Purchase Routes
     
