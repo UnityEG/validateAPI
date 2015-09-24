@@ -55,20 +55,7 @@ class ValidateVoucherRequest extends Request {
         ];
     }
 
-    /**
-     * Customize Json Response
-     * @param array $errors
-     * @return JsonResponse
-     */
-    public function response( array $errors ) {
-        if ( $this->ajax() || $this->wantsJson() ) {
-            return (new ApiController() )->setStatusCode( 417 )->respondWithError( 'invalid parameters', $errors );
-        }//if ($this->ajax() || $this->wantsJson())
-
-        return $this->redirector->to( $this->getRedirectUrl() )
-                        ->withInput( $this->except( $this->dontFlash ) )
-                        ->withErrors( $errors, $this->errorBag );
-    }
+    
     
 //    Helper methods
     
