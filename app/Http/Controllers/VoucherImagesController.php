@@ -2,16 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Models\VoucherImage;
+use App\Http\Requests\Vouchers\VoucherImages\StoreVoucherImageRequest;
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
+use Intervention\Image\Facades\Image;
+use App\Http\Controllers\ApiController;
 
-class VoucherImagesController extends Controller
+class VoucherImagesController extends ApiController
 {
+    /**
+     * Default path to voucher images
+     * @var string
+     */
+    public $defaultVoucherImagesPath = 'voucher/images/default';
+
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -19,61 +29,35 @@ class VoucherImagesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Store a newly created resource in storage and save gift voucher image in default path.
      *
-     * @return \Illuminate\Http\Response
+     * @param  StoreVoucherImageRequest  $request
+     * @return Response
      */
-    public function create()
+    public function storeGiftImage( StoreVoucherImageRequest $request)
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-//        todo modify store route to accept voucher type as a parameter
-//        todo upload file on the server with default width and height
-//        todo add request rules class for store method
-        foreach ( $request->file() as $key => $value ) {
-            dd($value);
+        $gift_voucher_image_object = $request->file('voucher_image');
+        $name = $this->generateImageName();
+        $resized_image = Image::make($gift_voucher_image_object)->resize(310, 195);
+        $path = public_path( $this->defaultVoucherImagesPath. '/' . $name . '.png' );
+        if ( $resized_image->save( $path) ) {
+            if($stored_voucher_image_object = VoucherImage::create(['name'=>$name])){
+                return $this->respond(["data"=>["name"=>$stored_voucher_image_object->name]]);
+            }//if(VoucherImage::create(['name'=>$name]))
+        }//if ( $resized_image->save( $path) )
+        else{
+            return $this->respondWithError("Internal Error");
         }
+        
     }
 
     /**
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
     {
         //
     }
@@ -82,10 +66,44 @@ class VoucherImagesController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {
-        //
+        try{
+            $voucher_image_object = VoucherImage::findOrFail($id);
+            $path = public_path( $this->defaultVoucherImagesPath).'/'.$voucher_image_object->name.'.png';
+            if(unlink($path)){
+                if($voucher_image_object->delete()){
+                    return $this->respond(["data"=>["message"=>"Image has been deleted successfully"]]);
+                }//if($voucher_image_object->delete())
+                else{
+                    return $this->respondWithError("Internal Error");
+                }
+            }//if(unlink($path))
+            else{
+                return $this->respondWithError("Internal Error");
+            }
+        } catch (\Exception $ex) {
+            return $this->respondNotFound($ex->getMessage());
+        }
+    }
+    
+//    Helpers
+    
+    /**
+     * Generate Image Name as 8 random digits
+     * @return string
+     */
+    private function generateImageName() {
+        $filename = mt_rand( 10000001, 99999999 ); // better than rand()
+        // call the same function if the $filename exists already
+        if ( VoucherImage::where( 'name', $filename )->exists() ) {
+            return $this->generateImageName();
+        }
+        if ( strlen( $filename ) != 8 ) {
+            return $this->generateImageName();
+        }
+        return $filename;
     }
 }
