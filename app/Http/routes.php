@@ -57,15 +57,37 @@ Route::group(['prefix' => 'v1'], function() {
     ]);
     
 //    VoucherImages Routes
+    Route::get('VoucherImages', [
+        'uses' => 'VoucherImagesController@index',
+        'as' => 'VoucherImages.index'
+    ]);
+    
+    Route::get('VoucherImages/showGiftImages', [
+        'uses' => 'VoucherImagesController@showGiftImages',
+        'as' => 'VoucherImages.showGiftImages'
+    ]);
+    
+    Route::get('VoucherImages/showDealImages', [
+        'uses' => 'VoucherImagesController@showDealImages',
+        'as' => 'VoucherImages.showDealImages'
+    ]);
+    
     Route::post('VoucherImages/storeGiftImage', [
         'uses' => 'VoucherImagesController@storeGiftImage',
-        'as' => 'VoucherImage.storeGiftImage'
+        'as' => 'VoucherImages.storeGiftImage'
+    ]);
+    
+    Route::post('VoucherImages/storeDealImage', [
+        'uses' => 'VoucherImagesController@storeDealImage' ,
+        'as' => 'VoucherImages.storeDealImage' 
     ]);
     
     Route::delete('VoucherImages/{voucher_image_id}', [
         'uses' => 'VoucherImagesController@destroy',
         'as' => 'VoucherImages.destroy'
     ]);
+    
+    
     
 //    Purchase Routes
     
