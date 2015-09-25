@@ -4,20 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Http\Models\VoucherImage;
 use App\Http\Requests\Vouchers\VoucherImages\StoreVoucherImageRequest;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Intervention\Image\Facades\Image;
 use App\Http\Controllers\ApiController;
+use \Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\aaa\Transformers\VoucherImageTransformer;
 
 class VoucherImagesController extends ApiController
 {
+    
     /**
      * Default path to voucher images
      * @var string
      */
     public $defaultVoucherImagesPath = 'voucher/images/default';
-
-
+    
+    /**
+     * VoucherImageTransformer instance
+     * @var object
+     */
+    private $voucherImageTransformer;
+    
+    public function __construct( 
+            VoucherImageTransformer $voucher_image_transformer 
+            ) {
+        $this->voucherImageTransformer = $voucher_image_transformer;
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +38,8 @@ class VoucherImagesController extends ApiController
      */
     public function index()
     {
-        //
+        $all_image_objects = VoucherImage::all()->toArray();
+        return $this->respond($this->voucherImageTransformer->transformCollection( $all_image_objects));
     }
 
     /**
@@ -36,30 +50,32 @@ class VoucherImagesController extends ApiController
      */
     public function storeGiftImage( StoreVoucherImageRequest $request)
     {
-        $gift_voucher_image_object = $request->file('voucher_image');
-        $name = $this->generateImageName();
-        $resized_image = Image::make($gift_voucher_image_object)->resize(310, 195);
-        $path = public_path( $this->defaultVoucherImagesPath. '/' . $name . '.png' );
-        if ( $resized_image->save( $path) ) {
-            if($stored_voucher_image_object = VoucherImage::create(['name'=>$name])){
-                return $this->respond(["data"=>["name"=>$stored_voucher_image_object->name]]);
-            }//if(VoucherImage::create(['name'=>$name]))
-        }//if ( $resized_image->save( $path) )
-        else{
-            return $this->respondWithError("Internal Error");
-        }
-        
+        return $this->storeImage($request->file('voucher_image'), 'gift');
+    }
+    
+    /**
+     * store default Deal voucher image
+     * @param StoreVoucherImageRequest $request
+     * @return Json response
+     */
+    public function storeDealImage( StoreVoucherImageRequest $request) {
+        return $this->storeImage($request->file('voucher_image'), 'deal');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
      * @return Response
      */
-    public function show($id)
+    public function showGiftImages()
     {
-        //
+        $gift_image_objects = VoucherImage::where('type', 'gift')->get()->toArray();
+        return $this->respond($this->voucherImageTransformer->transformCollection( $gift_image_objects));
+    }
+    
+    public function showDealImages( ) {
+        $deal_image_objects = VoucherImage::where('type', 'deal')->get()->toArray();
+        return $this->respond($this->voucherImageTransformer->transformCollection( $deal_image_objects));
     }
 
     /**
@@ -90,6 +106,26 @@ class VoucherImagesController extends ApiController
     }
     
 //    Helpers
+    
+    /**
+     * General storing image for all types
+     * @param UploadedFile $file_object
+     * @param string $type
+     * @return Json response
+     */
+    private function storeImage(UploadedFile $file_object, $type) {
+        $name = $this->generateImageName();
+        $resized_image = Image::make($file_object)->resize(310, 195);
+        $path = public_path( $this->defaultVoucherImagesPath. '/' . $name . '.png' );
+        if ( $resized_image->save( $path) ) {
+            if($stored_voucher_image_object = VoucherImage::create(['name'=>$name, 'type'=>$type])){
+                return $this->respond($this->voucherImageTransformer->transform( $stored_voucher_image_object->toArray()));
+            }//if(VoucherImage::create(['name'=>$name]))
+        }//if ( $resized_image->save( $path) )
+        else{
+            return $this->respondWithError("Internal Error");
+        }
+    }
     
     /**
      * Generate Image Name as 8 random digits
