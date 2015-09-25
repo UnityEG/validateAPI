@@ -87,7 +87,7 @@ class PurchaseController extends ApiController{
         $business_logo_object = $purchased_voucher_object->voucherParameter->business->getActiveLogo();
         $business_logo_filename = (is_object($business_logo_object)) ? 'images/merchant/logos/' . $business_logo_object->name . '.' . $business_logo_object->extension : 'voucher/images/validate_logo.png';
         // get Gift Vouchers Parameter Terms Of Use
-        $terms_of_use_objects = $purchased_voucher_object->voucherParameter->useTerms()->get(['name'])->toArray();//todo get use terms related to voucher parameter of the purchased voucher
+        $terms_of_use_objects = $purchased_voucher_object->voucherParameter->useTerms()->get(['name'])->toArray();
         $terms_of_use = implode(' ● ', array_pluck($terms_of_use_objects, 'name'));
         //
         $data = array(

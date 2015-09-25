@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Psy\Util\Json;
 use Symfony\Component\HttpFoundation\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class VoucherValidationLogController extends ApiController
 {
@@ -71,7 +72,7 @@ class VoucherValidationLogController extends ApiController
         $voucher_validation_log_data['voucher_id'] = (int)$request->get('data')['relations']['voucher']['data']['voucher_id'];
         $voucher_validation_log_data['business_id'] = (int)$request->get('data')['relations']['business']['data']['business_id'];
         $voucher_validation_log_data['value'] = ($request->get('data')['value']);
-//        todo continue preparing data ( 'user_id') from current logged in user
+        $voucher_validation_log_data['user_id'] = JWTAuth::parseToken()->authenticate()->id;
 //        get voucher object related to the current validation process
         $voucher_object = Voucher::find($voucher_validation_log_data['voucher_id']);
         $new_balance = $voucher_object->balance - $voucher_validation_log_data['value'];

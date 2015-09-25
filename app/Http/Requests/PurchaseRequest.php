@@ -64,21 +64,5 @@ class PurchaseRequest extends Request {
         }//foreach ( $this->request->get('data') as $key => $voucher_to_purchase )
         return $error_messages;
     }
-    
-    /**
-     * Customize Json Response
-     * @param array $errors
-     * @return JsonResponse
-     */
-    public function response(array $errors)
-    {
-        if ($this->ajax() || $this->wantsJson()) {
-            return (new ApiController())->setStatusCode(417)->respondWithError('invalid parameters', $errors);
-        }//if ($this->ajax() || $this->wantsJson())
-
-        return $this->redirector->to($this->getRedirectUrl())
-                                        ->withInput($this->except($this->dontFlash))
-                                        ->withErrors($errors, $this->errorBag);
-    }
 
 }

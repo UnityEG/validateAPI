@@ -13,16 +13,16 @@ use SebastianBergmann\RecursionContext\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
-
 class VoucherParametersController extends ApiController
 {
     private $voucherParameterTransformer;
     
-    public function __construct( ) {
+    public function __construct(
+    VoucherParametersTransformer $voucher_parameter_transformer
+            ) {
 //        Apply the jwt.auth middleware to all methods in this controller
         $this->middleware('jwt.auth');
-        $this->voucherParameterTransformer = new VoucherParametersTransformer;
+        $this->voucherParameterTransformer = $voucher_parameter_transformer;
     }
     
     /**
@@ -58,7 +58,7 @@ class VoucherParametersController extends ApiController
      * @return Response
      */
     public function store( CreateRequest $request ) {
-        
+//        todo create store methods for each type of vouchers
         $input_before= $request->except('use_terms');
         
         $input = $this->storeUpdateHelper($input_before);
@@ -95,6 +95,9 @@ class VoucherParametersController extends ApiController
         }//catch (\Exception $ex)
         return $this->respond($this->voucherParameterTransformer->transform($voucher_parameter_object->toArray()));
     }
+    
+//    todo create showGiftVoucherParameters method
+//    todo Create showDealVoucherParameters method
 
     /**
      * Show the form for editing the specified resource.
@@ -159,7 +162,7 @@ class VoucherParametersController extends ApiController
      */
     public function destroy($id)
     {
-        //
+        //todo perform destroy method
     }
     
     
@@ -198,6 +201,7 @@ class VoucherParametersController extends ApiController
             $input['valid_until'] = g::utcDateTime($input['valid_until'], 'd/m/Y H:i');
         }//if ( !empty($input['valid_until']) )
         
+//        secure fields from XSS attack
         $input['short_description'] = (isset($input['short_description']))?preg_replace(['/\<script\>/', '/\<\/script\>/'], '', $input['short_description']):'';
         
         $input['long_description'] = (isset($input['long_description']))?preg_replace(['/\<script\>/', '/\<\/script\>/'], '', $input['long_description']):'';

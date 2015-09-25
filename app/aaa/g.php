@@ -168,7 +168,6 @@ class g {
     }
 
     public static function voucher( $data ) {
-        //todo fix paths to different assets in public folder
         // Get variable names and values from data array
         extract( $data );
         //

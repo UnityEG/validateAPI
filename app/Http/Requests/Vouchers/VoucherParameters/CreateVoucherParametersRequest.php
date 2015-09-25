@@ -57,23 +57,5 @@ class CreateVoucherParametersRequest extends Request {
             'user_id.required' => 'user_id is necessary required'
         ];
     }
-    
-    public function response(array $errors)
-    {
-        $data = [
-            'error' => [
-                'message' => 'Invalid inputs',
-                'status_code' => 417,
-                'description' =>$errors,
-            ]
-        ];
-        if ($this->ajax() || $this->wantsJson()) {
-            return new JsonResponse($data, 417);
-        }
-
-        return $this->redirector->to($this->getRedirectUrl())
-                                        ->withInput($this->except($this->dontFlash))
-                                        ->withErrors($errors, $this->errorBag);
-    }
 
 }
