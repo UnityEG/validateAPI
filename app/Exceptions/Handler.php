@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use App\Http\Controllers\ApiController;
 
 class Handler extends ExceptionHandler
 {
@@ -39,6 +40,12 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        return parent::render($request, $e);
+        $error_code = (!empty($e->getCode()))? $e->getCode() : 500;
+        if ( $request->isJson() || $request->ajax() || $request->wantsJson()) {
+            $response = (new ApiController() )->setStatusCode( $error_code )->respondWithError( 'invalid parameters', $e->getMessage() );
+        }else{
+            $response = parent::render($request, $e);
+        }
+        return $response;
     }
 }
