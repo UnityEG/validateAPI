@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Http\Models;
+namespace app\Http\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class VoucherParameter extends Model {
     protected $table = "voucher_parameters";
     protected $dates = ['purchase_start', 'purchase_expiry', 'valid_from', 'valid_until'];
-    protected $guarded = ["id" ];
     protected $fillable = [
         'business_id',
         'user_id',
         'voucher_image_id',
-        'use_terms',
         'voucher_type',
-        'cession',
         'title',
         'purchase_start',
-        'purchase_end',
+        'purchase_expiry',
         'is_expire',
         'is_display',
         'is_purchased',
