@@ -1,12 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Vouchers\VoucherValidationRequests;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Models\Voucher;
 use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ValidateVoucherRequest extends Request {
 
