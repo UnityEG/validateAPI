@@ -8,6 +8,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Models\Business;
 use App\Http\Models\VoucherParameter;
 use App\Http\Requests\Vouchers\VoucherParameters\CreateVoucherParametersRequest;
+use App\Http\Requests\Vouchers\VoucherParameters\UpdateVoucherParametersRequest;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use \Exception;
@@ -16,6 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VoucherParametersController extends ApiController
 {
+    /**
+     *  instance of VoucherParametersTransformer class
+     * @var object
+     */
     private $voucherParameterTransformer;
     
     public function __construct(
@@ -39,17 +44,39 @@ class VoucherParametersController extends ApiController
         
         return $this->respond($this->voucherParameterTransformer->transformCollection($voucher_parameters_objects->toArray()));
     }
-
+    
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
+     * Search for voucher parameters by title
+     * @param string $voucher_title
+     * @return collection
      */
-    public function create()
-    {
-        $data = ['You are in create vouchers method'];
+    public function searchByVoucherTitle( $voucher_title) {
+        $optimized_voucher_title = strtolower(urldecode($voucher_title));
+        $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
         
-        return $data;
+        if ( !$voucher_parameter_exist ) {
+            return $this->respond(["data"=>"No matched result"]);
+        }//if ( !$voucher_parameter_exist )
+        
+        $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get()->toArray();
+        
+        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
+    }
+    
+    /**
+     * Search for voucher parameters by business name
+     * @param string $business_name
+     * @return Json collection
+     */
+    public function searchByBusinessName( $business_name) {
+        $optimized_business_name = strtolower(urlencode($business_name));
+        $business_exist = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->exists();
+        if ( !$business_exist ) {
+            return $this->respond(["data"=>"No matched result"]);
+        }//if ( !$business_exist )
+        $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
+        $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get()->toArray();
+        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
     }
 
     /**
@@ -60,7 +87,7 @@ class VoucherParametersController extends ApiController
     public function storeDealVoucherParameters(CreateVoucherParametersRequest $request ) {
         $raw_input= $request->get("data");
         $raw_input['voucher_type'] = 'deal';
-        return $this->store($raw_input);
+        return $this->generalStoreHelper( $raw_input );
     }
     
     /**
@@ -71,11 +98,11 @@ class VoucherParametersController extends ApiController
     public function storeGiftVoucherParameters( CreateVoucherParametersRequest $request) {
        $raw_input = $request->get("data") ;
        $raw_input['voucher_type'] = 'gift';
-       return $this->store($raw_input);
+       return $this->generalStoreHelper( $raw_input );
     }
 
     /**
-     * Display the specified resource.
+     * Display a voucher by ID.
      *
      * @param  int  $id
      * @return Response
@@ -85,7 +112,7 @@ class VoucherParametersController extends ApiController
         try{
             $voucher_parameter_object = VoucherParameter::findOrFail($id);
         } catch (Exception $ex) {
-                return $this->respondNotFound($ex->getMessage());
+                throw new Exception($ex->getMessage(), $ex->getCode());
         }//catch (\Exception $ex)
         return $this->respond($this->voucherParameterTransformer->transform($voucher_parameter_object->toArray()));
     }
@@ -93,27 +120,10 @@ class VoucherParametersController extends ApiController
 //    todo create showGiftVoucherParameters method
 //    todo Create showDealVoucherParameters method
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        try{
-            $voucher_parameter_object = VoucherParameter::findOrFail($id);
-            
-            if ( $voucher_parameter_object->is_purchased ) {
-                throw new Exception('This voucher has been sold you cannot update it' );
-            }//if ( $voucher_parameter_object->is_purchased )
-        } catch (Exception $ex) {
-            return $this->respondNotFound($ex->getMessage());
-        }
-        
-        
+    public function updateGiftVoucherParameters( UpdateVoucherParametersRequest $request) {
+//        todo check voucher type
     }
-
+    
     /**
      * Update the specified resource in storage.
      *
@@ -121,7 +131,7 @@ class VoucherParametersController extends ApiController
      * @param  int  $id
      * @return Response
      */
-    public function update(UpdateRequest $request, $id)
+    public function generalUpdateHelper(UpdateRequest $request, $id)
     {
         try{
             $voucher_parameter_object = VoucherParameter::findOrFail($id);
@@ -169,55 +179,54 @@ class VoucherParametersController extends ApiController
      * @param  array  $raw_input
      * @return Response
      */
-    public function store( array $raw_input ) {
+    public function generalStoreHelper( array $raw_input ) {
         $this->storeValidationHelper($raw_input);
         $input = $this->storeUpdateHelper($raw_input);
         DB::beginTransaction();
-        if($created_voucher_parameters = VoucherParameter::create( $input )){
+        $created_voucher_parameters = VoucherParameter::create( $input );
+        if(  is_object( $created_voucher_parameters)){
         $created_voucher_parameters->useTerms()->attach($input['use_terms']);
         DB::commit();
             $response =  $this->voucherParameterTransformer->transform( $created_voucher_parameters->toArray());
-        }//if($created_voucher_parameters = VoucherParameter::create( $input ))
-        else{
+        }else{
             DB::rollBack();
             $response = $this->respondInternalError();
-        }
+        }//if(is_object( $created_voucher_parameters))
         return $response;
     }
     
     /**
      * perform common sanitization for all vouchers
-     * @param object $input
+     * @param array $old_input
      * @return array
      */
-    private function storeUpdateHelper( array $input) {
-        $input['business_id'] = (int)$input['relations']['business']['data']['business_id'];
-        $input['user_id'] = (int)$input['relations']['user']['data']['user_id'];
-        $input['voucher_image_id'] = (int)$input['relations']['voucher_image']['data']['voucher_image_id'];
-        $input['use_terms'] = (array)$input['relations']['use_terms']['data']['use_term_ids'];
-        if ( isset( $input[ 'purchase_start' ] ) && !empty( $input[ 'purchase_start' ] ) ) {
-            $input[ 'purchase_start' ] = g::utcDateTime( $input[ 'purchase_start' ], 'd/m/Y H:i' );
-        }//if (isset($input['purchase_start'])&&!empty($input['purchase_start'])){
-        else {
+    private function storeUpdateHelper( array $old_input) {
+        $modified_input['business_id'] = (int)$old_input['relations']['business']['data']['business_id'];
+        $modified_input['user_id'] = (int)$old_input['relations']['user']['data']['user_id'];
+        $modified_input['voucher_image_id'] = (int)$old_input['relations']['voucher_image']['data']['voucher_image_id'];
+        $modified_input['use_terms'] = (array)$old_input['relations']['use_terms']['data']['use_term_ids'];
+        if ( isset( $old_input[ 'purchase_start' ] ) && !empty( $old_input[ 'purchase_start' ] ) ) {
+            $modified_input[ 'purchase_start' ] = g::utcDateTime( $old_input[ 'purchase_start' ], 'd/m/Y H:i' );
+        }else {
             $auckland_now_to_utc     = Carbon::now( 'Pacific/Auckland' )->setTimezone( 'UTC' );
-            $input[ 'purchase_start' ] = $auckland_now_to_utc;
-        }
-        if ( !empty( $input[ 'purchase_expiry' ] ) ) {
-            $input[ 'purchase_expiry' ] = g::utcDateTime( $input[ 'purchase_expiry' ], 'd/m/Y H:i' );
+            $modified_input[ 'purchase_start' ] = $auckland_now_to_utc;
+        }//if (isset($input['purchase_start'])&&!empty($input['purchase_start']))
+        if ( !empty( $old_input[ 'purchase_expiry' ] ) ) {
+            $modified_input[ 'purchase_expiry' ] = g::utcDateTime( $old_input[ 'purchase_expiry' ], 'd/m/Y H:i' );
         }//if ( !empty($input['purchase_expiry']) )
-        $input[ 'is_expire' ] = 0;
-        $input[ 'is_display' ] = 1;
-        $input[ 'is_purchased' ] = 0;
-        if ( !empty( $input[ 'valid_from' ] ) ) {
-            $input[ 'valid_from' ] = g::utcDateTime( $input[ 'valid_from' ], 'd/m/Y H:i' );
+        $modified_input[ 'is_expire' ] = 0;
+        $modified_input[ 'is_display' ] = 1;
+        $modified_input[ 'is_purchased' ] = 0;
+        if ( !empty( $old_input[ 'valid_from' ] ) ) {
+            $modified_input[ 'valid_from' ] = g::utcDateTime( $old_input[ 'valid_from' ], 'd/m/Y H:i' );
         }//if ( !empty($input['valid_from']) )
-        if ( !empty( $input[ 'valid_until' ] ) ) {
-            $input[ 'valid_until' ] = g::utcDateTime( $input[ 'valid_until' ], 'd/m/Y H:i' );
+        if ( !empty( $old_input[ 'valid_until' ] ) ) {
+            $modified_input[ 'valid_until' ] = g::utcDateTime( $old_input[ 'valid_until' ], 'd/m/Y H:i' );
         }//if ( !empty($input['valid_until']) )
 //        secure fields from XSS attack
-        $input[ 'short_description' ] = (isset( $input[ 'short_description' ] )) ? preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $input[ 'short_description' ] ) : '';
-        $input[ 'long_description' ] = (isset( $input[ 'long_description' ] )) ? preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $input[ 'long_description' ] ) : '';
-        return $input;
+        $modified_input[ 'short_description' ] = (isset( $old_input[ 'short_description' ] )) ? preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $old_input[ 'short_description' ] ) : '';
+        $modified_input[ 'long_description' ] = (isset( $old_input[ 'long_description' ] )) ? preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $old_input[ 'long_description' ] ) : '';
+        return $modified_input;
     }
 
     /**
@@ -227,6 +236,7 @@ class VoucherParametersController extends ApiController
      * @throws Exception
      */
     private function storeValidationHelper( array $input) {
+//        todo move this method to be a validate rule in CreateVoucherParametersRequest class
         switch ( $input['voucher_type']) {
             case 'gift':
                 if ( empty($input['min_value']) || empty($input['max_value']) ) {
@@ -255,39 +265,5 @@ class VoucherParametersController extends ApiController
                 break;
         }//switch ( $input['voucher_type'])
         return TRUE;
-    }
-    
-    /**
-     * Search for voucher parameters by title
-     * @param string $voucher_title
-     * @return collection
-     */
-    public function searchByVoucherTitle( $voucher_title) {
-        $optimized_voucher_title = strtolower(urldecode($voucher_title));
-        $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
-        
-        if ( !$voucher_parameter_exist ) {
-            return $this->respond(["data"=>"No matched result"]);
-        }//if ( !$voucher_parameter_exist )
-        
-        $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get()->toArray();
-        
-        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
-    }
-    
-    /**
-     * Search for voucher parameters by business name
-     * @param string $business_name
-     * @return Json collection
-     */
-    public function searchByBusinessName( $business_name) {
-        $optimized_business_name = strtolower(urlencode($business_name));
-        $business_exist = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->exists();
-        if ( !$business_exist ) {
-            return $this->respond(["data"=>"No matched result"]);
-        }//if ( !$business_exist )
-        $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
-        $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get()->toArray();
-        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
     }
 }
