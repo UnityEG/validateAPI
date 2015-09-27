@@ -6,7 +6,7 @@ use App\aaa\Transformers\VoucherValidationLogTransformer;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Voucher;
 use App\Http\Models\VoucherValidationLog;
-use App\Http\Requests\ValidateVoucherRequest;
+use App\Http\Requests\Vouchers\VoucherValidationRequests\ValidateVoucherRequest;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

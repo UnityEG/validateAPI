@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class VoucherImage extends Model
 {
     protected $table = 'voucher_images';
-    protected $guarded = ['id'];
     
     /**
      * Relationship between VoucherImage Model and VoucherParameter Model (One to Many)

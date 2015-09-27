@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Business extends Model {
     
     protected $table = 'business';
-    protected $guarded = ['id'];
     protected $dates = ['deleted_at'];
     //protected $fillable = ['title', 'body'];
     

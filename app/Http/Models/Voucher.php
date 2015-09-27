@@ -8,7 +8,6 @@ class Voucher extends Model
 {
     protected $table = "vouchers";
     protected $dates = ['delivery_date', 'expiry_date', 'last_validation_date'];
-    protected $guarded = ['id'];
     protected $fillable = [
         'user_id',
         'voucher_parameter_id',

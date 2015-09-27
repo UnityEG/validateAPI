@@ -52,5 +52,6 @@ class CreateVoucherParametersRequest extends Request {
             'user_id.required' => 'user_id is necessary required'
         ];
     }
-
+    
+//    todo add check for specific fields according to the type of the voucher method
 }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class BusinessLogo extends Model
 {
     protected $table = 'business_logos';
-    protected $guarded = ['id'];
     protected $fillable = [
         'business_id',
         'user_id',

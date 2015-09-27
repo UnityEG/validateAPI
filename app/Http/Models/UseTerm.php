@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class UseTerm extends Model {
 
     protected $table   = 'use_terms';
-    protected $guarded = array( 'id' );
     
     /**
      * Relationship method between UseTerm Model and Voucher Model (many to many)

@@ -124,6 +124,43 @@ class VoucherParametersController extends ApiController
 //        todo check voucher type
     }
     
+    
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function destroy($id)
+    {
+        //todo perform destroy method
+    }
+    
+//    Helper Methods
+    
+    /**
+     * General Store a newly created resource in storage.
+     *
+     * @param  array  $raw_input
+     * @return Response
+     */
+    public function generalStoreHelper( array $raw_input ) {
+        $this->storeValidationHelper($raw_input);
+        $input = $this->storeUpdateHelper($raw_input);
+        DB::beginTransaction();
+        $created_voucher_parameters = VoucherParameter::create( $input );
+        if(  is_object( $created_voucher_parameters)){
+        $created_voucher_parameters->useTerms()->attach($input['use_terms']);
+        DB::commit();
+            $response =  $this->voucherParameterTransformer->transform( $created_voucher_parameters->toArray());
+        }else{
+            DB::rollBack();
+            $response = $this->respondInternalError();
+        }//if(is_object( $created_voucher_parameters))
+        return $response;
+    }
+    
     /**
      * Update the specified resource in storage.
      *
@@ -156,43 +193,6 @@ class VoucherParametersController extends ApiController
         }//if($voucher_parameter_object->update($input))
         DB::rollBack();
         return $this->respondBadRequest('Something went wrong while updating voucher');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        //todo perform destroy method
-    }
-    
-    
-    
-//    Helper Methods
-    
-    /**
-     * General Store a newly created resource in storage.
-     *
-     * @param  array  $raw_input
-     * @return Response
-     */
-    public function generalStoreHelper( array $raw_input ) {
-        $this->storeValidationHelper($raw_input);
-        $input = $this->storeUpdateHelper($raw_input);
-        DB::beginTransaction();
-        $created_voucher_parameters = VoucherParameter::create( $input );
-        if(  is_object( $created_voucher_parameters)){
-        $created_voucher_parameters->useTerms()->attach($input['use_terms']);
-        DB::commit();
-            $response =  $this->voucherParameterTransformer->transform( $created_voucher_parameters->toArray());
-        }else{
-            DB::rollBack();
-            $response = $this->respondInternalError();
-        }//if(is_object( $created_voucher_parameters))
-        return $response;
     }
     
     /**
