@@ -44,15 +44,21 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    VoucherParameters Routes
     Route::get('VoucherParameters/{voucher_type}/all', [
+//        todo remove this route
         'uses' => 'VoucherParametersController@index'
     ]);
     
-    Route::get('VoucherParameters/title/{voucher_title}', [
+    Route::get('VoucherParameters/show/{voucher_id}', [
+        'uses' => 'VoucherParametersController@show',
+        'as' => 'VoucherParameters.show'
+    ]);
+    
+    Route::get('VoucherParameters/searchByVoucherTitle/{voucher_title}', [
         'uses' => 'VoucherParametersController@searchByVoucherTitle',
         'as' => 'VoucherParameter.searchByVoucherTitle'
     ]);
     
-    Route::get('VoucherParameters/business-name/{business_name}', [
+    Route::get('VoucherParameters/searchByBusinessName/{business_name}', [
         'uses' => 'VoucherParametersController@searchByBusinessName',
         'as' => 'VoucherParameters.searchByBusinessName'
     ]);
@@ -65,6 +71,11 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('VoucherParameters/storeGiftVoucherParameters', [
         'uses' => 'VoucherParametersController@storeGiftVoucherParameters',
         'as' => 'VoucherParameters.storeGiftVoucherParameters'
+    ]);
+    
+    Route::patch('VoucherParameters/updateGiftVoucherParameters',[
+        'uses' => 'VoucherParametersController@updateGiftVoucherParameters',
+        'as' => 'VoucherParameters.updateGiftVoucherParameters'
     ]);
     
     
