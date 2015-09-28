@@ -40,12 +40,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        $error_code = (!empty($e->getCode()))? $e->getCode() : 500;
-        if ( $request->isJson() || $request->ajax() || $request->wantsJson()) {
-            $response = (new ApiController() )->setStatusCode( $error_code )->respondWithError( 'invalid parameters', $e->getMessage() );
-        }else{
-            $response = parent::render($request, $e);
-        }
+//        return to http Exception response for development purposes.
+//        $error_code = (!empty($e->getCode()))? $e->getCode() : 500;
+//        if ( $request->isJson() || $request->ajax() || $request->wantsJson()) {
+//            $response = (new ApiController() )->setStatusCode( $error_code )->respondWithError( 'invalid parameters', $e->getMessage() );
+//        }else{
+//            $response = parent::render($request, $e);
+//        }
+        $response = parent::render($request, $e);
         return $response;
     }
 }
