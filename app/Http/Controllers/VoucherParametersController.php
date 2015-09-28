@@ -121,7 +121,8 @@ class VoucherParametersController extends ApiController
 //    todo Create showDealVoucherParameters method
 
     public function updateGiftVoucherParameters( UpdateVoucherParametersRequest $request) {
-//        todo check voucher type
+        $raw_input = $request->json("data");
+        return $this->generalUpdateHelper($raw_input);
     }
     
     
@@ -147,7 +148,7 @@ class VoucherParametersController extends ApiController
      */
     public function generalStoreHelper( array $raw_input ) {
         $this->storeValidationHelper($raw_input);
-        $input = $this->storeUpdateHelper($raw_input);
+        $input = $this->prepareDataForStoring($raw_input);
         DB::beginTransaction();
         $created_voucher_parameters = VoucherParameter::create( $input );
         if(  is_object( $created_voucher_parameters)){
@@ -168,25 +169,13 @@ class VoucherParametersController extends ApiController
      * @param  int  $id
      * @return Response
      */
-    public function generalUpdateHelper(UpdateRequest $request, $id)
+    public function generalUpdateHelper(array $raw_input)
     {
-        try{
-            $voucher_parameter_object = VoucherParameter::findOrFail($id);
-        }  catch (Exception $e){
-            return $this->respondNotFound();
-        }//catch (\Exception $e)
-        if ( $voucher_parameter_object->is_purchased ) {
-            $this->setStatusCode(417);
-            return $this->respondWithError( 'Updating Voucher Parmeters Error', 'This voucher already purchased so It cannot be updated!');
-        }//if ( $voucher_parameter_object->is_purchased )
-        $raw_input = $request->except('use_terms');
-        $input = $this->storeUpdateHelper($raw_input);
-        if ( !is_array( $input ) ) {
-//            return with error respond
-            return $input;
-        }//if ( !is_array( $input ) )
+        $voucher_parameter_object = VoucherParameter::findOrFail($raw_input['id']);
+        $modified_input = $this->prepareDataForUpdating($raw_input);
         DB::beginTransaction();
-        if($voucher_parameter_object->update($input)){
+        if($voucher_parameter_object->update($modified_input)){
+//            todo use modified use_term_ids from $modified_input
             $voucher_parameter_object->useTerms()->sync($request->input('use_terms'));
             DB::commit();
             return $voucher_parameter_object;
@@ -200,7 +189,7 @@ class VoucherParametersController extends ApiController
      * @param array $old_input
      * @return array
      */
-    private function storeUpdateHelper( array $old_input) {
+    private function prepareDataForStoring( array $old_input) {
         $modified_input['business_id'] = (int)$old_input['relations']['business']['data']['business_id'];
         $modified_input['user_id'] = (int)$old_input['relations']['user']['data']['user_id'];
         $modified_input['voucher_image_id'] = (int)$old_input['relations']['voucher_image']['data']['voucher_image_id'];
@@ -266,4 +255,9 @@ class VoucherParametersController extends ApiController
         }//switch ( $input['voucher_type'])
         return TRUE;
     }
+
+    private function prepareDataForUpdating( $raw_input ) {
+//        todo continue preparing data for updating voucher parameters
+    }
+
 }
