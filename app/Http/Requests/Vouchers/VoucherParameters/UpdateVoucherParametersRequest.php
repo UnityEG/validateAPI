@@ -4,15 +4,18 @@ namespace App\Http\Requests\Vouchers\VoucherParameters;
 
 use App\Http\Requests\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Models\VoucherParameter;
 
-class UpdateVoucherParametersRequest extends Request
-{
+class UpdateVoucherParametersRequest extends Request {
+
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
     public function authorize() {
+//        todo add authorization rules to restrict voucher parameter update route
         return true;
     }
 
@@ -22,43 +25,69 @@ class UpdateVoucherParametersRequest extends Request
      * @return array
      */
     public function rules() {
-//        todo continue refine update voucher rule with relocating properties
-//        todo extend new validation rule for voucher_type_check
-        dd($this->route()->getName());
+        $this->voucherTypeCheckRule();
+        $this->voucherPurchasedCheckRule();
         $common_rules = [
-            'data.id'=>'required|integer|min:1|exists:voucher_parameters,id',
-            'business_id'           => 'sometimes|required|integer|exists:business,id',
-            'user_id'               => 'sometimes|required|integer|exists:users,id',
-            'voucher_image_id'      => 'sometimes|required|exists:voucher_images,id',
-            'use_terms'             => 'sometimes|required|exists:use_terms,id',
-//            'voucher_type'          => 'required|string|in:gift,deal,birthday,discount,concession',
-            'title'                 => 'sometimes|required|string',
-            'purchase_start'        => 'date_format:d/m/Y H:i',
-            'purchase_end'          => 'date_format:d/m/Y H:i',
-            'is_expire'             => 'boolean',
-            'is_display'            => 'boolean',
-            'valid_from'            => 'date_format:d/m/Y',
-            'valid_for_amount'      => 'sometimes|required|integer',
-            'valid_for_units'       => 'sometimes|required|alpha|size:1|in:d,m,y',
-            'valid_until'           => 'date_format:d/m/Y',
-            'quantity'              => 'sometimes|required|integer|min:1',
-//            'stock_quantity'        => 'integer',
-            'short_description'     => 'string',
-            'long_description'      => 'string',
-            'no_of_uses'            => 'integer',
-            'retail_value'          => 'sometimes|required|numeric',
-            'value'                 => 'sometimes|required|numeric',
-            'min_value'             => 'sometimes|required|numeric',
-            'max_value'             => 'sometimes|required|numeric',
-//            'is_valid_during_month' => 'boolean',
-            'discount_percentage'   => 'sometimes|required|numeric'
+            'data.id'                                            => 'required|integer|min:1|exists:voucher_parameters,id|voucher_type_check|voucher_purchased_check',
+            'data.relations.business.data.business_id'           => 'sometimes|required|integer|exists:business,id',
+            'data.relations.user.data.user_id'                   => 'sometimes|required|integer|exists:users,id',
+            'data.relations.voucher_image.data.voucher_image_id' => 'sometimes|required|exists:voucher_images,id',
+            'data.relations.use_terms.data.use_term_ids'         => 'sometimes|required|exists:use_terms,id',
+            'data.attributes.title'                              => 'sometimes|required|string',
+            'data.attributes.purchase_start'                     => 'date_format:d/m/Y H:i',
+            'data.attributes.purchase_end'                       => 'date_format:d/m/Y H:i',
+            'data.attributes.is_expire'                          => 'boolean',
+            'data.attributes.is_display'                         => 'boolean',
+            'data.attributes.valid_from'                         => 'date_format:d/m/Y',
+            'data.attributes.valid_for_amount'                   => 'sometimes|required|integer',
+            'data.attributes.valid_for_units'                    => 'sometimes|required|alpha|size:1|in:d,m,y',
+            'data.attributes.valid_until'                        => 'date_format:d/m/Y',
+            'data.attributes.quantity'                           => 'sometimes|required|integer|min:1',
+            'data.attributes.short_description'                  => 'string',
+            'data.attributes.long_description'                   => 'string',
+            'data.attributes.no_of_uses'                         => 'integer',
+            'data.attributes.retail_value'                       => 'sometimes|required|numeric',
+            'data.attributes.value'                              => 'sometimes|required|numeric',
+            'data.attributes.min_value'                          => 'sometimes|required|numeric',
+            'data.attributes.max_value'                          => 'sometimes|required|numeric',
+            'data.attributes.discount_percentage'                => 'sometimes|required|numeric'
         ];
         return $common_rules;
     }
-    
-    public function messages( ) {
+
+    public function messages() {
         return [
-            'user_id.required' => 'user_id is necessary required'
+            "voucher_type_check" => "voucher type mismatch",
+            "voucher_purchased_check" => "This voucher already purchased so It cannot be updated"
         ];
+    }
+    
+    /**
+     * Extend validation rules with voucher_type_check rule to check the voucher before updating
+     */
+    private function voucherTypeCheckRule( ) {
+        Validator::extend('voucher_type_check', function($attribute, $value, $parameters){
+            $route_method_name = $this->route()->getName();
+            $voucher_type = VoucherParameter::find($value)->voucher_type;
+            switch ( $route_method_name) {
+                case 'VoucherParameters.updateGiftVoucherParameters':
+                    $result = ('gift' === $voucher_type) ? TRUE : FALSE;
+                    break;
+//                todo continue add check rule for other voucher types
+                default:
+                    $result = FALSE;
+                    break;
+            }//switch ( $route_method_name)
+            return $result;
+        });
+    }
+    
+    /**
+     * Extend validation rules with voucher_purchased_check rule to check if the voaucher has been purchased before updating
+     */
+    private function voucherPurchasedCheckRule( ) {
+        Validator::extend('voucher_purchased_check', function($attribute, $value, $parameters){
+            return (!VoucherParameter::find($value)->is_purchased);
+        });
     }
 }
