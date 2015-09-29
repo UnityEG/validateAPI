@@ -312,4 +312,27 @@ class g {
         //==============================================================================
     }
 
+    /**
+     * Search for keys in array recursively and return with value or false
+     * @param array $array
+     * @param string $keySearch
+     * @return mixed 
+     */
+    public function arrayKeySearchRecursively(array $array, $keySearch)
+    {
+        foreach ($array as $key => $item) {
+            if ($key === $keySearch) {
+                if ( $array[$keySearch] === FALSE || $array[$keySearch] === 0 ) {
+                    return "false";
+                }else{
+                    return $array[$keySearch];
+                }
+            }else {
+                if (is_array($item) && ($result = $this->arrayKeySearchRecursively($item, $keySearch))) {
+                   return $result;
+                }//if (is_array($item) && ($result = $this->findKey($item, $keySearch)))
+            }//if ($key === $keySearch)
+        }
+        return false;
+    }
 }
