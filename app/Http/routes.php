@@ -43,7 +43,7 @@ Route::group(['prefix' => 'v1'], function() {
     Route::resource('UserFeedback', 'UserFeedbackController');
     
 //    VoucherParameters Routes
-    Route::get('VoucherParameters/{voucher_type}/all', [
+    Route::get('VoucherParameters', [
 //        todo remove this route
         'uses' => 'VoucherParametersController@index'
     ]);
@@ -76,6 +76,11 @@ Route::group(['prefix' => 'v1'], function() {
     Route::patch('VoucherParameters/updateGiftVoucherParameters',[
         'uses' => 'VoucherParametersController@updateGiftVoucherParameters',
         'as' => 'VoucherParameters.updateGiftVoucherParameters'
+    ]);
+    
+    Route::patch('VoucherParameters/updateDealVoucherParameters', [
+        'uses' => 'VoucherParametersController@updateDealVoucherParameters',
+        'as' => 'VoucherParameters.updateDealVoucherParameters'
     ]);
     
     
