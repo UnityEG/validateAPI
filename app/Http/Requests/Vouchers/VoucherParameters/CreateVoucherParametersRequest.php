@@ -3,6 +3,7 @@
 namespace app\Http\Requests\Vouchers\VoucherParameters;
 
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CreateVoucherParametersRequest extends Request {
 
@@ -37,21 +38,39 @@ class CreateVoucherParametersRequest extends Request {
             'data.short_description'                             => 'string',
             'data.long_description'                              => 'string',
             'data.no_of_uses'                                    => 'integer',
-            'data.retail_value'                                  => 'sometimes|required|numeric',
-            'data.value'                                         => 'sometimes|required|numeric',
-            'data.min_value'                                     => 'sometimes|required|numeric',
-            'data.max_value'                                     => 'sometimes|required|numeric',
-            'data.is_valid_during_month'                         => 'boolean',
-            'data.discount_percentage'                           => 'sometimes|required|numeric'
         ];
-        return $common_rules;
+        $final_rules = array_merge($common_rules, $this->voucherSpecificTypeFieldRules());
+        return $final_rules;
     }
     
     public function messages( ) {
         return [
-            'user_id.required' => 'user_id is necessary required'
+            'user_id.required' => 'user_id is necessary required',
+            'voucher_specific_type_field_check' => 'all value fields are required'
         ];
     }
     
-//    todo add check for specific fields according to the type of the voucher method
+    /**
+     * Add Rules for specific types of vouchers
+     * @return array
+     */
+    private function voucherSpecificTypeFieldRules( ) {
+        $voucher_specific_type_rules = [];
+        $route_method_name = $this->route()->getName();
+        switch ( $route_method_name ) {
+            case 'VoucherParameters.storeGiftVoucherParameters':
+//                todo add rule that max_value is must be greater than min_value
+                $voucher_specific_type_rules['data.min_value'] = ['required', 'numeric'];
+                $voucher_specific_type_rules['data.max_value'] = ['required', 'numeric'];
+                break;
+            case 'VoucherParameters.storeDealVoucherPatameters':
+                $voucher_specific_type_rules['retail_value'] = ['required', 'numeric'];
+                $voucher_specific_type_rules['value'] = ['required', 'numeric'];
+                break;
+//            todo add the rest rules for the rest of voucher types
+        }//switch ( $route_method_name )
+        return $voucher_specific_type_rules;
+    }
+    
+//    todo create rule to be sure that valid_for_amount is [356 day, 12 month, 48 week]
 }
