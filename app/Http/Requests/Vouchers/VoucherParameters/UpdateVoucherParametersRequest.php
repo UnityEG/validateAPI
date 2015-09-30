@@ -73,6 +73,9 @@ class UpdateVoucherParametersRequest extends Request {
                 case 'VoucherParameters.updateGiftVoucherParameters':
                     $result = ('gift' === $voucher_type) ? TRUE : FALSE;
                     break;
+                case 'VoucherParameters.updateDealVoucherParameters':
+                    $result = ('deal' === $voucher_type) ? TRUE : FALSE;
+                    break;
 //                todo continue add check rule for other voucher types
                 default:
                     $result = FALSE;
