@@ -28,16 +28,24 @@ class VoucherParametersController extends ApiController
      * @var object
      */
     private $g;
+    
+    /**
+     * instance of VoucherParameter Model class
+     * @var object
+     */
+    private $voucherParameterModel;
 
 
     public function __construct(
             VoucherParametersTransformer $voucher_parameter_transformer,
-            g $g
+            g $g,
+            VoucherParameter $voucher_parameter_model
             ) {
 //        Apply the jwt.auth middleware to all methods in this controller
         $this->middleware('jwt.auth');
         $this->voucherParameterTransformer = $voucher_parameter_transformer;
         $this->g = $g;
+        $this->voucherParameterModel = $voucher_parameter_model;
     }
     
     /**
@@ -49,6 +57,16 @@ class VoucherParametersController extends ApiController
     {
         $voucher_parameters_objects = VoucherParameter::all();
         return $this->respond($this->voucherParameterTransformer->transformCollection($voucher_parameters_objects->toArray()));
+    }
+    
+    /**
+     * List all active vouchers parameters method
+     * active voucher parameters means that is_expiry=0 and is_display=1
+     * @return Json response
+     */
+    public function listAllActiveVouchersParameters( ) {
+        $active_vouchers_parameters_arrays = $this->voucherParameterModel->where('is_expire', 0)->where('is_display', 1)->get()->toArray();
+        return $this->voucherParameterTransformer->transformCollection($active_vouchers_parameters_arrays);
     }
     
     /**
@@ -76,6 +94,7 @@ class VoucherParametersController extends ApiController
      * @return collection
      */
     public function searchByVoucherTitle( $voucher_title) {
+//        todo modify response
         $optimized_voucher_title = strtolower(urldecode($voucher_title));
         $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
         
