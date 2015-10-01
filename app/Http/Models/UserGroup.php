@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserGroup extends Model
 {
     protected $table = "user_groups";
-    protected $fillable = ['name'];
+    protected $fillable = ['group_name'];
     
     /**
      * Relationship between UserGroup Model and User Model (many to many)
