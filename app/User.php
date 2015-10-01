@@ -25,7 +25,26 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = [
+        'city_id',
+        'region_id',
+        'town_id',
+        'postcode_id',
+        'facebook_user_id',
+        'is_active',
+        'email', 
+        'password',
+        'title',
+        'first_name',
+        'last_name',
+        'gender',
+        'dob',
+        'address1',
+        'address2',
+        'phone',
+        'mobile',
+        'is_notify_deal'
+        ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -91,6 +110,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return boolean
      */
     public function hasRule( $rule_name) {
+//        todo modify response
         $user_groups = $this->userGroups;
         foreach ( $user_groups as $user_group) {
             if(is_object($user_group->rules()->where('name', $rule_name)->first())){
