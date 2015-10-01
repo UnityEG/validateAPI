@@ -53,6 +53,11 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'VoucherParameters.show'
     ]);
     
+    Route::get('VoucherParameters/listAllActiveVouchersParameters', [
+        'uses' => 'VoucherParametersController@listAllActiveVouchersParameters',
+        'as' => 'VoucherParameters.listAllActiveVouchersParameters'
+    ]);
+    
     Route::get('VoucherParameters/searchByVoucherTitle/{voucher_title}', [
         'uses' => 'VoucherParametersController@searchByVoucherTitle',
         'as' => 'VoucherParameter.searchByVoucherTitle'
@@ -139,6 +144,16 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'VoucherValidationLog.getAllLogs'
     ]);
     
+//    Users Routes
     Route::resource('authenticate', 'AuthenticateController', ['only' => ['index']]);
-    Route::post('authenticate', 'AuthenticateController@authenticate');
+    
+    Route::get('logout', [
+        'uses' => 'AuthenticateController@logout',
+        'as' => 'Authenticate.logout'
+    ]);
+    
+    Route::post('authenticate', [
+        'uses' => 'AuthenticateController@authenticate',
+        'as' => 'Authenticate.authenticate'
+    ]);
 });
