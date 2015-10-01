@@ -3,20 +3,49 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use JWTAuth;
+use App\Http\Requests\Users\LoginUserRequest;
+use App\Http\Controllers\ApiController;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Auth;
 use App\User;
+use App\aaa\Transformers\UserTransformer;
+use App\aaa\g;
+use Exception;
 
-class AuthenticateController extends Controller {
+class AuthenticateController extends ApiController {
+    
+    /**
+     *instance of UserTransformer class
+     * @var object
+     */
+    private $userTransformer;
+    
+    /**
+     *instance of g class
+     * @var object
+     */
+    private $g;
+    
+    /**
+     *instance of JWTAuth class
+     * @var object
+     */
+    private $JWTAuth;
 
-    public function __construct() {
+
+    public function __construct(
+    UserTransformer $user_transformer,
+            g $g,
+            JWTAuth $jwtauth
+            ) {
         // Apply the jwt.auth middleware to all methods in this controller
         // except for the authenticate method. We don't want to prevent
         // the user from retrieving their token if they don't already have it
         $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+        $this->userTransformer = $user_transformer;
+        $this->g = $g;
+        $this->JWTAuth = $jwtauth;
     }
 
     /**
@@ -29,33 +58,33 @@ class AuthenticateController extends Controller {
 //        $users = User::all();
 //        return $users;
     }
-
-    public function authenticate(Request $request) {
-        $credentials = $request->only('email', 'password');
-
-        try {
-            // verify the credentials and create a token for the user
-            if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'invalid_credentials'], 401);
-            }
-        } catch (JWTException $e) {
-            // something went wrong
-            return response()->json(['error' => 'could_not_create_token'], 500);
+    
+    /**
+     * 
+     * @param Request $request
+     * @return type
+     */
+    public function authenticate(  LoginUserRequest $request) {
+        $raw_input = $request->json("data");
+        $credentials['email'] = $this->g->arrayKeySearchRecursively( $raw_input, 'email');
+        $credentials['password'] = $this->g->arrayKeySearchRecursively($raw_input, 'password');
+        // verify the credentials and create a token for the user
+        if (!$token = JWTAuth::attempt($credentials)) {
+            throw new JWTException('invalid credentials', 401);
         }
-        //
-        $user = array();
-        $user[] = Auth::user()->toArray();
-        $data = array_map(function ($item) {
-            return [
-                'id' => $item['id'],
-//                'user_type' => $item['user_type'],
-                'email' => $item['email'],
-//                'active' => (boolean) $item['active'],
-            ];
-        }, $user);
-
+        $user = Auth::user()->toArray();
+        $user['token'] = $token;
         // if no errors are encountered we can return a JWT
-        return response()->json(compact('token', 'data'));
+        return $this->respond($this->userTransformer->transform($user) );
     }
-
+    
+    /**
+     * logout method
+     * @return Json response
+     */
+    public function logout( ) {
+        if(JWTAuth::invalidate(JWTAuth::getToken())){
+            return $this->respondWithError('token became invalid');
+        }
+    }
 }
