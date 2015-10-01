@@ -51,7 +51,7 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function store(Request $request) {
-        //
+        //todo store new user
     }
 
     /**
@@ -93,7 +93,7 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function update(Request $request, $id) {
-        //
+        //todo update current user
     }
 
     /**
