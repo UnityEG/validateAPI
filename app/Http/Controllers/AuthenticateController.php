@@ -70,7 +70,7 @@ class AuthenticateController extends ApiController {
         $credentials['password'] = $this->g->arrayKeySearchRecursively($raw_input, 'password');
         // verify the credentials and create a token for the user
         if (!$token = JWTAuth::attempt($credentials)) {
-            throw new JWTException('invalid credentials', 401);
+            throw new JWTException('invalid credentials', 417);
         }
         $user = Auth::user()->toArray();
         $user['token'] = $token;

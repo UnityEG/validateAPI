@@ -28,6 +28,7 @@ class VoucherImagesController extends ApiController
     public function __construct( 
             VoucherImageTransformer $voucher_image_transformer 
             ) {
+//        todo apply JWTAuth middleware on all methods in this controller
         $this->voucherImageTransformer = $voucher_image_transformer;
     }
     

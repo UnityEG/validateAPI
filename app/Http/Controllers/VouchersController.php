@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class VouchersController extends ApiController {
+    
+//    todo Add JWTAuth middleware to apply on all methods in this controller
 
     /**
      * Display a listing of the resource.

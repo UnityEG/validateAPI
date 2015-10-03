@@ -20,7 +20,10 @@ class VoucherValidationLogController extends ApiController
     private $voucherValidationLogTransformer;
 
 
-    public function __construct( VoucherValidationLogTransformer $voucher_validation_log_transformer) {
+    public function __construct(
+            VoucherValidationLogTransformer $voucher_validation_log_transformer
+            ) {
+//        todo apply JWTAuth middleware on all methods in this controller
         $this->voucherValidationLogTransformer = $voucher_validation_log_transformer;
     }
     /**

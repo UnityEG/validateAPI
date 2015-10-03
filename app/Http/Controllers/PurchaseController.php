@@ -24,6 +24,7 @@ class PurchaseController extends ApiController{
 
 
     public function __construct( VouchersController $voucher_controller) {
+//        todo apply JWTAuth middleware on all methods in this controller
         $this->voucher_controller = $voucher_controller;
     }
     

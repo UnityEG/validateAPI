@@ -14,8 +14,9 @@ class UsersController extends ApiController {
     protected $UserTransformer;
 
     public function __construct(UserTransformer $UserTransformer) {
+//        todo exclude store method from jwt.auth 
         // Apply the jwt.auth middleware to all methods in this controller
-        $this->middleware('jwt.auth');
+        $this->middleware('jwt.auth', ['except' => 'store']);
         // 
         $this->UserTransformer = $UserTransformer;
 //        $this->middleware('auth.basic');
@@ -105,5 +106,8 @@ class UsersController extends ApiController {
     public function destroy($id) {
         //
     }
-
+    
+//    Helpers
+//    todo create prepareDataForStoreHelper
+//    todo create prepareDataForUpdateHelper
 }
