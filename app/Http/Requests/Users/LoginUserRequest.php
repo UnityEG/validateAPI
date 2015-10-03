@@ -24,8 +24,14 @@ class LoginUserRequest extends Request
     public function rules()
     {
         return [
-            "data.email"=>"required|email",
+            "data.email"=>"required|email|exists:users,email",
             "data.password" =>"required|string"
+        ];
+    }
+    
+    public function messages( ) {
+        return [
+            'data.email.exists' => 'invalid email or password'
         ];
     }
 }
