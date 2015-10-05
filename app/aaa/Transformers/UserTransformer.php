@@ -18,7 +18,7 @@ class UserTransformer extends Transformer {
     public function beforeStandard( $item ) {
         $response = [
             "id"               => ( string ) $item[ 'id' ],
-            "facebook_user_id" => ( string ) $item[ 'facebook_user_id' ],
+            "facebook_user_id" => (isset($item['facebook_user_id'])) ? ( string ) $item[ 'facebook_user_id' ] : '',
             "is_active"        => ( boolean ) $item[ 'is_active' ],
             "email"            => ( string ) $item[ 'email' ],
             "title"            => ( string ) $item[ 'title' ],
