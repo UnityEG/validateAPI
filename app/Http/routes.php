@@ -36,11 +36,19 @@ Route::group(['prefix' => 'v1'], function() {
     ));
     
 // RESTful Routers
-    Route::resource('users', 'UsersController');
     Route::resource('lessons', 'LessonsController');
     Route::resource('GiftVouchers', 'GiftVouchersController');
     Route::resource('GiftVoucherValidation', 'GiftVoucherValidationController');
     Route::resource('UserFeedback', 'UserFeedbackController');
+    
+//    Users
+    
+    Route::patch('Users', [
+        'uses' => 'UsersController@update',
+        'as' => 'Users.update'
+    ]);
+    
+        Route::resource('Users', 'UsersController');
     
 //    VoucherParameters Routes
     Route::get('VoucherParameters', [
