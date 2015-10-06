@@ -35,11 +35,11 @@ class StoreUserRequest extends Request
             "data.first_name" => ['required', 'string'],
             "data.last_name" => ['required', 'string'],
             "data.gender" => ['alpha', 'in:male,female'],
-            "data.dob" => ['required', 'date_format:m/d/Y'],
+            "data.dob" => ['required', 'date_format:d/m/Y'],
             "data.address1" => ['required', 'string'],
             "data.address2" => ['sometimes', 'required', 'string'],
-            "data.phone" => ['integer'],
-            "data.mobile" => ['integer'],
+            "data.phone" => ['string'],
+            "data.mobile" => ['string'],
             "data.is_notify_deal" => ['boolean'],
         ];
     }
