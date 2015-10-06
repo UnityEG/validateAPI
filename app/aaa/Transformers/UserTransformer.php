@@ -16,6 +16,12 @@ class UserTransformer extends Transformer {
     }
 
     public function beforeStandard( $item ) {
+//        prepare for greedy data
+        $city = (isset($item['city'])) ? $item['city'] : '';
+        $region = (isset($item['region'])) ? $item['region'] : '';
+        $town = (isset($item['town'])) ? $item['town'] : '';
+        $postcode = (isset($item['postcode'])) ? $item['postcode'] : '';
+        $user_groups = (isset($item['user_groups'])) ? $item['user_groups'] : '';
         $response = [
             "id"               => ( string ) $item[ 'id' ],
             "facebook_user_id" => (isset($item['facebook_user_id'])) ? ( string ) $item[ 'facebook_user_id' ] : '',
@@ -36,23 +42,27 @@ class UserTransformer extends Transformer {
             "relations"        => [
                 "city"     => [
                     "data" => [
-                        "city_id" => ( string ) $item[ 'city_id' ]
+                        $city
                     ]
                 ],
                 "region"   => [
                     "data" => [
-                        "region_id" => ( string ) $item[ 'region_id' ]
+                        $region
                     ]
                 ],
                 "town"     => [
                     "data" => [
-                        "town_id" => ( string ) $item[ 'town_id' ]
+                        $town
                     ]
                 ],
                 "postcode" => [
                     "data" => [
-                        "postcode_id" => ( string ) $item[ 'postcode_id' ]
+                        $postcode
                     ]
+                ],
+                "user_groups" => [
+                    "data" => $user_groups
+                    
                 ]
             ]
         ];
