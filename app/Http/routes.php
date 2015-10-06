@@ -48,7 +48,7 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'Users.update'
     ]);
     
-        Route::resource('Users', 'UsersController');
+    Route::resource('Users', 'UsersController');
     
 //    VoucherParameters Routes
     Route::get('VoucherParameters', [
