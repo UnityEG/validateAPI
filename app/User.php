@@ -93,6 +93,38 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsToMany('App\Http\Models\UserGroup', 'users_user_groups_rel', 'user_id', 'user_group_id');
     }
     
+    /**
+     * Relationship between User Model and City Model (many to one)
+     * @return object
+     */
+    public function city( ) {
+        return $this->belongsTo('App\Http\Models\City', 'city_id', 'id');
+    }
+    
+    /**
+     * Relationship between User Model and Region Model (many to one)
+     * @return object
+     */
+    public function region( ) {
+        return $this->belongsTo('App\Http\Models\Region', 'region_id', 'id');
+    }
+    
+    /**
+     * Relationship between User Model and Town Model (many to one)
+     * @return object
+     */
+    public function town( ) {
+        return $this->belongsTo('App\Http\Models\Town', 'town_id', 'id');
+    }
+    
+    /**
+     * Relationship between User Model and Postcode Model (many to one)
+     * @return object
+     */
+    public function postcode( ) {
+        return $this->belongsTo('App\Http\Models\Postcode', 'postcode_id', 'id');
+    }
+    
     
 //    Helpers
     
