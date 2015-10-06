@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Response;
 use App\Http\Models\UserGroup;
+use App\Http\Requests\Users\UpdateUserRequest;
 
 class UsersController extends ApiController {
     
@@ -61,12 +62,8 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function index() {
-        //
-        $users = User::All();
-
-        return $this->respond([
-                    'data' => $this->UserTransformer->transformCollection($users->toArray()), // $lessons->all() equals to $lessons->toArray()
-        ]);
+        $user_arrays_with_greedy_data = $this->userModel->with('city', 'region', 'town', 'postcode', 'userGroups')->get()->toArray();
+        return $this->UserTransformer->transformCollection($user_arrays_with_greedy_data);
     }
 
     /**
@@ -92,6 +89,7 @@ class UsersController extends ApiController {
             $customer_group_object = $this->userGroupModel->where('group_name', 'customers')->first();
             $customer_group_object->users()->attach([$created_user->id]);
             DB::commit();
+            $created_user = $created_user->load('city', 'region', 'town', 'postcode', 'userGroups');
             $response = $this->UserTransformer->transform($created_user->toArray());
         }else{
             DB::rollBack();
@@ -107,18 +105,8 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function show($id) {
-        //
-        $user = User::find($id);
-
-        //
-        if (!$user) {
-            // Item does not exist
-            return $this->respondNotFound('User does not exist');
-        }
-
-        return $this->respond([
-                    'data' => $this->UserTransformer->transform($user),
-        ]);
+        $user_array_with_greedy_data = $this->userModel->with('city', 'region', 'town', 'postcode', 'userGroups')->findOrFail((int)$id)->toArray();
+        return $this->UserTransformer->transform($user_array_with_greedy_data);
     }
 
     /**
@@ -138,8 +126,19 @@ class UsersController extends ApiController {
      * @param  int  $id
      * @return Response
      */
-    public function update(Request $request) {
-        //todo update current user
+    public function update(  UpdateUserRequest $request) {
+        $user_object_to_update = $this->userModel->findOrFail($request->json('data')['id']);
+        $modified_input = $this->prepareDataForUpdatingHelper($request->json('data'));
+        DB::beginTransaction();
+        if ( $user_object_to_update->update($modified_input) ) {
+            $user_object_to_update->userGroups()->sync($modified_input['user_group_ids']);
+            DB::commit();
+            $response = $this->UserTransformer->transform($user_object_to_update->load('city', 'region', 'town', 'postcode', 'userGroups')->toArray());
+        }else{
+            DB::rollBack();
+            $response = $this->respondInternalError();
+        }
+        return $response;
     }
 
     /**
@@ -155,7 +154,7 @@ class UsersController extends ApiController {
 //    Helpers
     
     /**
-     * Prepare data for storing method
+     * Prepare data for store method
      * @param array $raw_input
      * @return array
      */
@@ -188,5 +187,35 @@ class UsersController extends ApiController {
         return $modified_input;
     }
     
-//    todo create prepareDataForUpdateHelper
+    /**
+     * Prepare data for update method
+     * @param array $raw_input
+     * @return array $modified_input
+     */
+    private function prepareDataForUpdatingHelper( array $raw_input) {
+        ($city_id = $this->g->arrayKeySearchRecursively($raw_input, 'city_id')) ? $modified_input['city_id'] = (int)$city_id : FALSE;
+        ($region_id = $this->g->arrayKeySearchRecursively($raw_input, 'region_id')) ? $modified_input['region_id'] = (int)$region_id : FALSE;
+        ($town_id = $this->g->arrayKeySearchRecursively($raw_input, 'town_id')) ? $modified_input['town_id'] = (int)$town_id: FALSE;
+        ($postcode_id = $this->g->arrayKeySearchRecursively( $raw_input, 'postcode_id')) ? $modified_input['postcode_id'] = (int)$postcode_id : FALSE;
+        if ( $is_active = $this->g->arrayKeySearchRecursively( $raw_input, 'is_active') ) {
+            $modified_input['is_active'] = ("false" === $is_active) ? FALSE : TRUE;
+        }//if ( $is_active = $this->g->arrayKeySearchRecursively( $raw_input, 'is_active') )
+        ($email = $this->g->arrayKeySearchRecursively( $raw_input, 'email')) ? $modified_input['email'] = (string)$email : FALSE;
+        ($password = $this->g->arrayKeySearchRecursively( $raw_input, 'password')) ? $modified_input['password'] = Hash::make($password) : FALSE;
+        ($title = $this->g->arrayKeySearchRecursively( $raw_input, 'title')) ? $modified_input['title'] = (string)$title : FALSE;
+        ($first_name = $this->g->arrayKeySearchRecursively( $raw_input, 'first_name')) ? $modified_input['first_name'] = (string)$first_name : FALSE;
+        ($last_name = $this->g->arrayKeySearchRecursively( $raw_input, 'last_name')) ? $modified_input['last_name'] = (string)$last_name : FALSE;
+        ($gender = $this->g->arrayKeySearchRecursively( $raw_input, 'gender')) ? $modified_input['gender'] = (string)$gender : FALSE;
+        ($dob = $this->g->arrayKeySearchRecursively( $raw_input, 'dob')) ? $modified_input['dob'] = $this->g->utcDateTime( $dob.' 00:00', 'd/m/Y H:i') : FALSE;
+        ($address1 = $this->g->arrayKeySearchRecursively( $raw_input, 'address1')) ? $modified_input['address1'] = (string)$address1 : FALSE;
+        ($address2 = $this->g->arrayKeySearchRecursively( $raw_input, 'address2')) ? $modified_input['address2'] = (string)$address2 : FALSE;
+        ($phone = $this->g->arrayKeySearchRecursively( $raw_input, 'phone')) ? $modified_input['phone'] = (string)$phone : FALSE;
+        ($mobile = $this->g->arrayKeySearchRecursively( $raw_input, 'mobile')) ? $modified_input['mobile'] = (string)$mobile : FALSE;
+        if ( $is_notify_deal = $this->g->arrayKeySearchRecursively( $raw_input, 'is_notify_deal') ) {
+            $modified_input['is_notify_deal'] = ("false" === $is_notify_deal) ? FALSE : TRUE;
+        }//if ( $is_notify_deal = $this->g->arrayKeySearchRecursively( $raw_input, 'is_notify_deal') )
+        ($user_group_ids = $this->g->arrayKeySearchRecursively( $raw_input, 'user_group_ids')) ? $modified_input['user_group_ids'] = array_map( 'intval', $user_group_ids) : FALSE;
+        return $modified_input;
+    }
+    
 }
