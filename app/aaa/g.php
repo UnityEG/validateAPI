@@ -5,6 +5,8 @@ namespace App\aaa;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
+
+//todo change name of the class to GeneralHelpers
 class g {
 
     public static function has( $rule_name = null ) {

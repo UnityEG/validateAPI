@@ -29,14 +29,12 @@ abstract class Transformer {
      * Prepare and return with data before applying Json API standard
      * @param array $item
      */
-    public function beforeStandard( $item) {
-        
-    }
+    abstract public function beforeStandard( array $item);
     
     /**
      * Get data ready for send with Json API standard
      * @param array $item
      */
-    public function transform($item){}
+    abstract public function transform(array $item);
 
 }

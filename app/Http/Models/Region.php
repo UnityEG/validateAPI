@@ -15,4 +15,12 @@ class Region extends Model
     public function users( ) {
         return $this->hasMany('App\User', 'region_id', 'id');
     }
+    
+    /**
+     * Relationship between Region Model and Business Model (one to many)
+     * @return object
+     */
+    public function business( ) {
+        return $this->hasMany('App\Http\Models\Business', 'region_id', 'id');
+    }
 }

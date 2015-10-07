@@ -9,13 +9,13 @@ namespace App\aaa\Transformers;
  */
 class UserTransformer extends Transformer {
 
-    public function transform( $item ) {
+    public function transform( array $item ) {
         return [
             "data"=>  $this->beforeStandard( $item )
         ];
     }
 
-    public function beforeStandard( $item ) {
+    public function beforeStandard(array $item ) {
 //        prepare for greedy data
         $city = (isset($item['city'])) ? $item['city'] : '';
         $region = (isset($item['region'])) ? $item['region'] : '';

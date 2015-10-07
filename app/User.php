@@ -124,6 +124,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function postcode( ) {
         return $this->belongsTo('App\Http\Models\Postcode', 'postcode_id', 'id');
     }
+  
+    /**
+     * Relationship between User Model and Business Model (many to many)
+     * @return object
+     */
+    public function business( ) {
+        return $this->belongsToMany('App\Http\Models\Business', 'users_business_rel', 'user_id', 'business_id');
+    }
     
     
 //    Helpers

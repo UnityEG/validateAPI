@@ -12,6 +12,7 @@
  */
 
 Route::get('/', function () {
+//    todo prevent showing laravel welcome screen and redirect to UserInterface
     return view('welcome');
 });
 
@@ -41,7 +42,7 @@ Route::group(['prefix' => 'v1'], function() {
     Route::resource('GiftVoucherValidation', 'GiftVoucherValidationController');
     Route::resource('UserFeedback', 'UserFeedbackController');
     
-//    Users
+//    Users Routes
     
     Route::patch('Users', [
         'uses' => 'UsersController@update',
@@ -50,9 +51,24 @@ Route::group(['prefix' => 'v1'], function() {
     
     Route::resource('Users', 'UsersController');
     
+    // login, logout and authentication
+    Route::get('authenticate', 'AuthenticateController@index');
+    
+    Route::get('logout', [
+        'uses' => 'AuthenticateController@logout',
+        'as' => 'Authenticate.logout'
+    ]);
+    
+    Route::post('authenticate', [
+        'uses' => 'AuthenticateController@authenticate',
+        'as' => 'Authenticate.authenticate'
+    ]);
+    
+//    Business Routes
+    Route::resource('Business', 'BusinessController');
+    
 //    VoucherParameters Routes
     Route::get('VoucherParameters', [
-//        todo remove this route
         'uses' => 'VoucherParametersController@index'
     ]);
     
@@ -128,8 +144,6 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'VoucherImages.destroy'
     ]);
     
-    
-    
 //    Purchase Routes
     
     Route::post('Purchase/onlinePurchase', [
@@ -150,18 +164,5 @@ Route::group(['prefix' => 'v1'], function() {
     Route::get('VoucherValidationLog/getAllLogs/{voucher_id}', [
         'uses' => 'VoucherValidationLogController@getAllLogs',
         'as' => 'VoucherValidationLog.getAllLogs'
-    ]);
-    
-//    Users Routes
-    Route::resource('authenticate', 'AuthenticateController', ['only' => ['index']]);
-    
-    Route::get('logout', [
-        'uses' => 'AuthenticateController@logout',
-        'as' => 'Authenticate.logout'
-    ]);
-    
-    Route::post('authenticate', [
-        'uses' => 'AuthenticateController@authenticate',
-        'as' => 'Authenticate.authenticate'
     ]);
 });
