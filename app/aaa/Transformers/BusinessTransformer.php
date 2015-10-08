@@ -15,6 +15,12 @@ class BusinessTransformer extends Transformer{
     }
     
     public function beforeStandard(array $item) {
+//        dealing with simple relations (many to one)
+        $city = (isset($item['city'])) ? $item['city'] : ["data"=>["city_id"=>(string)$item['city_id']]];
+        $region = (isset($item['region'])) ? $item['region'] : ["data"=>["region_id"=>(string)$item['region_id']]];
+        $town = (isset($item['town'])) ? $item['town'] : ["data"=>["town_id"=>(string)$item['town_id']]];
+        $postcode = (isset($item['postcode'])) ? $item['postcode'] : ["data"=>["postcode_id"=>(string)$item['postcode_id']]];
+        $industry = (isset($item['industry'])) ? $item['industry'] : ["data"=>["industry_id"=>(string)$item['industry_id']]];
         $response = [
             "id" => (string)$item['id'],
             "facebook_page_id" => (isset($item['facebook_page_id'])) ? (string)$item['facebook_page_id'] : '',
@@ -33,16 +39,17 @@ class BusinessTransformer extends Transformer{
             "created_at" => (string)$item['created_at'],
             "updated_at" => (string)$item['updated_at'],
             "relations"=>[
-//                "business_logo" => $item['logo'],
-                "city" => $item['city'],
-                "region" => $item['region'],
-                "town" => $item['town'],
-                "postcode" => $item['postcode'],
-                "industry" => $item['industry'],
-                "business_types" => $item['business_types'],
-                "users" => $item['users']
+//                todo repair how to show logo info here "business_logo" => $item['logo'],
+                "city" => $city,
+                "region" => $region,
+                "town" => $town,
+                "postcode" => $postcode,
+                "industry" => $industry,
             ]
         ];
+//        complex relations (many to many)
+        (!isset($item['business_types'])) ?  : $response["relations"]["business_types"]=$item['business_types'];
+        (!isset($item['users'])) ?  : $response["relations"]["users"] = $item['users'];
         return $response;
     }
 }
