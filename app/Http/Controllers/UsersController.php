@@ -14,7 +14,7 @@ use App\Http\Models\UserGroup;
 use App\Http\Requests\Users\UpdateUserRequest;
 
 class UsersController extends ApiController {
-    
+//    todo refine UserController to remove unused objects
     /**
      * Instance of UserTransformer class
      * @var object
@@ -62,8 +62,12 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function index() {
-        $user_arrays_with_greedy_data = $this->userModel->with('city', 'region', 'town', 'postcode', 'userGroups')->get()->toArray();
-        return $this->UserTransformer->transformCollection($user_arrays_with_greedy_data);
+        $user_objects = $this->userModel->all();
+        $data = [];
+        foreach ( $user_objects as $user_object) {
+            $data["data"][] = $user_object->getBeforeStandardArray();
+        }
+        return $data;
     }
 
     /**
@@ -89,8 +93,7 @@ class UsersController extends ApiController {
             $customer_group_object = $this->userGroupModel->where('group_name', 'customers')->first();
             $customer_group_object->users()->attach([$created_user->id]);
             DB::commit();
-            $created_user = $created_user->load('city', 'region', 'town', 'postcode', 'userGroups');
-            $response = $this->UserTransformer->transform($created_user->toArray());
+            $response = $created_user->getStandardJsonTransform();
         }else{
             DB::rollBack();
             $response = $this->respondInternalError();
@@ -105,8 +108,7 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function show($id) {
-        $user_array_with_greedy_data = $this->userModel->with('city', 'region', 'town', 'postcode', 'userGroups')->findOrFail((int)$id)->toArray();
-        return $this->UserTransformer->transform($user_array_with_greedy_data);
+        return $this->userModel->findOrFail($id)->getStandardJsonTransform();
     }
 
     /**
@@ -133,7 +135,7 @@ class UsersController extends ApiController {
         if ( $user_object_to_update->update($modified_input) ) {
             $user_object_to_update->userGroups()->sync($modified_input['user_group_ids']);
             DB::commit();
-            $response = $this->UserTransformer->transform($user_object_to_update->load('city', 'region', 'town', 'postcode', 'userGroups')->toArray());
+            $response = $user_object_to_update->getStandardJsonTransform();
         }else{
             DB::rollBack();
             $response = $this->respondInternalError();
