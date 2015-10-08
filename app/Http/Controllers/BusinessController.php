@@ -20,7 +20,7 @@ use App\aaa\Transformers\BusinessTypesTransformer;
 use App\Http\Controllers\UsersController;
 
 class BusinessController extends ApiController {
-
+//todo refine BusinessController to remove unused objects
     /**
      * Instance of g class
      * @var object
@@ -123,7 +123,7 @@ class BusinessController extends ApiController {
         $business_objects = $this->businessModel->get();
         $result = [];
         foreach ($business_objects as $business_object){
-            $result["data"][] = $business_object->getStandardJsonTransformCollection();
+            $result["data"][] = $business_object->getBeforeStandardJson();
         }
         return $result;
     }
@@ -152,7 +152,7 @@ class BusinessController extends ApiController {
             $current_user_id = $this->jwtAuth->parseToken()->authenticate()->id;
             $created_business_object->users()->attach([$current_user_id]);
             DB::commit();
-            $response = $created_business_object->load( 'user');
+            $response = $created_business_object->getStandardJsonTransform();
         }else{
             DB::rollBack();
             $response = $this->respondInternalError();
@@ -197,7 +197,7 @@ class BusinessController extends ApiController {
      * @return \Illuminate\Http\Response
      */
     public function update( Request $request, $id ) {
-        //
+        //todo create update method
     }
 
     /**
@@ -209,7 +209,9 @@ class BusinessController extends ApiController {
     public function destroy( $id ) {
         //
     }
-
+    
+//    Helpers
+    
     public function prepareDataForStoringHelper( array $raw_input ) {
         $modified_input[ 'logo_id' ] = (int)$this->generalHelpers->arrayKeySearchRecursively($raw_input, 'logo_id');
         $modified_input['city_id'] = (int)  $this->generalHelpers->arrayKeySearchRecursively($raw_input, 'city_id');
