@@ -16,12 +16,11 @@ class UserTransformer extends Transformer {
     }
 
     public function beforeStandard(array $item ) {
-//        prepare for greedy data
-        $city = (isset($item['city'])) ? $item['city'] : '';
-        $region = (isset($item['region'])) ? $item['region'] : '';
-        $town = (isset($item['town'])) ? $item['town'] : '';
-        $postcode = (isset($item['postcode'])) ? $item['postcode'] : '';
-        $user_groups = (isset($item['user_groups'])) ? $item['user_groups'] : '';
+//        prepare for greedy data (many to one)
+        $city = (isset($item['city'])) ? $item['city'] : ["data"=>["city_id"=>(string)$item['city_id']]];
+        $region = (isset($item['region'])) ? $item['region'] : ["data"=>["region_id"=>(string)$item['region_id']]];
+        $town = (isset($item['town'])) ? $item['town'] : ["data"=>["town_id"=>(string)$item['town_id']]];
+        $postcode = (isset($item['postcode'])) ? $item['postcode'] : ["data"=>["postcode_id"=>(string)$item['postcode_id']]];
         $response = [
             "id"               => ( string ) $item[ 'id' ],
             "facebook_user_id" => (isset($item['facebook_user_id'])) ? ( string ) $item[ 'facebook_user_id' ] : '',
@@ -40,36 +39,17 @@ class UserTransformer extends Transformer {
             "created_at"       => ( string ) $item[ 'created_at' ],
             "updated_at"       => ( string ) $item[ 'updated_at' ],
             "relations"        => [
-                "city"     => [
-                    "data" => [
-                        $city
-                    ]
-                ],
-                "region"   => [
-                    "data" => [
-                        $region
-                    ]
-                ],
-                "town"     => [
-                    "data" => [
-                        $town
-                    ]
-                ],
-                "postcode" => [
-                    "data" => [
-                        $postcode
-                    ]
-                ],
-                "user_groups" => [
-                    "data" => $user_groups
-                    
-                ]
+                "city"     => $city,
+                "region"   => $region,
+                "town"     => $town,
+                "postcode" => $postcode
             ]
         ];
-        if ( isset($item['token']) && !empty($item['token']) ) {
-            $response_token['token'] = (string) $item['token'];
-            $response = $response_token+$response;
-        }
+//        complex relations (many to many)
+        (empty($item['user_groups'])) ? :$response['relations']["user_groups"] = $item['user_groups'];
+        (empty($item['business'])) ? : $response['relations']['business'] = $item['business'];
+//        Add token if exist
+        (empty($item['token'])) ?  : $response['token'] = (string)$item['token'];
         return $response;
     }
 
