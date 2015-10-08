@@ -135,7 +135,8 @@ class Business extends Model {
         return $this->businessLogos()->where('id', $this->logo_id)->first();
     }
     
-    public function getStandardJsonBeforeStandard(  ) {
+    public function prepareBusinessGreedyData( ) {
+//        todo refine this method and make it like prepareUserGreedyData in User Model
         $city_transformer = new   CityTransformer;
         $region_transformer = new  RegionTransformer ;
         $town_transformer = new  TownTransformer ;
@@ -145,16 +146,11 @@ class Business extends Model {
         $user_transformer = new UserTransformer();
         
         $business_array = $this->load('businessLogos', 'city', 'region', 'town', 'postcode', 'industry', 'businessTypes', 'users')->toArray();
-        dd($business_array);
-        $city = ($business_array['city']) ? $business_array['city'] : ["id"=>"1", "nz_city"=>"Accommodation"];
-        $business_array['city'] = $city_transformer->transform($city);
-        $region = ($business_array['region']) ? $business_array['region'] : ["id"=>"1", "region"=>"Accommodation"];
-        $business_array['region'] = $region_transformer->transform($region);
-        $town = ($business_array['town']) ? $business_array['town'] : ["id"=>"1", "nz_town"=>"Accommodation"];
-        $business_array['town'] = $town_transformer->transform($town);
+        $business_array['city'] = $city_transformer->transform($business_array['city']);
+        $business_array['region'] = $region_transformer->transform($business_array['region']);
+        $business_array['town'] = $town_transformer->transform($business_array['town']);
         $business_array['postcode'] = $postcode_transformer->transform($business_array['postcode']);
-        $industry = ($business_array['industry']) ? $business_array['industry'] : ["id"=>"1", "industry"=>"Accommodation"];
-        $business_array['industry'] = $industry_transformer->transform($industry);
+        $business_array['industry'] = $industry_transformer->transform($business_array['industry']);
         $business_array['business_types'] = $business_types_transformer->transformCollection($business_array['business_types']);
         $business_array['users'] = $user_transformer->transformCollection($business_array['users']);
         
@@ -163,12 +159,14 @@ class Business extends Model {
     }
     
     public function getStandardJsonTransform( ) {
+//        todo modify this method
         $business_transformer = new BusinessTransformer;
-        return $business_transformer->transform($this->getStandardJsonBeforeStandard());
+        return $business_transformer->transform($this->getGreedyBusinessDataArray());
     }
     
-    public function getStandardJsonTransformCollection( ) {
+    public function getBeforeStandardJson( ) {
+//        todo modify this method
         $business_transformer = new BusinessTransformer;
-        return $business_transformer->transformCollection($this->getStandardJsonBeforeStandard());
+        return $business_transformer->beforeStandard($this->getGreedyBusinessDataArray());
     }
 }
