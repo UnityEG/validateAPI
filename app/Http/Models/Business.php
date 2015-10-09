@@ -3,14 +3,15 @@
 namespace App\Http\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\aaa\Transformers\BusinessTransformer;
-use App\aaa\Transformers\CityTransformer;
-use App\aaa\Transformers\RegionTransformer;
-use App\aaa\Transformers\TownTransformer;
-use App\aaa\Transformers\PostcodeTransformer;
-use App\aaa\Transformers\IndustryTransformer;
-use App\aaa\Transformers\BusinessTypesTransformer;
-use App\aaa\Transformers\UserTransformer;
+use App\EssentialEntities\Transformers\BusinessLogoTransformer;
+use App\EssentialEntities\Transformers\BusinessTransformer;
+use App\EssentialEntities\Transformers\CityTransformer;
+use App\EssentialEntities\Transformers\RegionTransformer;
+use App\EssentialEntities\Transformers\TownTransformer;
+use App\EssentialEntities\Transformers\PostcodeTransformer;
+use App\EssentialEntities\Transformers\IndustryTransformer;
+use App\EssentialEntities\Transformers\BusinessTypesTransformer;
+use App\EssentialEntities\Transformers\UserTransformer;
 
 class Business extends Model {
     
@@ -135,38 +136,39 @@ class Business extends Model {
         return $this->businessLogos()->where('id', $this->logo_id)->first();
     }
     
+    /**
+     * Prepare Business Data with all its relationships data in a greedy way in standard transform
+     * @return array
+     */
     public function prepareBusinessGreedyData( ) {
-//        todo refine this method and make it like prepareUserGreedyData in User Model
-        $city_transformer = new   CityTransformer;
-        $region_transformer = new  RegionTransformer ;
-        $town_transformer = new  TownTransformer ;
-        $postcode_transformer = new  PostcodeTransformer;
-        $industry_transformer = new  IndustryTransformer;
-        $business_types_transformer = new  BusinessTypesTransformer;
-        $user_transformer = new UserTransformer();
-        
-        $business_array = $this->load('businessLogos', 'city', 'region', 'town', 'postcode', 'industry', 'businessTypes', 'users')->toArray();
-        $business_array['city'] = $city_transformer->transform($business_array['city']);
-        $business_array['region'] = $region_transformer->transform($business_array['region']);
-        $business_array['town'] = $town_transformer->transform($business_array['town']);
-        $business_array['postcode'] = $postcode_transformer->transform($business_array['postcode']);
-        $business_array['industry'] = $industry_transformer->transform($business_array['industry']);
-        $business_array['business_types'] = $business_types_transformer->transformCollection($business_array['business_types']);
-        $business_array['users'] = $user_transformer->transformCollection($business_array['users']);
-        
-//        todo create BusinessLogosTransformer class
-        return $business_array;
+        $business_greedy_array = $this->load(['businessLogos'=> function($query){
+//            return with the active logo only when calling business object
+            $query->where('id', $this->logo_id);
+        }, 'city', 'region', 'town', 'postcode', 'industry', 'businessTypes', 'users'])->toArray();
+        (empty($business_greedy_array['business_logos'][0])) ?  : $business_greedy_array['business_logos'] = (new BusinessLogoTransformer())->transform( $business_greedy_array['business_logos'][0]);
+        (empty($business_greedy_array['city'])) ?  : $business_greedy_array['city'] = (new CityTransformer())->transform( $business_greedy_array['city']);
+        (empty($business_greedy_array['region'])) ?  : $business_greedy_array['region'] = (new RegionTransformer())->transform( $business_greedy_array['region']);
+        (empty($business_greedy_array['town'])) ?  : $business_greedy_array['town'] = (new TownTransformer())->transform( $business_greedy_array['town']);
+        (empty($business_greedy_array['postcode'])) ?  : $business_greedy_array['postcode'] = (new PostcodeTransformer())->transform( $business_greedy_array['postcode']);
+        (empty($business_greedy_array['industry'])) ?  : $business_greedy_array['industry'] = (new IndustryTransformer())->transform( $business_greedy_array['industry']);
+        (empty($business_greedy_array['business_types'])) ?  : $business_greedy_array['business_types'] = (new BusinessTypesTransformer())->transformCollection( $business_greedy_array['business_types']);
+        (empty($business_greedy_array['users'])) ?  : $business_greedy_array['users'] = (new UserTransformer())->transformCollection( $business_greedy_array['users']);
+        return $business_greedy_array;
     }
     
-    public function getStandardJsonTransform( ) {
-//        todo modify this method
-        $business_transformer = new BusinessTransformer;
-        return $business_transformer->transform($this->getGreedyBusinessDataArray());
+    /**
+     * Get Standard Json API Format for single object
+     * @return array
+     */
+    public function getStandardJsonFormat( ) {
+        return (new BusinessTransformer())->transform($this->prepareBusinessGreedyData());
     }
     
-    public function getBeforeStandardJson( ) {
-//        todo modify this method
-        $business_transformer = new BusinessTransformer;
-        return $business_transformer->beforeStandard($this->getGreedyBusinessDataArray());
+    /**
+     * Get before Standard Json API format for using in building array of Json objects
+     * @return array
+     */
+    public function getBeforeStandardArray( ) {
+        return (new BusinessTransformer())->beforeStandard($this->prepareBusinessGreedyData());
     }
 }
