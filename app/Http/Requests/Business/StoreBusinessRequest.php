@@ -24,12 +24,12 @@ class StoreBusinessRequest extends Request
     public function rules()
     {
         return [
-            "data.relations.logo.data.logo_id" => ['required', 'integer', 'exists:business_logos,id'],
             "data.relations.city.data.city_id" => ['required', 'integer', 'exists:lu_nz_cities,id'],
             "data.relations.region.data.region_id" => ['required', 'integer', 'exists:lu_nz_regions,id'],
             "data.relations.town.data.town_id" => ['required', 'integer', 'exists:lu_nz_towns,id'],
             "data.relations.postcode.data.postcode_id" => ['required', 'integer', 'exists:lu_nz_postcodes,id'],
             "data.relations.industry.data.industry_id" => ['required', 'integer', 'exists:lu_industries,id'],
+//            todo fix business_type_ids validation rules as an array
             "data.relations.business_types.data.business_type_ids" => ['required', 'exists:business_types,id'],
             "data.business_name" => ['required', 'string', 'unique:business,business_name'],
             "data.trading_name" => ['required', 'string', 'unique:business,trading_name'],

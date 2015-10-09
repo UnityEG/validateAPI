@@ -7,7 +7,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Response;
 use App\Lesson;
-use App\aaa\Transformers\LessonTransformer;
+use App\EssentialEntities\Transformers\LessonTransformer;
 
 class LessonsController extends ApiController {
 

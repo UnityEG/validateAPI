@@ -10,10 +10,10 @@ use App\User;
 use DB;
 //use App\Merchant;
 use App\Http\Models\GiftVoucher;
-use App\aaa\Transformers\GiftVoucherTransformer;
+use App\EssentialEntities\Transformers\GiftVoucherTransformer;
 //
 use App\Http\Models\GiftVoucherValidation;
-use App\aaa\Transformers\GiftVoucherValidationTransformer;
+use App\EssentialEntities\Transformers\GiftVoucherValidationTransformer;
 
 class GiftVouchersController extends ApiController {
 

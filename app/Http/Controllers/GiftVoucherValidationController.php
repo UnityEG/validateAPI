@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Models\GiftVoucher;
 use App\Http\Models\GiftVoucherValidation;
 //
-use App\aaa\Transformers\GiftVoucherValidationTransformer;
+use App\EssentialEntities\Transformers\GiftVoucherValidationTransformer;
 
-//use App\aaa\g;
+//use App\EssentialEntities\GeneralHelperTools;
 
 class GiftVoucherValidationController extends ApiController {
 

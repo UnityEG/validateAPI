@@ -25,6 +25,7 @@ class PurchaseRequest extends Request {
      */
     public function rules() {
 //        dd($this->request->get( 'data' )[0]['recipient_email']);
+//        we use loop as we actually don't know how many items will be purchased
         $rules = [];
         foreach ( $this->request->get( 'data' ) as $key=>$voucher_to_purchase ) {
             $rules_to_merge = [

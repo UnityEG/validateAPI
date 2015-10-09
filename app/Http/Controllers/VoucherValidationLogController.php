@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\aaa\Transformers\VoucherValidationLogTransformer;
+use App\EssentialEntities\Transformers\VoucherValidationLogTransformer;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Voucher;
 use App\Http\Models\VoucherValidationLog;

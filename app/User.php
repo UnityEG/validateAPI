@@ -8,13 +8,13 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-use App\aaa\Transformers\BusinessTransformer;
-use App\aaa\Transformers\CityTransformer;
-use App\aaa\Transformers\RegionTransformer;
-use App\aaa\Transformers\TownTransformer;
-use App\aaa\Transformers\PostcodeTransformer;
-use App\aaa\Transformers\UserGroupTransformer;
-use App\aaa\Transformers\UserTransformer;
+use App\EssentialEntities\Transformers\BusinessTransformer;
+use App\EssentialEntities\Transformers\CityTransformer;
+use App\EssentialEntities\Transformers\RegionTransformer;
+use App\EssentialEntities\Transformers\TownTransformer;
+use App\EssentialEntities\Transformers\PostcodeTransformer;
+use App\EssentialEntities\Transformers\UserGroupTransformer;
+use App\EssentialEntities\Transformers\UserTransformer;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
 
@@ -172,7 +172,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * Get Standard Json API format for singel object
      * @return array
      */
-    public function getStandardJsonTransform( ) {
+    public function getStandardJsonFormat( ) {
         return (new UserTransformer())->transform($this->prepareUserGreedyData());
     }
     
@@ -185,17 +185,17 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
     
     /**
-     * Prepare User data with all its relationships data in greedy way with the standard transform
+     * Prepare User data with all its relationships data in greedy way in standard transform
      * @return array
      */
     private function prepareUserGreedyData() {
         $user_greedy_array = $this->load('city', 'region', 'town', 'postcode', 'userGroups', 'business')->toArray();
-        (empty($user_greedy_array['city'])) ?  : (new CityTransformer())->transform($user_greedy_array['city']);
-        (empty($user_greedy_array['region'])) ?  : (new RegionTransformer())->transform( $user_greedy_array['region']);
-        (empty($user_greedy_array['town'])) ?  : (new TownTransformer())->transform( $user_greedy_array['town']);
-        (empty($user_greedy_array['postcode'])) ?  : (new PostcodeTransformer())->transform( $user_greedy_array['postcode']);
-        (empty($user_greedy_array['user_groups'])) ?  : (new UserGroupTransformer())->transformCollection( $user_greedy_array['user_groups']);
-        (empty($user_greedy_array['business'])) ?  : (new BusinessTransformer())->transformCollection( $user_greedy_array['business']);
+        (empty($user_greedy_array['city'])) ?  : $user_greedy_array['city'] = (new CityTransformer())->transform($user_greedy_array['city']);
+        (empty($user_greedy_array['region'])) ?  : $user_greedy_array['region'] = (new RegionTransformer())->transform( $user_greedy_array['region']);
+        (empty($user_greedy_array['town'])) ?  : $user_greedy_array['town'] = (new TownTransformer())->transform( $user_greedy_array['town']);
+        (empty($user_greedy_array['postcode'])) ?  : $user_greedy_array['postcode'] = (new PostcodeTransformer())->transform( $user_greedy_array['postcode']);
+        (empty($user_greedy_array['user_groups'])) ?  : $user_greedy_array['user_groups'] = (new UserGroupTransformer())->transformCollection( $user_greedy_array['user_groups']);
+        (empty($user_greedy_array['business'])) ?  : $user_greedy_array['business'] = (new BusinessTransformer())->transformCollection( $user_greedy_array['business']);
         return $user_greedy_array;
     }
 

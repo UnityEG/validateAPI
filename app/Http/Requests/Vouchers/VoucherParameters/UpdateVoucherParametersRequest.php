@@ -32,6 +32,7 @@ class UpdateVoucherParametersRequest extends Request {
             'data.relations.business.data.business_id'           => 'sometimes|required|integer|exists:business,id',
             'data.relations.user.data.user_id'                   => 'sometimes|required|integer|exists:users,id',
             'data.relations.voucher_image.data.voucher_image_id' => 'sometimes|required|exists:voucher_images,id',
+//            todo fix use_term_ids validation rules as an array
             'data.relations.use_terms.data.use_term_ids'         => 'sometimes|required|exists:use_terms,id',
             'data.attributes.title'                              => 'sometimes|required|string',
             'data.attributes.purchase_start'                     => 'sometimes|required|date_format:d/m/Y H:i',
