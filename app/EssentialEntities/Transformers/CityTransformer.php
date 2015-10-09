@@ -1,22 +1,22 @@
 <?php
 
-namespace App\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
 /**
- * Description of RegionTransformer
+ * Description of CityTransformer
  *
  * @author mohamed
  */
-class RegionTransformer extends Transformer{
+class CityTransformer extends Transformer{
     
     public function transform( array $item) {
-        return ["data" => $this->beforeStandard($item)];
+        return ["data"=>  $this->beforeStandard($item)];
     }
     
     public function beforeStandard( array $item) {
         $response = [
             "id" => (string)$item['id'],
-            "region" => (string)$item['region']
+            "nz_city" => (string)$item['nz_city']
         ];
         return $response;
     }

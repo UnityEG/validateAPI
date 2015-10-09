@@ -1,18 +1,18 @@
 <?php
 
-namespace App\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
 /**
- * Description of PostcodeTransformer
+ * Description of UserGroupTransformer
  *
  * @author mohamed
  */
-class PostcodeTransformer extends Transformer{
+class UserGroupTransformer extends Transformer{
 
     public function beforeStandard( array $item ) {
         $response = [
             "id" => (string)$item['id'],
-            "postcode" => (string)$item['postcode']
+            "group_name" => (string)$item['group_name']
         ];
         return $response;
     }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
-use App\aaa\Transformers\Transformer;
+use App\EssentialEntities\Transformers\Transformer;
 /**
  * Description of BusinessTransformer
  *
@@ -16,6 +16,7 @@ class BusinessTransformer extends Transformer{
     
     public function beforeStandard(array $item) {
 //        dealing with simple relations (many to one)
+        $logo = (!empty($item['business_logos'])) ? $item['business_logos'] : ["data"=>["logo_id"=>$item['logo_id']]];
         $city = (isset($item['city'])) ? $item['city'] : ["data"=>["city_id"=>(string)$item['city_id']]];
         $region = (isset($item['region'])) ? $item['region'] : ["data"=>["region_id"=>(string)$item['region_id']]];
         $town = (isset($item['town'])) ? $item['town'] : ["data"=>["town_id"=>(string)$item['town_id']]];
@@ -39,7 +40,7 @@ class BusinessTransformer extends Transformer{
             "created_at" => (string)$item['created_at'],
             "updated_at" => (string)$item['updated_at'],
             "relations"=>[
-//                todo repair how to show logo info here "business_logo" => $item['logo'],
+                "business_logos"=>$logo,
                 "city" => $city,
                 "region" => $region,
                 "town" => $town,

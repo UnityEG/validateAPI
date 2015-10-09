@@ -1,18 +1,17 @@
 <?php
-
-namespace App\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
 /**
- * Description of UserGroupTransformer
+ * Description of BusinessTypesTransformer
  *
  * @author mohamed
  */
-class UserGroupTransformer extends Transformer{
+class BusinessTypesTransformer extends Transformer{
 
     public function beforeStandard( array $item ) {
         $response = [
             "id" => (string)$item['id'],
-            "group_name" => (string)$item['group_name']
+            "type" => (string)$item['type']
         ];
         return $response;
     }

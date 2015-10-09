@@ -1,6 +1,6 @@
 <?php
 
-namespace App\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

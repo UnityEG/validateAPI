@@ -1,6 +1,6 @@
 <?php
 
-namespace App\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
 /**
  * Description of TownTransformer

@@ -1,17 +1,18 @@
 <?php
-namespace App\aaa\Transformers;
+
+namespace App\EssentialEntities\Transformers;
 
 /**
- * Description of BusinessTypesTransformer
+ * Description of PostcodeTransformer
  *
  * @author mohamed
  */
-class BusinessTypesTransformer extends Transformer{
+class PostcodeTransformer extends Transformer{
 
     public function beforeStandard( array $item ) {
         $response = [
             "id" => (string)$item['id'],
-            "type" => (string)$item['type']
+            "postcode" => (string)$item['postcode']
         ];
         return $response;
     }
