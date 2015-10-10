@@ -21,4 +21,10 @@ class BusinessLogo extends Model
     public function business( ) {
         return $this->belongsTo( 'App\Http\Models\Business', 'business_id', 'id' );
     }
+    
+//    todo create Relationship method with User Model (many to one)
+    
+//    todo create getStandardJsonFormat method
+//    todo create getBeforeStandardArray method
+//    todo create prepareBusinessLogoGreedyData
 }

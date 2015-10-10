@@ -66,7 +66,8 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    Business Routes
     Route::resource('Business', 'BusinessController');
-    
+    //    BusinessLogos
+        Route::resource('BusinessLogos', 'BusinessControllers\BusinessLogosController');
 //    VoucherParameters Routes
     Route::get('VoucherParameters', [
         'uses' => 'VoucherParametersController@index'
