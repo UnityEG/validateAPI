@@ -24,4 +24,17 @@ class UserGroup extends Model
     public function rules( ) {
         return $this->belongsToMany('App\Http\Models\Rule', 'user_groups_rules_rel', 'user_group_id', 'rule_id');
     }
+    
+//    todo Create getStandardJsonFormat method
+//    todo Create getBeforeStandardArray method
+//    todo Create prepareUserGroupGreedyData method
+//    todo Create UserGroupsController class
+//    todo Create show method in UserGroupsController class
+//    todo Create index method in UserGroupsController class.
+//    todo Create show route
+//    todo Create index route
+//    todo build data for testing show method
+//    todo test show method
+//    todo build data for testing index method
+//    todo test index method
 }

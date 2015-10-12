@@ -141,6 +141,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsToMany('App\Http\Models\Business', 'users_business_rel', 'user_id', 'business_id');
     }
     
+    /**
+     * Relationship between User Model and BusinessLogo Model (one to many)
+     * @return object
+     */
+    public function businessLogos( ) {
+        return $this->hasMany('App\Http\Models\BusinessLogo', 'user_id', 'id');
+    }
+    
     
 //    Helpers
     

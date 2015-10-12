@@ -31,7 +31,6 @@ class UpdateBusinessRequest extends Request
             "data.relations.town.data.town_id" => ['sometimes', 'required', 'integer', 'exists:lu_nz_towns,id'],
             "data.relations.postcode.data.postcode_id" => ['sometimes', 'required', 'integer', 'exists:lu_nz_postcodes,id'],
             "data.relations.industry.data.industry_id" => ['sometimes', 'required', 'integer', 'exists:lu_industries,id'],
-//            todo validation rules doesn't work properly with array of inputs like business_type_ids
             "data.relations.business_types.data.business_type_ids" => ['sometimes', 'required', 'array' ],
             "data.attributes.is_active" => ['sometimes', 'required', 'boolean'],
             "data.attributes.business_name" => ['sometimes', 'required', 'string', 'unique:business,business_name'],
