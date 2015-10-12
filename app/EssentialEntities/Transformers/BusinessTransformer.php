@@ -16,7 +16,9 @@ class BusinessTransformer extends Transformer{
     
     public function beforeStandard(array $item) {
 //        dealing with simple relations (many to one)
-        $logo = (!empty($item['business_logos'])) ? $item['business_logos'] : ["data"=>["logo_id"=>$item['logo_id']]];
+        if ( !empty($item['business_logos']) ||  !empty($item['logo_id'])) {
+            $logo = (!empty($item['business_logos'])) ? $item['business_logos'] : ["data"=>["logo_id"=>$item['logo_id']]];
+        }//if ( !empty($item['business_logos']) ||  !empty($item['logo_id']))
         $city = (isset($item['city'])) ? $item['city'] : ["data"=>["city_id"=>(string)$item['city_id']]];
         $region = (isset($item['region'])) ? $item['region'] : ["data"=>["region_id"=>(string)$item['region_id']]];
         $town = (isset($item['town'])) ? $item['town'] : ["data"=>["town_id"=>(string)$item['town_id']]];
@@ -40,7 +42,6 @@ class BusinessTransformer extends Transformer{
             "created_at" => (string)$item['created_at'],
             "updated_at" => (string)$item['updated_at'],
             "relations"=>[
-                "business_logos"=>$logo,
                 "city" => $city,
                 "region" => $region,
                 "town" => $town,
@@ -48,6 +49,7 @@ class BusinessTransformer extends Transformer{
                 "industry" => $industry,
             ]
         ];
+        (!isset($logo)) ?  : $response["business_logos"] = $logo;
 //        complex relations (many to many)
         (!isset($item['business_types'])) ?  : $response["relations"]["business_types"]=$item['business_types'];
         (!isset($item['users'])) ?  : $response["relations"]["users"] = $item['users'];
