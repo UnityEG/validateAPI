@@ -26,6 +26,7 @@ class CreateVoucherParametersRequest extends Request {
             'data.relations.business.data.business_id'           => 'required|integer|exists:business,id',
             'data.relations.user.data.user_id'                   => 'required|integer|exists:users,id',
             'data.relations.voucher_image.data.voucher_image_id' => 'required|exists:voucher_images,id',
+//            fix use_term_ids validation rules as an array
             'data.relations.use_terms.data.use_term_ids'         => 'exists:use_terms,id',
             'data.title'                                         => 'required|string',
             'data.purchase_start'                                => 'date_format:d/m/Y H:i',

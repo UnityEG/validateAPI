@@ -8,6 +8,14 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
+use App\EssentialEntities\Transformers\BusinessTransformer;
+use App\EssentialEntities\Transformers\CityTransformer;
+use App\EssentialEntities\Transformers\RegionTransformer;
+use App\EssentialEntities\Transformers\TownTransformer;
+use App\EssentialEntities\Transformers\PostcodeTransformer;
+use App\EssentialEntities\Transformers\UserGroupTransformer;
+use App\EssentialEntities\Transformers\UserTransformer;
+
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
 
     use Authenticatable,
@@ -124,6 +132,22 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function postcode( ) {
         return $this->belongsTo('App\Http\Models\Postcode', 'postcode_id', 'id');
     }
+  
+    /**
+     * Relationship between User Model and Business Model (many to many)
+     * @return object
+     */
+    public function business( ) {
+        return $this->belongsToMany('App\Http\Models\Business', 'users_business_rel', 'user_id', 'business_id');
+    }
+    
+    /**
+     * Relationship between User Model and BusinessLogo Model (one to many)
+     * @return object
+     */
+    public function businessLogos( ) {
+        return $this->hasMany('App\Http\Models\BusinessLogo', 'user_id', 'id');
+    }
     
     
 //    Helpers
@@ -150,6 +174,37 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             }
         }
         return FALSE;
+    }
+    
+    /**
+     * Get Standard Json API format for singel object
+     * @return array
+     */
+    public function getStandardJsonFormat( ) {
+        return (new UserTransformer())->transform($this->prepareUserGreedyData());
+    }
+    
+    /**
+     * Get Before Standard Json API format for using in building array of Json objects
+     * @return array
+     */
+    public function getBeforeStandardArray( ) {
+        return (new UserTransformer())->beforeStandard($this->prepareUserGreedyData());
+    }
+    
+    /**
+     * Prepare User data with all its relationships data in greedy way in standard transform
+     * @return array
+     */
+    private function prepareUserGreedyData() {
+        $user_greedy_array = $this->load('city', 'region', 'town', 'postcode', 'userGroups', 'business')->toArray();
+        (empty($user_greedy_array['city'])) ?  : $user_greedy_array['city'] = (new CityTransformer())->transform($user_greedy_array['city']);
+        (empty($user_greedy_array['region'])) ?  : $user_greedy_array['region'] = (new RegionTransformer())->transform( $user_greedy_array['region']);
+        (empty($user_greedy_array['town'])) ?  : $user_greedy_array['town'] = (new TownTransformer())->transform( $user_greedy_array['town']);
+        (empty($user_greedy_array['postcode'])) ?  : $user_greedy_array['postcode'] = (new PostcodeTransformer())->transform( $user_greedy_array['postcode']);
+        (empty($user_greedy_array['user_groups'])) ?  : $user_greedy_array['user_groups'] = (new UserGroupTransformer())->transformCollection( $user_greedy_array['user_groups']);
+        (empty($user_greedy_array['business'])) ?  : $user_greedy_array['business'] = (new BusinessTransformer())->transformCollection( $user_greedy_array['business']);
+        return $user_greedy_array;
     }
 
 }

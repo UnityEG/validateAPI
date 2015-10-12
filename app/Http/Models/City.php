@@ -15,4 +15,12 @@ class City extends Model
     public function users( ) {
         return $this->hasMany('App\Http\Models\User', 'city_id', 'id');
     }
+    
+    /**
+     * Relationship between City Model and Business Model (one to many)
+     * @return object
+     */
+    public function business( ) {
+        return $this->hasMany('App\Http\Models\Business', 'city_id', 'id');
+    }
 }

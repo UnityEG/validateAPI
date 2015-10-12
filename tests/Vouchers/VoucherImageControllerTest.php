@@ -14,7 +14,7 @@ class VoucherImageControllerTest extends TestCase
      */
     public function testIndex()
     {
-        $voucher_image_transformer = new \App\aaa\Transformers\VoucherImageTransformer();
+        $voucher_image_transformer = new \App\EssentialEntities\Transformers\VoucherImageTransformer();
         $voucher_image_controller = new VoucherImagesController(
                  $voucher_image_transformer
                 );

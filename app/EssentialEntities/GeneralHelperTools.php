@@ -1,11 +1,13 @@
 <?php
 
-namespace App\aaa;
-
+namespace App\EssentialEntities;
+//todo change aaa folder to EssentialEntities
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
-class g {
+
+//todo change name of the class to GeneralHelperTools
+class GeneralHelperTools {
 
     public static function has( $rule_name = null ) {
         if ( is_object( Auth::user() ) && Auth::user()->hasRule( $rule_name ) ) {

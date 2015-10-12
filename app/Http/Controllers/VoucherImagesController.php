@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 use Intervention\Image\Facades\Image;
 use App\Http\Controllers\ApiController;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\aaa\Transformers\VoucherImageTransformer;
+use App\EssentialEntities\Transformers\VoucherImageTransformer;
 
 class VoucherImagesController extends ApiController
 {

@@ -113,7 +113,10 @@ class ApiController extends Controller {
     }
 
     function respond($data, $header = []) {
-        return Response::json($data, $this->getStatusCode(), $header);
+        $response = [
+            "data" => $data
+        ];
+        return Response::json($response, $this->getStatusCode(), $header);
     }
 
 }

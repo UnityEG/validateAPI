@@ -15,4 +15,12 @@ class Town extends Model
     public function users( ) {
         return $this->hasMany('App\User', 'town_id', 'id');
     }
+    
+    /**
+     * Relationship between Town Model and Business Model (one to many)
+     * @return object
+     */
+    public function business( ) {
+        return $this->hasMany('App\Http\Models\Business', 'town_id', 'id');
+    }
 }

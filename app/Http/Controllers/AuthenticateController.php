@@ -9,8 +9,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Auth;
 use App\User;
-use App\aaa\Transformers\UserTransformer;
-use App\aaa\g;
+use App\EssentialEntities\Transformers\UserTransformer;
+use App\EssentialEntities\GeneralHelperTools;
 use Exception;
 
 class AuthenticateController extends ApiController {

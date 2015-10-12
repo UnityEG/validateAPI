@@ -1,8 +1,8 @@
 <?php
 
-namespace app\aaa\Transformers;
+namespace App\EssentialEntities\Transformers;
 
-use App\aaa\Transformers\Transformer;
+use App\EssentialEntities\Transformers\Transformer;
 
 class VoucherParametersTransformer extends Transformer {
 
