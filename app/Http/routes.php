@@ -52,17 +52,20 @@ Route::group(['prefix' => 'v1'], function() {
     Route::resource('Users', 'UsersController');
     
     // login, logout and authentication
-    Route::get('authenticate', 'AuthenticateController@index');
+        Route::get('authenticate', 'AuthenticateController@index');
+
+        Route::get('logout', [
+            'uses' => 'AuthenticateController@logout',
+            'as' => 'Authenticate.logout'
+        ]);
+
+        Route::post('authenticate', [
+            'uses' => 'AuthenticateController@authenticate',
+            'as' => 'Authenticate.authenticate'
+        ]);
     
-    Route::get('logout', [
-        'uses' => 'AuthenticateController@logout',
-        'as' => 'Authenticate.logout'
-    ]);
-    
-    Route::post('authenticate', [
-        'uses' => 'AuthenticateController@authenticate',
-        'as' => 'Authenticate.authenticate'
-    ]);
+    // UserGroups
+        Route::resource('UserGroups', 'UsersControllers\UserGroupsController');
     
 //    Business Routes
     Route::resource('Business', 'BusinessController');

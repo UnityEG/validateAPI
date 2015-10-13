@@ -166,7 +166,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return boolean
      */
     public function hasRule( $rule_name) {
-//        todo modify response
+//        todo if user in developer group return true
         $user_groups = $this->userGroups;
         foreach ( $user_groups as $user_group) {
             if(is_object($user_group->rules()->where('name', $rule_name)->first())){
