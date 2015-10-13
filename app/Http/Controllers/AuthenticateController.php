@@ -36,7 +36,6 @@ class AuthenticateController extends ApiController {
 
     public function __construct(
     UserTransformer $user_transformer,
-            g $g,
             JWTAuth $jwtauth
             ) {
         // Apply the jwt.auth middleware to all methods in this controller
@@ -44,7 +43,6 @@ class AuthenticateController extends ApiController {
         // the user from retrieving their token if they don't already have it
         $this->middleware('jwt.auth', ['except' => ['authenticate']]);
         $this->userTransformer = $user_transformer;
-        $this->g = $g;
         $this->JWTAuth = $jwtauth;
     }
 
@@ -64,10 +62,10 @@ class AuthenticateController extends ApiController {
      * @param Request $request
      * @return type
      */
-    public function authenticate(  LoginUserRequest $request) {
+    public function authenticate(  LoginUserRequest $request, GeneralHelperTools $general_helper_tools) {
         $raw_input = $request->json("data");
-        $credentials['email'] = $this->g->arrayKeySearchRecursively( $raw_input, 'email');
-        $credentials['password'] = $this->g->arrayKeySearchRecursively($raw_input, 'password');
+        $credentials['email'] = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'email');
+        $credentials['password'] = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'password');
         // verify the credentials and create a token for the user
         if (!$token = JWTAuth::attempt($credentials)) {
             throw new JWTException('invalid credentials', 417);
