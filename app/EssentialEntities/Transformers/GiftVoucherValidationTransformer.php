@@ -15,7 +15,7 @@ namespace App\EssentialEntities\Transformers;
  */
 class GiftVoucherValidationTransformer extends Transformer {
 
-    public function transform($item) {
+    public function transform(array $item) {
         return [
             'id' => (string)$item['id'],
             'giftvoucher_id' => (string)$item['giftvoucher_id'],
@@ -25,6 +25,10 @@ class GiftVoucherValidationTransformer extends Transformer {
             'balance' => (string)$item['balance'],
             'log' => (string)$item['log']
         ];
+    }
+
+    public function beforeStandard( array $item ) {
+        
     }
 
 }

@@ -6,11 +6,11 @@ use App\EssentialEntities\Transformers\Transformer;
 
 class VoucherParametersTransformer extends Transformer {
 
-    function transform( $item ) {
+    function transform( array $item ) {
         return ["data"=>$this->beforeStandard( $item )];
     }
     
-    public function beforeStandard( $item ) {
+    public function beforeStandard( array $item ) {
         return [
             'id'                    => ( string ) $item[ 'id' ],
             'voucher_type'          => ( string ) $item[ 'voucher_type' ],

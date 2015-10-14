@@ -24,12 +24,6 @@ class VoucherParametersController extends ApiController
     private $voucherParameterTransformer;
     
     /**
-     * instance of g class
-     * @var object
-     */
-    private $g;
-    
-    /**
      * instance of VoucherParameter Model class
      * @var object
      */
@@ -38,13 +32,11 @@ class VoucherParametersController extends ApiController
 
     public function __construct(
             VoucherParametersTransformer $voucher_parameter_transformer,
-            g $g,
             VoucherParameter $voucher_parameter_model
             ) {
 //        Apply the jwt.auth middleware to all methods in this controller
         $this->middleware('jwt.auth');
         $this->voucherParameterTransformer = $voucher_parameter_transformer;
-        $this->g = $g;
         $this->voucherParameterModel = $voucher_parameter_model;
     }
     
@@ -227,43 +219,43 @@ class VoucherParametersController extends ApiController
      * @param array $old_input
      * @return array
      */
-    private function prepareDataForStoringHelper( array $old_input) {
-        $modified_input['business_id'] = (int)$this->g->arrayKeySearchRecursively( $old_input, 'business_id');
-        $modified_input['user_id'] = (int)$this->g->arrayKeySearchRecursively( $old_input, 'user_id');
-        $modified_input['voucher_image_id'] = (int)$this->g->arrayKeySearchRecursively( $old_input, 'voucher_image_id');
-        $modified_input['use_terms'] = array_map( 'intval', $this->g->arrayKeySearchRecursively( $old_input, 'use_term_ids'));
-        if ( $purchase_start = $this->g->arrayKeySearchRecursively( $old_input, 'purchase_start') ) {
+    private function prepareDataForStoringHelper( array $old_input, GeneralHelperTools $general_helper_tools) {
+        $modified_input['business_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'business_id');
+        $modified_input['user_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'user_id');
+        $modified_input['voucher_image_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'voucher_image_id');
+        $modified_input['use_terms'] = array_map( 'intval', $general_helper_tools->arrayKeySearchRecursively( $old_input, 'use_term_ids'));
+        if ( $purchase_start = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'purchase_start') ) {
             $modified_input[ 'purchase_start' ] = g::utcDateTime( $purchase_start, 'd/m/Y H:i' );
         }else {
             $auckland_now_to_utc     = Carbon::now( 'Pacific/Auckland' )->setTimezone( 'UTC' );
             $modified_input[ 'purchase_start' ] = $auckland_now_to_utc;
         }//if (isset($input['purchase_start'])&&!empty($input['purchase_start']))
-        if ( $purchase_expiry = $this->g->arrayKeySearchRecursively( $old_input, 'purchase_expiry') ) {
+        if ( $purchase_expiry = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'purchase_expiry') ) {
             $modified_input[ 'purchase_expiry' ] = g::utcDateTime( $purchase_expiry, 'd/m/Y H:i' );
         }else{
 //            todo take a decision about the purchase_expiry if not exist
         }//if ( !empty($input['purchase_expiry']) )
-        $modified_input['title'] = (string)$this->g->arrayKeySearchRecursively($old_input, 'title');
+        $modified_input['title'] = (string)$general_helper_tools->arrayKeySearchRecursively($old_input, 'title');
         $modified_input['voucher_type'] = $old_input['voucher_type'];
         $modified_input[ 'is_expire' ] = 0;
         $modified_input[ 'is_display' ] = 1;
         $modified_input[ 'is_purchased' ] = 0;
-        if ( $valid_from = $this->g->arrayKeySearchRecursively( $old_input, 'valid_from') ) {
+        if ( $valid_from = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_from') ) {
             $modified_input[ 'valid_from' ] = g::utcDateTime( $valid_from, 'd/m/Y H:i' );
         }//if ( !empty($input['valid_from']) )
-        if ( $valid_until = $this->g->arrayKeySearchRecursively( $old_input, 'valid_until') ) {
+        if ( $valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until') ) {
             $modified_input[ 'valid_until' ] = g::utcDateTime( $valid_until, 'd/m/Y H:i' );
         }else{
-            $modified_input['valid_for_amount'] = (int)  $this->g->arrayKeySearchRecursively($old_input, 'valid_for_amount');
-            $modified_input['valid_for_units'] = (string)  $this->g->arrayKeySearchRecursively($old_input, 'valid_for_units');
+            $modified_input['valid_for_amount'] = (int)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_amount');
+            $modified_input['valid_for_units'] = (string)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_units');
         }//if ( !empty($input['valid_until']) )
 //        secure fields from XSS attack
-        ($short_description = $this->g->arrayKeySearchRecursively( $old_input, 'short_description')) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : FALSE;
-         ($long_description = $this->g->arrayKeySearchRecursively( $old_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : FALSE;
-         ($retail_value = $this->g->arrayKeySearchRecursively( $old_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
-         ($value = $this->g->arrayKeySearchRecursively($old_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
-         ($min_value = $this->g->arrayKeySearchRecursively($old_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
-         ($max_value = $this->g->arrayKeySearchRecursively($old_input, 'max_value')) ? $modified_input['max_value'] = (double)$max_value : FALSE;
+        ($short_description = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'short_description')) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : FALSE;
+         ($long_description = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : FALSE;
+         ($retail_value = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
+         ($value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
+         ($min_value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
+         ($max_value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'max_value')) ? $modified_input['max_value'] = (double)$max_value : FALSE;
 //         todo continue prepare the rest of the fields for the rest types of vouchers
         return $modified_input;
     }
@@ -273,34 +265,34 @@ class VoucherParametersController extends ApiController
      * @param array $raw_input
      * @return array
      */
-    private function prepareDataForUpdatingHelper( $raw_input ) {
-        ($business_id = $this->g->arrayKeySearchRecursively($raw_input, 'business_id')) ? $modified_input['business_id'] = (int)$business_id : FALSE;
-        ($user_id = $this->g->arrayKeySearchRecursively($raw_input, 'user_id')) ? $modified_input['user_id'] = (int)$user_id : FALSE;
-        ($voucher_image_id = $this->g->arrayKeySearchRecursively($raw_input, 'voucher_image_id')) ? $modified_input['voucher_image_id'] = (int)$voucher_image_id : FALSE;
-        ($use_term_ids = $this->g->arrayKeySearchRecursively($raw_input, 'use_term_ids')) ? $modified_input['use_term_ids'] = array_map('intval', $use_term_ids) : FALSE;
-        ($title = $this->g->arrayKeySearchRecursively($raw_input, 'title')) ? $modified_input['title'] = (string)$title:false;
-        if($is_expire = $this->g->arrayKeySearchRecursively($raw_input, 'is_expire')){
+    private function prepareDataForUpdatingHelper( $raw_input , GeneralHelperTools $general_helper_tools) {
+        ($business_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'business_id')) ? $modified_input['business_id'] = (int)$business_id : FALSE;
+        ($user_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'user_id')) ? $modified_input['user_id'] = (int)$user_id : FALSE;
+        ($voucher_image_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'voucher_image_id')) ? $modified_input['voucher_image_id'] = (int)$voucher_image_id : FALSE;
+        ($use_term_ids = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'use_term_ids')) ? $modified_input['use_term_ids'] = array_map('intval', $use_term_ids) : FALSE;
+        ($title = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'title')) ? $modified_input['title'] = (string)$title:false;
+        if($is_expire = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_expire')){
             $modified_input['is_expire'] = ("false" === $is_expire) ? FALSE : TRUE;
-        }//if($is_expire = $this->g->arrayKeySearchRecursively($raw_input, 'is_expire'))
-        if($is_display = $this->g->arrayKeySearchRecursively($raw_input, 'is_display')){
+        }//if($is_expire = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_expire'))
+        if($is_display = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_display')){
             $modified_input['is_display'] = ("false" === $is_display) ? FALSE : TRUE;
-        }//if($is_display = $this->g->arrayKeySearchRecursively($raw_input, 'is_display'))
-        ($valid_for_amount = $this->g->arrayKeySearchRecursively($raw_input, 'valid_for_amount')) ? $modified_input['valid_for_amount'] = (int)$valid_for_amount : FALSE;
-        ($valid_for_units = $this->g->arrayKeySearchRecursively($raw_input, 'valid_for_units')) ? $modified_input['valid_for_units'] = (string)$valid_for_units : FALSE;
-        ($quantity = $this->g->arrayKeySearchRecursively($raw_input, 'quantity')) ? $modified_input['quantity' ] = (int)$quantity : FALSE;
-        ($no_of_uses = $this->g->arrayKeySearchRecursively($raw_input, 'no_of_uses')) ? $modified_input['no_of_uses'] = (int)$no_of_uses : FALSE;
-        ($retail_value = $this->g->arrayKeySearchRecursively($raw_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
-        ($value = $this->g->arrayKeySearchRecursively($raw_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
-        ($min_value = $this->g->arrayKeySearchRecursively($raw_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
-        ($max_value = $this->g->arrayKeySearchRecursively($raw_input, 'max_value')) ? $modified_input['max_value'] = (double)$max_value : FALSE;
-        ($discount_percentage = $this->g->arrayKeySearchRecursively($raw_input, 'discount_percentage')) ? $modified_input['discount_percentage'] = (double)$discount_percentage : FALSE;
-        ($purchase_start = $this->g->arrayKeySearchRecursively($raw_input, 'purchase_start')) ? $modified_input['purchase_start'] = g::utcDateTime( $purchase_start, 'd/m/Y H:i' ) : FALSE;
-        ($purchase_expiry = $this->g->arrayKeySearchRecursively($raw_input, 'purchase_expiry')) ? $modified_input['purchase_expiry'] = g::utcDateTime($purchase_expiry, 'd/m/Y H:i') : FALSE;
-        ($valid_from = $this->g->arrayKeySearchRecursively($raw_input, 'valid_from')) ? $modified_input['valid_from'] = g::utcDateTime($valid_from, 'd/m/Y H:i') : FALSE;
-        ($valid_until = $this->g->arrayKeySearchRecursively($raw_input, 'valid_until')) ? $modified_input['valid_until'] = g::utcDateTime($valid_until, 'd/m/Y H:i') : false;
+        }//if($is_display = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_display'))
+        ($valid_for_amount = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_amount')) ? $modified_input['valid_for_amount'] = (int)$valid_for_amount : FALSE;
+        ($valid_for_units = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_units')) ? $modified_input['valid_for_units'] = (string)$valid_for_units : FALSE;
+        ($quantity = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'quantity')) ? $modified_input['quantity' ] = (int)$quantity : FALSE;
+        ($no_of_uses = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'no_of_uses')) ? $modified_input['no_of_uses'] = (int)$no_of_uses : FALSE;
+        ($retail_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
+        ($value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
+        ($min_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
+        ($max_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'max_value')) ? $modified_input['max_value'] = (double)$max_value : FALSE;
+        ($discount_percentage = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'discount_percentage')) ? $modified_input['discount_percentage'] = (double)$discount_percentage : FALSE;
+        ($purchase_start = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_start')) ? $modified_input['purchase_start'] = g::utcDateTime( $purchase_start, 'd/m/Y H:i' ) : FALSE;
+        ($purchase_expiry = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_expiry')) ? $modified_input['purchase_expiry'] = g::utcDateTime($purchase_expiry, 'd/m/Y H:i') : FALSE;
+        ($valid_from = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_from')) ? $modified_input['valid_from'] = g::utcDateTime($valid_from, 'd/m/Y H:i') : FALSE;
+        ($valid_until = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_until')) ? $modified_input['valid_until'] = g::utcDateTime($valid_until, 'd/m/Y H:i') : false;
         //        secure fields from XSS attack
-         ($short_description = $this->g->arrayKeySearchRecursively($raw_input, 'short_description') ) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : False;
-         ($long_description = $this->g->arrayKeySearchRecursively( $raw_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : '';
+         ($short_description = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'short_description') ) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : False;
+         ($long_description = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : '';
 //        todo take decision about working with (valid_for_amount and valid_for_units) or (valid_from and valid_until) or working with both
         return $modified_input;
     }

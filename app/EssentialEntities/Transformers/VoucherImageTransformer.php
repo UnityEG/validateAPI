@@ -9,7 +9,7 @@ namespace App\EssentialEntities\Transformers;
  */
 class VoucherImageTransformer extends Transformer{
     
-    public function beforeStandard( $item) {
+    public function beforeStandard(array $item) {
         return[
             "id" => (string)$item['id'],
             "name" => (string)$item['name'],
@@ -19,7 +19,7 @@ class VoucherImageTransformer extends Transformer{
         ];
     }
     
-    public function transform( $item) {
+    public function transform(array $item) {
         return [
             "data" => $this->beforeStandard( $item )
         ];
