@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Response;
 use App\Http\Models\UserGroup;
 use App\Http\Requests\Users\UpdateUserRequest;
+use App\Http\Requests\Users\ShowUserRequest;
 
 class UsersController extends ApiController {
 //    todo refine UserController to remove unused methods
@@ -39,6 +40,8 @@ class UsersController extends ApiController {
             ) {
         // Apply the jwt.auth middleware to all methods in this controller
         $this->middleware('jwt.auth', ['except' => 'store']);
+//        todo apply jwt.refresh middleware to refresh token
+//        $this->middleware('jwt.refresh');
         // 
         $this->GeneralHelperTools = $general_helper_tools;
         $this->UserModel = $user_model;
@@ -52,6 +55,7 @@ class UsersController extends ApiController {
      * @return Response
      */
     public function index() {
+//        todo create authentication rules to index method
         $data = [];
         foreach ( $this->UserModel->all() as $user_object) {
             $data["data"][] = $user_object->getBeforeStandardArray();
@@ -96,7 +100,7 @@ class UsersController extends ApiController {
      * @param  int  $id
      * @return Response
      */
-    public function show($id) {
+    public function show(ShowUserRequest $request, $id) {
         return $this->UserModel->findOrFail($id)->getStandardJsonFormat();
     }
 
