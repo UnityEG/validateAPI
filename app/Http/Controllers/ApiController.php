@@ -62,10 +62,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Lesson;
 use Response;
 
 class ApiController extends Controller {
@@ -100,23 +97,29 @@ class ApiController extends Controller {
     }
 
     function respondWithError($title, $detail = NULL) {
-        $data = [
-            'errors' => [
+        $errors = [
                 'title' => $title,
                 'status' => $this->getStatusCode(),
-            ]
+            
         ];
         if ($detail != NULL) {
-            $data['errors']['detail'] = $detail;
+            $errors['detail'] = $detail;
         }
-        return $this->respond($data);
+        return $this->respondStandardJsonError($errors);
     }
 
     function respond($data, $header = []) {
-        $response = [
-            "data" => $data
-        ];
-        return Response::json($response, $this->getStatusCode(), $header);
+        return Response::json(["data"=>$data], $this->getStatusCode(), $header);
+    }
+    
+    /**
+     * Return Standard Json API error format
+     * @param array $error_content
+     * @param array $header
+     * @return Json
+     */
+    public function respondStandardJsonError( $error_content, $header=[]) {
+        return Response::json(["errors"=>$error_content], $this->getStatusCode(), $header);
     }
 
 }
