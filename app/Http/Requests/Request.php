@@ -22,4 +22,15 @@ abstract class Request extends FormRequest
                         ->withInput( $this->except( $this->dontFlash ) )
                         ->withErrors( $errors, $this->errorBag );
     }
+    
+    /**
+     * Cusomize Forbidden Json response
+     * @return Json
+     */
+    public function forbiddenResponse( ) {
+        if ( $this->ajax() || $this->wantsJson() ) {
+            return (new ApiController())->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( $this->ajax() || $this->wantsJson() )
+        return parent::forbiddenResponse();
+    }
 }
