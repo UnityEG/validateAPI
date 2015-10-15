@@ -2,27 +2,32 @@
 
 namespace App\Http\Controllers\UsersControllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 use App\Http\Models\UserGroup;
+use App\Http\Requests\Users\UserGroups\IndexUserGroupRequest;
+use App\Http\Requests\Users\UserGroups\ShowUserGroupRequest;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-class UserGroupsController extends Controller
+class UserGroupsController extends ApiController
 {
     
     public function __construct( ) {
-//        todo add jwt.auth middleware
+        $this->middleware('jwt.auth');
+//        todo add jwt.refresh middleware
     }
     
     /**
-     * Display a listing of the resource.
+     * Display all user groups except 'developers' group.
      *
-     * @return \Illuminate\Http\Response
+     * @param IndexUserGroupRequest $request Instance of IndexUserGroupRequest class
+     * @param UserGroup $user_group_model Instance of UserGroup Model
+     * @return Response
      */
-    public function index(  UserGroup $user_group_model)
+    public function index( IndexUserGroupRequest $request, UserGroup $user_group_model)
     {
         $response = [];
-        foreach ( $user_group_model->all() as $user_group_object ) {
+        foreach ( $user_group_model->whereNotIN('group_name', ['developers'])->get() as $user_group_object ) {
             $response["data"][] = $user_group_object->getBeforeStandardArray();
         }
         return $response;
@@ -31,7 +36,7 @@ class UserGroupsController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -41,8 +46,8 @@ class UserGroupsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -50,21 +55,24 @@ class UserGroupsController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified user group except developers group.
      *
+     * @param ShowUserGroupRequest $request Instance of ShowUserGroupRequest class
+     * @param UserGroup $user_group_model Instance of UserGroup Model
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function show(UserGroup $user_group_model, $id)
+    public function show(ShowUserGroupRequest $request, UserGroup $user_group_model, $id)
     {
-        return $user_group_model->findOrFail((int)$id)->getStandardJsonFormat();
+        $user_group_object = $user_group_model->findOrFail((int) $id);
+        return ('developers' == $user_group_object->group_name) ? $this->respond("success") : $user_group_object->getStandardJsonFormat();
     }
 
     /**
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
@@ -74,9 +82,9 @@ class UserGroupsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request, $id)
     {
@@ -87,7 +95,7 @@ class UserGroupsController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy($id)
     {
