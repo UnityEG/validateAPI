@@ -5,9 +5,21 @@ namespace App\Http\Requests;
 use App\Http\Controllers\ApiController;
 use Illuminate\Foundation\Http\FormRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 abstract class Request extends FormRequest
 {
+    /**
+     * Instance of current authenticated User Model
+     * @var \App\User
+     */
+    public $CurrentUserObject;
+    
+    public function __construct( ) {
+        parent::__construct();
+        (!JWTAuth::getToken()) ?  : $this->CurrentUserObject = JWTAuth::parseToken()->authenticate();
+    }
+    
     /**
      * Customize Json Response
      * @param array $errors
