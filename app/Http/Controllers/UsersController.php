@@ -12,6 +12,7 @@ use Response;
 use App\Http\Models\UserGroup;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Requests\Users\ShowUserRequest;
+use App\Http\Requests\Users\IndexUserRequest;
 
 class UsersController extends ApiController {
 //    todo refine UserController to remove unused methods
@@ -40,22 +41,19 @@ class UsersController extends ApiController {
             ) {
         // Apply the jwt.auth middleware to all methods in this controller
         $this->middleware('jwt.auth', ['except' => 'store']);
-//        todo apply jwt.refresh middleware to refresh token
+//        todo apply jwt.refresh middleware to refresh token each request
 //        $this->middleware('jwt.refresh');
-        // 
         $this->GeneralHelperTools = $general_helper_tools;
         $this->UserModel = $user_model;
         $this->UserGroupModel = $user_group_model;
-//        $this->middleware('auth.basic');
     }
 
     /**
      * Display a listing of the resource.
-     *
-     * @return Response
+     * @param \App\Http\Requests\Users\IndexUserRequest $request
+     * @return collection
      */
-    public function index() {
-//        todo create authentication rules to index method
+    public function index(  IndexUserRequest $request) {
         $data = [];
         foreach ( $this->UserModel->all() as $user_object) {
             $data["data"][] = $user_object->getBeforeStandardArray();
@@ -75,8 +73,8 @@ class UsersController extends ApiController {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request  $request
-     * @return Response
+     * @param  \App\Http\Requests\Users\StoreUserRequest $request
+     * @return Json
      */
     public function store(StoreUserRequest $request) {
         $modified_input = $this->prepareDataForStoringHelper($request->json("data"));
@@ -97,6 +95,7 @@ class UsersController extends ApiController {
     /**
      * Display the specified resource.
      *
+     * @param \App\Http\Requests\Users\ShowUserRequest $request Instance of ShowUserRequest class
      * @param  int  $id
      * @return Response
      */
