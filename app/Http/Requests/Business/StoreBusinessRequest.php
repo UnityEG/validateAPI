@@ -13,6 +13,7 @@ class StoreBusinessRequest extends Request
      */
     public function authorize()
     {
+//        todo modify method to add rules check
         return true;
     }
 

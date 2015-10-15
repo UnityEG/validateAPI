@@ -170,8 +170,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     
     /**
      * check if user has the rule or not
-     * @param string $rule_name
-     * @return boolean
+     * @param string $rule_name rule name to check as in the database
+     * @return bool
      */
     public function hasRule( $rule_name) {
         if ( !$this->isActiveUser() ) {

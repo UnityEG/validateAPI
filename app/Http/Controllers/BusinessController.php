@@ -10,7 +10,10 @@ use App\Http\Models\Business;
 use Tymon\JWTAuth\JWTAuth;
 
 class BusinessController extends ApiController {
-//todo refine BusinessController to remove unused methods
+//    todo refine BusinessController to remove unused methods
+//    todo update documentation of the class (@var, @param and @return)
+//    todo apply lazy instantiation by applying method dependency injection
+
     /**
      * Instance of g class
      * @var object
@@ -35,6 +38,7 @@ class BusinessController extends ApiController {
             JWTAuth $jwt_auth
     ) {
         $this->middleware( 'jwt.auth' );
+//        todo apply jwt.refresh middleware to refresh token every request
         $this->GeneralHelperTools = $general_helper_tools;
         $this->businessModel = $business_model;
         $this->jwtAuth = $jwt_auth;
@@ -46,6 +50,7 @@ class BusinessController extends ApiController {
      * @return \Illuminate\Http\Response
      */
     public function index() {
+//        todo create IndexBusinessRequest class
         $result = [];
         foreach ($this->businessModel->get() as $business_object){
             $result["data"][] = $business_object->getBeforeStandardArray();
@@ -69,6 +74,7 @@ class BusinessController extends ApiController {
      * @return \Illuminate\Http\Response
      */
     public function store( StoreBusinessRequest $request ) {
+//        todo apply authentication rules in the StoreBusinessRequest class
         $modified_input = $this->prepareDataForStoringHelper( $request->json( "data" ) );
         DB::beginTransaction();
         $created_business_object = $this->businessModel->create($modified_input);
@@ -92,6 +98,7 @@ class BusinessController extends ApiController {
      * @return \Illuminate\Http\Response
      */
     public function show( $id ) {
+//        todo create ShowBusinessRequest class
         return $this->businessModel->findOrFail($id)->getStandardJsonFormat();
     }
 
@@ -113,6 +120,7 @@ class BusinessController extends ApiController {
      * @return \Illuminate\Http\Response
      */
     public function update( UpdateBusinessRequest $request, $id ) {
+//        todo Modify authenticate method in UpdateBusinessRequest class to apply authentication rules
         $business_object = $this->businessModel->findOrFail($id);
         $modified_input = $this->prepareDataForUpdatingHelper($request->json("data"));
         DB::beginTransaction();
