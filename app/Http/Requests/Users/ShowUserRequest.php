@@ -15,6 +15,7 @@ class ShowUserRequest extends Request
      */
     public function authorize()
     {
+//        todo modify mehod to use CurrentUserObject property
         $response = FALSE;
         $current_user_object = JWTAuth::parseToken()->authenticate();
         if ( $current_user_object->isActiveUser() && ((int)$current_user_object->id === (int)$this->route()->getParameter('Users'))) {
