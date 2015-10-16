@@ -8,13 +8,15 @@ class UpdateBusinessRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
+     * Only users belongs to the business OR the groups has the rule "business_update" are authorized
      * @return bool
      */
     public function authorize()
     {
-//        todo modify method to add rules check
-        return true;
+        $response = FALSE;
+        (!$this->CurrentUserObject->business()->where('business_id', (int)$this->route()->getParameter('Business'))->exists()) ?  : $response = TRUE;
+        (!$this->CurrentUserObject->hasRule( 'business_update')) ?  : $response = TRUE;
+        return $response;
     }
 
     /**
@@ -46,8 +48,7 @@ class UpdateBusinessRequest extends Request
             "data.attributes.is_featured" => ['sometimes', 'required','boolean'],
             "data.attributes.is_display" => ['sometimes', 'required','boolean']
         ];
-        $final_rules = array_merge($rules, $this->businessTypeIdsValidationRule());
-        return $final_rules;
+        return array_merge($rules, $this->businessTypeIdsValidationRule());
     }
     
     public function messages( ) {
