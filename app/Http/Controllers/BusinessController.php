@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\EssentialEntities\GeneralHelperTools as GeneralHelperTools;
+use App\Http\Models\Business;
+use App\Http\Requests\Business\IndexBusinessRequest;
+use App\Http\Requests\Business\ShowBusinessRequest;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use App\Http\Models\Business;
 use Tymon\JWTAuth\JWTAuth;
 
 class BusinessController extends ApiController {
@@ -15,14 +19,14 @@ class BusinessController extends ApiController {
 //    todo apply lazy instantiation by applying method dependency injection
 
     /**
-     * Instance of g class
-     * @var object
+     * Instance of GeneralHelperTools class
+     * @var \App\EssentialEntities\GeneralHelperTools
      */
     private $GeneralHelperTools;
     
     /**
      * Instance of Business Model
-     * @var object
+     * @var \App\Http\Models\Business
      */
     private $businessModel;
     
@@ -45,12 +49,11 @@ class BusinessController extends ApiController {
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Display all the business whether it's active or not.
+     * @param IndexBusinessRequest $request Instance of IndexBusinessRequest class
+     * @return array
      */
-    public function index() {
-//        todo create IndexBusinessRequest class
+    public function index(IndexBusinessRequest $request) {
         $result = [];
         foreach ($this->businessModel->get() as $business_object){
             $result["data"][] = $business_object->getBeforeStandardArray();
@@ -61,7 +64,7 @@ class BusinessController extends ApiController {
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create() {
         //
@@ -70,8 +73,8 @@ class BusinessController extends ApiController {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  \App\Http\Requests\Business\StoreBusinessRequest  $request
+     * @return mix
      */
     public function store( StoreBusinessRequest $request ) {
 //        todo apply authentication rules in the StoreBusinessRequest class
@@ -82,6 +85,7 @@ class BusinessController extends ApiController {
             $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
             $current_user_id = $this->jwtAuth->parseToken()->authenticate()->id;
             $created_business_object->users()->attach([$current_user_id]);
+//            todo add user created the business to the appropriate group according to the type of business created
             DB::commit();
             $response = $created_business_object->getStandardJsonFormat();
         }else{
@@ -94,11 +98,11 @@ class BusinessController extends ApiController {
     /**
      * Display the specified resource.
      *
+     * @param \App\Http\Requests\Business\ShowBusinessRequest $request Instance of ShowBusinessRequest class
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function show( $id ) {
-//        todo create ShowBusinessRequest class
+    public function show(  ShowBusinessRequest $request, $id ) {
         return $this->businessModel->findOrFail($id)->getStandardJsonFormat();
     }
 
@@ -106,7 +110,7 @@ class BusinessController extends ApiController {
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit( $id ) {
         //
@@ -115,9 +119,9 @@ class BusinessController extends ApiController {
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update( UpdateBusinessRequest $request, $id ) {
 //        todo Modify authenticate method in UpdateBusinessRequest class to apply authentication rules
@@ -137,11 +141,14 @@ class BusinessController extends ApiController {
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function destroy( $id ) {
         //
     }
+    
+//    todo create showAllActiveBusiness method
+//    todo create showActiveBusiness method
     
 //    Helpers
     /**
