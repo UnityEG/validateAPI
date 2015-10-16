@@ -43,7 +43,6 @@ class BusinessLogosController extends ApiController
      */
     public function index()
     {
-//        todo Create IndexBusinessLogoRequest class
         $response = ["data"];
         foreach ( $this->BusinessLogoModel->all() as $business_logo_object) {
             $response['data'][] = $business_logo_object->getBeforeStandardArray();
@@ -93,7 +92,6 @@ class BusinessLogosController extends ApiController
      */
     public function show($id)
     {
-//        todo Create ShowBusinessLogoRequest class
         return $this->BusinessLogoModel->findOrFail((int)$id)->getStandardJsonFormat();
     }
 
@@ -126,9 +124,8 @@ class BusinessLogosController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(  \App\Http\Requests\Business\BusinessLogos\DestroyBusinessLogoRequest $request, $id)
     {
-//        todo Create DestroyBusinessLogoRequest class
         $business_logo_object = $this->BusinessLogoModel->findOrFail((int)$id);
 //        todo check if business logo is the current active logo of the business and if so change the active logo to the next business logo of this business in the business table
         $file_path = config('validateconf.default_business_logos_path').$business_logo_object->name.'.png';
