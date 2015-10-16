@@ -8,12 +8,11 @@ class StoreBusinessRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
+     * 
      * @return bool
      */
     public function authorize()
     {
-//        todo modify method to add rules check
         return true;
     }
 
