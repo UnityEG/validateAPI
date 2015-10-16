@@ -8,13 +8,16 @@ class StoreBusinessLogoRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
+     * Users belongs to the business that the logo is going to be created for are authorized.
+     * Users belongs to groups that have rule 'business_logo_store' rule are authorized.
      * @return bool
      */
     public function authorize()
     {
-//        todo modify method to add rules check
-        return true;
+        $response = FALSE;
+//        todo waiting for business_id to check if the current user belongs to this business or not
+        (!$this->CurrentUserObject->hasRule( 'business_logo_store')) ?  : $response = TRUE;
+        return $response;
     }
 
     /**
