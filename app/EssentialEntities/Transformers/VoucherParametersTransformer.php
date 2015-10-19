@@ -11,7 +11,10 @@ class VoucherParametersTransformer extends Transformer {
     }
     
     public function beforeStandard( array $item ) {
-        return [
+        $business = (!empty($item['business'])) ? $item['business'] : ["data"=>["business_id"=>(string)$item['business_id']]];
+        $user = (!empty($item['user'])) ? $item['user'] : ["data"=>["user_id"=>(string)$item['user_id']]];
+        $voucher_image = (!empty($item['voucher_image'])) ? $item['voucher_image'] : ["data"=>["voucher_image_id"=>(string)$item['voucher_image_id']]];
+        $response = [
             'id'                    => ( string ) $item[ 'id' ],
             'voucher_type'          => ( string ) $item[ 'voucher_type' ],
             'title'                 => ( string ) $item[ 'title' ],
@@ -39,23 +42,13 @@ class VoucherParametersTransformer extends Transformer {
             'created_at'            => ( string ) $item[ 'created_at' ],
             'updated_at'            => ( string ) $item[ 'updated_at' ],
             "relations"             => [
-                "user"          => [
-                    "data" => [
-                        'user_id' => ( string ) $item[ 'user_id' ],
-                    ]
-                ],
-                "business"      => [
-                    "data" => [
-                        'business_id' => ( string ) $item[ 'business_id' ],
-                    ]
-                ],
-                "voucher_image" => [
-                    "data" => [
-                        'voucher_image_id' => ( string ) $item[ 'voucher_image_id' ],
-                    ]
-                ],
+                "user"          => $user,
+                "business"      => $business,
+                "voucher_image" => $voucher_image,
             ]
         ];
+        (empty($item['use_terms'])) ?  : $response["relations"]["use_terms"] = $item['use_terms'];
+        return $response;
     }
 
 }
