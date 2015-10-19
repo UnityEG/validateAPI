@@ -19,6 +19,26 @@ return [
     | use this path to get business logos uri for showing.
     |
     */
-    'default_business_logos_uri' => ($app->runningInConsole()) ?  'images/business/logos/' : asset('images/business/logos/')
+    'default_business_logos_uri' => ($app->runningInConsole()) ?  'images/business/logos/' : asset('images/business/logos/'),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Default absoulte voucher images path 
+    |--------------------------------------------------------------------------
+    |
+    | use this path to store and delete voucher images.
+    |
+    */
+    'default_voucher_images_path' => ($app->runningInConsole()) ? 'voucher/images/default' : public_path('voucher/images/default'),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Default relative voucher images path 
+    |--------------------------------------------------------------------------
+    |
+    | use this path to get voucher images uri for showing.
+    |
+    */
+    'default_voucher_images_uri' => ($app->runningInConsole()) ? 'voucher/images/default' : asset('voucher/images/default'),
 ];
 

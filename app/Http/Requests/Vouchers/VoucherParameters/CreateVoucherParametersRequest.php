@@ -6,13 +6,14 @@ use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Validator;
 
 class CreateVoucherParametersRequest extends Request {
-
+//todo change class name to be StoreVoucherParametersRequest
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
     public function authorize() {
+//        todo apply authorization rules to restrict storing vocher parameters
         return true;
     }
 
