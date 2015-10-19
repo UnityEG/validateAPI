@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\EssentialEntities\GeneralHelperTools;
-use App\EssentialEntities\Transformers\VoucherParametersTransformer;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Business;
 use App\Http\Models\VoucherParameter;
@@ -17,26 +16,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VoucherParametersController extends ApiController
 {
-    /**
-     *  instance of VoucherParametersTransformer class
-     * @var object
-     */
-    private $voucherParameterTransformer;
+//    todo refine VoucherParametersController to remove unused methods
+//    todo update documentation of the class (@var, @param and @return)
+//    todo apply lazy instantiation by applying dependency injection on methods
     
     /**
      * instance of VoucherParameter Model class
-     * @var object
+     * @var \App\Http\Models\VoucherParameter
      */
     private $voucherParameterModel;
 
 
-    public function __construct(
-            VoucherParametersTransformer $voucher_parameter_transformer,
-            VoucherParameter $voucher_parameter_model
-            ) {
+    public function __construct(VoucherParameter $voucher_parameter_model) {
 //        Apply the jwt.auth middleware to all methods in this controller
-        $this->middleware('jwt.auth');
-        $this->voucherParameterTransformer = $voucher_parameter_transformer;
+        $this->middleware('jwt.auth', ['only'=>['storeDealVoucherParameters', 'storeGiftVoucherParameters', 'updateDealVoucherParameters', 'updateGiftVoucherParameters']]);
+//        todo apply jwt.refresh middleware to refresh token every request
         $this->voucherParameterModel = $voucher_parameter_model;
     }
     
@@ -47,62 +41,65 @@ class VoucherParametersController extends ApiController
      */
     public function index()
     {
-        $voucher_parameters_objects = VoucherParameter::all();
-        return $this->respond($this->voucherParameterTransformer->transformCollection($voucher_parameters_objects->toArray()));
+//        todo Create IndexVoucherParameterRequest to apply authentication rules
+        $response = [];
+        foreach ( $this->voucherParameterModel->all() as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }
+        return $response;
     }
     
     /**
      * List all active vouchers parameters method
      * active voucher parameters means that is_expiry=0 and is_display=1
-     * @return Json response
+     * @return Response
      */
     public function listAllActiveVouchersParameters( ) {
-        $active_vouchers_parameters_arrays = $this->voucherParameterModel->where('is_expire', 0)->where('is_display', 1)->get()->toArray();
-        return $this->voucherParameterTransformer->transformCollection($active_vouchers_parameters_arrays);
+        $response = [];
+        foreach ( $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1])->get() as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }
+        return $response;
     }
     
     /**
-     * Display a voucher by ID.
+     * Display a voucher parameters by ID.
      *
      * @param  int  $id
      * @return Response
      */
     public function show($id)
     {
-        try{
-            $voucher_parameter_object = VoucherParameter::findOrFail($id);
-        } catch (Exception $ex) {
-                throw new Exception($ex->getMessage(), $ex->getCode());
-        }//catch (\Exception $ex)
-        return $this->respond($this->voucherParameterTransformer->transform($voucher_parameter_object->toArray()));
+        return $this->voucherParameterModel->findOrFail((int)$id)->getStandardJsonFormat();
     }
     
-    //    todo create showGiftVoucherParameters method
+//    todo create showGiftVoucherParameters method
 //    todo Create showDealVoucherParameters method
     
     /**
      * Search for voucher parameters by title
      * @param string $voucher_title
-     * @return collection
+     * @return Response
      */
     public function searchByVoucherTitle( $voucher_title) {
-//        todo modify response
         $optimized_voucher_title = strtolower(urldecode($voucher_title));
         $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
-        
         if ( !$voucher_parameter_exist ) {
             return $this->respond(["data"=>"No matched result"]);
         }//if ( !$voucher_parameter_exist )
         
-        $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get()->toArray();
-        
-        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
+        $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get();
+        $response = [];
+        foreach ( $voucher_parameter_objects as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }
+        return $response;
     }
     
     /**
      * Search for voucher parameters by business name
      * @param string $business_name
-     * @return Json collection
+     * @return Response
      */
     public function searchByBusinessName( $business_name) {
         $optimized_business_name = strtolower(urlencode($business_name));
@@ -111,8 +108,12 @@ class VoucherParametersController extends ApiController
             return $this->respond(["data"=>"No matched result"]);
         }//if ( !$business_exist )
         $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
-        $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get()->toArray();
-        return $this->voucherParameterTransformer->transformCollection($voucher_parameter_objects);
+        $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get();
+        $response = [];
+        foreach ( $voucher_parameter_objects as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }
+        return $response;
     }
 
     /**
@@ -177,13 +178,13 @@ class VoucherParametersController extends ApiController
      * @return Response
      */
     public function generalStoreHelper( array $raw_input ) {
-        $input = $this->prepareDataForStoringHelper($raw_input);
+        $input = $this->prepareDataForStoringHelper($raw_input, new GeneralHelperTools());
         DB::beginTransaction();
         $created_voucher_parameters = VoucherParameter::create( $input );
         if(  is_object( $created_voucher_parameters)){
         $created_voucher_parameters->useTerms()->attach($input['use_terms']);
         DB::commit();
-            $response =  $this->voucherParameterTransformer->transform( $created_voucher_parameters->toArray());
+            $response =  $created_voucher_parameters->getStandardJsonFormat();
         }else{
             DB::rollBack();
             $response = $this->respondInternalError();
@@ -201,12 +202,12 @@ class VoucherParametersController extends ApiController
     public function generalUpdateHelper(array $raw_input)
     {
         $voucher_parameter_object = VoucherParameter::findOrFail($raw_input['id']);
-        $modified_input = $this->prepareDataForUpdatingHelper($raw_input);
+        $modified_input = $this->prepareDataForUpdatingHelper($raw_input, new GeneralHelperTools());
         DB::beginTransaction();
         if($voucher_parameter_object->update($modified_input)){
             $voucher_parameter_object->useTerms()->sync($modified_input['use_term_ids']);
             DB::commit();
-            $response = $this->voucherParameterTransformer->transform($voucher_parameter_object->toArray());
+            $response = $voucher_parameter_object->getStandardJsonFormat();
         }else{
             DB::rollBack();
             $response = $this->respondBadRequest('Something went wrong while updating voucher');
@@ -215,7 +216,7 @@ class VoucherParametersController extends ApiController
     }
     
     /**
-     * perform common sanitization for all vouchers
+     * Prepare Data for generalStoreHelper method
      * @param array $old_input
      * @return array
      */
@@ -225,13 +226,13 @@ class VoucherParametersController extends ApiController
         $modified_input['voucher_image_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'voucher_image_id');
         $modified_input['use_terms'] = array_map( 'intval', $general_helper_tools->arrayKeySearchRecursively( $old_input, 'use_term_ids'));
         if ( $purchase_start = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'purchase_start') ) {
-            $modified_input[ 'purchase_start' ] = g::utcDateTime( $purchase_start, 'd/m/Y H:i' );
+            $modified_input[ 'purchase_start' ] = $general_helper_tools->utcDateTime( $purchase_start, 'd/m/Y H:i' );
         }else {
             $auckland_now_to_utc     = Carbon::now( 'Pacific/Auckland' )->setTimezone( 'UTC' );
             $modified_input[ 'purchase_start' ] = $auckland_now_to_utc;
         }//if (isset($input['purchase_start'])&&!empty($input['purchase_start']))
         if ( $purchase_expiry = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'purchase_expiry') ) {
-            $modified_input[ 'purchase_expiry' ] = g::utcDateTime( $purchase_expiry, 'd/m/Y H:i' );
+            $modified_input[ 'purchase_expiry' ] = $general_helper_tools->utcDateTime( $purchase_expiry, 'd/m/Y H:i' );
         }else{
 //            todo take a decision about the purchase_expiry if not exist
         }//if ( !empty($input['purchase_expiry']) )
@@ -241,10 +242,10 @@ class VoucherParametersController extends ApiController
         $modified_input[ 'is_display' ] = 1;
         $modified_input[ 'is_purchased' ] = 0;
         if ( $valid_from = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_from') ) {
-            $modified_input[ 'valid_from' ] = g::utcDateTime( $valid_from, 'd/m/Y H:i' );
+            $modified_input[ 'valid_from' ] = $general_helper_tools->utcDateTime( $valid_from, 'd/m/Y H:i' );
         }//if ( !empty($input['valid_from']) )
         if ( $valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until') ) {
-            $modified_input[ 'valid_until' ] = g::utcDateTime( $valid_until, 'd/m/Y H:i' );
+            $modified_input[ 'valid_until' ] = $general_helper_tools->utcDateTime( $valid_until, 'd/m/Y H:i' );
         }else{
             $modified_input['valid_for_amount'] = (int)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_amount');
             $modified_input['valid_for_units'] = (string)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_units');
@@ -261,7 +262,7 @@ class VoucherParametersController extends ApiController
     }
     
     /**
-     * Modify data to be updated
+     * Prepare data to be updated
      * @param array $raw_input
      * @return array
      */
@@ -286,10 +287,10 @@ class VoucherParametersController extends ApiController
         ($min_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
         ($max_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'max_value')) ? $modified_input['max_value'] = (double)$max_value : FALSE;
         ($discount_percentage = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'discount_percentage')) ? $modified_input['discount_percentage'] = (double)$discount_percentage : FALSE;
-        ($purchase_start = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_start')) ? $modified_input['purchase_start'] = g::utcDateTime( $purchase_start, 'd/m/Y H:i' ) : FALSE;
-        ($purchase_expiry = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_expiry')) ? $modified_input['purchase_expiry'] = g::utcDateTime($purchase_expiry, 'd/m/Y H:i') : FALSE;
-        ($valid_from = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_from')) ? $modified_input['valid_from'] = g::utcDateTime($valid_from, 'd/m/Y H:i') : FALSE;
-        ($valid_until = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_until')) ? $modified_input['valid_until'] = g::utcDateTime($valid_until, 'd/m/Y H:i') : false;
+        ($purchase_start = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_start')) ? $modified_input['purchase_start'] = $general_helper_tools->utcDateTime( $purchase_start, 'd/m/Y H:i' ) : FALSE;
+        ($purchase_expiry = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_expiry')) ? $modified_input['purchase_expiry'] = $general_helper_tools->utcDateTime($purchase_expiry, 'd/m/Y H:i') : FALSE;
+        ($valid_from = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_from')) ? $modified_input['valid_from'] = $general_helper_tools->utcDateTime($valid_from, 'd/m/Y H:i') : FALSE;
+        ($valid_until = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_until')) ? $modified_input['valid_until'] = $general_helper_tools->utcDateTime($valid_until, 'd/m/Y H:i') : false;
         //        secure fields from XSS attack
          ($short_description = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'short_description') ) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : False;
          ($long_description = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : '';
