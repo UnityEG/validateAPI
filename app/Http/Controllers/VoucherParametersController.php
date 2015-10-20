@@ -9,10 +9,12 @@ use App\Http\Models\VoucherParameter;
 use App\Http\Requests\Vouchers\VoucherParameters\CreateVoucherParametersRequest;
 use App\Http\Requests\Vouchers\VoucherParameters\UpdateVoucherParametersRequest;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
-use \Exception;
+use Psy\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class VoucherParametersController extends ApiController
 {
@@ -85,6 +87,7 @@ class VoucherParametersController extends ApiController
         $optimized_voucher_title = strtolower(urldecode($voucher_title));
         $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
         if ( !$voucher_parameter_exist ) {
+//            todo modify response with 204 "No content"
             return $this->respond(["data"=>"No matched result"]);
         }//if ( !$voucher_parameter_exist )
         
@@ -105,6 +108,7 @@ class VoucherParametersController extends ApiController
         $optimized_business_name = strtolower(urlencode($business_name));
         $business_exist = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->exists();
         if ( !$business_exist ) {
+//            todo modify response with 204 "No content"
             return $this->respond(["data"=>"No matched result"]);
         }//if ( !$business_exist )
         $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
@@ -222,7 +226,7 @@ class VoucherParametersController extends ApiController
      */
     private function prepareDataForStoringHelper( array $old_input, GeneralHelperTools $general_helper_tools) {
         $modified_input['business_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'business_id');
-        $modified_input['user_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'user_id');
+        $modified_input['user_id'] = (int)JWTAuth::parseToken()->authenticate()->id;
         $modified_input['voucher_image_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'voucher_image_id');
         $modified_input['use_terms'] = array_map( 'intval', $general_helper_tools->arrayKeySearchRecursively( $old_input, 'use_term_ids'));
         if ( $purchase_start = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'purchase_start') ) {
@@ -250,9 +254,18 @@ class VoucherParametersController extends ApiController
             $modified_input['valid_for_amount'] = (int)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_amount');
             $modified_input['valid_for_units'] = (string)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_units');
         }//if ( !empty($input['valid_until']) )
+        if ( $quantity = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'quantity') ) {
+            $modified_input['is_limited_quantity'] = 1;
+            $modified_input['quantity'] = (int)$quantity;
+            $modified_input['stock_quantity'] = (int) $quantity;
+        }else{
+            $modified_input['is_limited_quantity'] = 0;
+        }//if ( $quantity = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'quantity') )
 //        secure fields from XSS attack
         ($short_description = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'short_description')) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : FALSE;
          ($long_description = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : FALSE;
+//         todo add no_of_uses if exists
+//         todo add is_single_use store with internal decision according to no_of_uses
          ($retail_value = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
          ($value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
          ($min_value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
@@ -280,8 +293,11 @@ class VoucherParametersController extends ApiController
         }//if($is_display = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_display'))
         ($valid_for_amount = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_amount')) ? $modified_input['valid_for_amount'] = (int)$valid_for_amount : FALSE;
         ($valid_for_units = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_units')) ? $modified_input['valid_for_units'] = (string)$valid_for_units : FALSE;
+//        todo add is_limited_quantity column
         ($quantity = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'quantity')) ? $modified_input['quantity' ] = (int)$quantity : FALSE;
+//        todo update stock_quantity according to new quantity
         ($no_of_uses = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'no_of_uses')) ? $modified_input['no_of_uses'] = (int)$no_of_uses : FALSE;
+//         todo add is_single_use store with internal decision according to no_of_uses
         ($retail_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
         ($value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
         ($min_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
@@ -294,6 +310,7 @@ class VoucherParametersController extends ApiController
         //        secure fields from XSS attack
          ($short_description = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'short_description') ) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : False;
          ($long_description = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : '';
+//         todo add is_single_use to be updated
 //        todo take decision about working with (valid_for_amount and valid_for_units) or (valid_from and valid_until) or working with both
         return $modified_input;
     }
