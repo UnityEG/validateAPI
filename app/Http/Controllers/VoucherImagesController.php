@@ -17,7 +17,7 @@ class VoucherImagesController extends ApiController
      * Default path to voucher images
      * @var string
      */
-    public $defaultVoucherImagesPath = 'voucher/images/default';
+    public $defaultVoucherImagesPath;
     
     /**
      * VoucherImageTransformer instance
@@ -30,6 +30,7 @@ class VoucherImagesController extends ApiController
             ) {
 //        todo apply JWTAuth middleware on all methods in this controller
         $this->voucherImageTransformer = $voucher_image_transformer;
+        $this->defaultVoucherImagesPath = config('validateconf.default_voucher_images_path');
     }
     
     /**

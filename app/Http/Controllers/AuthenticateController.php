@@ -22,12 +22,6 @@ class AuthenticateController extends ApiController {
     private $userTransformer;
     
     /**
-     *instance of g class
-     * @var object
-     */
-    private $g;
-    
-    /**
      *instance of JWTAuth class
      * @var object
      */
@@ -73,7 +67,7 @@ class AuthenticateController extends ApiController {
         $user = Auth::user()->toArray();
         $user['token'] = $token;
         // if no errors are encountered we can return a JWT
-        return $this->respond($this->userTransformer->transform($user) );
+        return $this->userTransformer->transform($user);
     }
     
     /**

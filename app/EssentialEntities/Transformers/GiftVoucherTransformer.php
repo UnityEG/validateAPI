@@ -15,7 +15,7 @@ namespace App\EssentialEntities\Transformers;
  */
 class GiftVoucherTransformer extends Transformer {
 
-    public function transform($item) {
+    public function transform(array $item) {
         return [
             'id' => (string)$item['id'],
             'voucher_code' => (string)$item['qr_code'],
@@ -37,6 +37,10 @@ class GiftVoucherTransformer extends Transformer {
             // may be no need 'message' => $item['message'],
             // may be no need 'validation_date' => $item['validation_date'],
         ];
+    }
+
+    public function beforeStandard( array $item ) {
+        
     }
 
 }

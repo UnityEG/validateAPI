@@ -1,21 +1,25 @@
 <?php
 
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 namespace App\EssentialEntities\Transformers;
 
 /**
- * Description of UserGroupTransformer
+ * Description of RuleTransformer
  *
  * @author mohamed
  */
-class UserGroupTransformer extends Transformer{
+class RuleTransformer extends Transformer{
 
     public function beforeStandard( array $item ) {
         $response = [
             "id" => (string)$item['id'],
-            "group_name" => (string)$item['group_name']
+            "name" => (string)$item['name']
         ];
-        (empty($item['users'])) ?  : $response["relations"]["users"] = $item['users'];
-        (empty($item['rules'])) ?  : $response["relations"]["rules"] = $item['rules'];
         return $response;
     }
 

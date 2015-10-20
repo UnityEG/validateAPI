@@ -15,13 +15,17 @@ namespace App\EssentialEntities\Transformers;
  */
 class LessonTransformer extends Transformer {
 
-    public function transform($lesson) {
+    public function transform(array $lesson) {
         return [
             'id' => $lesson['id'],
             'title' => $lesson['title'],
             'body' => $lesson['body'],
             'active' => (boolean) $lesson['display'],
         ];
+    }
+
+    public function beforeStandard( array $item ) {
+        
     }
 
 }

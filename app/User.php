@@ -161,15 +161,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
     
     /**
-     * check if user has the rule or not
-     * @param string $rule_name
+     * Check if user is active
      * @return boolean
      */
+    public function isActiveUser( ) {
+        return ((bool)  $this->is_active) ? TRUE : FALSE;
+    }
+    
+    /**
+     * check if user has the rule or not
+     * @param string $rule_name rule name to check as in the database
+     * @return bool
+     */
     public function hasRule( $rule_name) {
-//        todo modify response
-        $user_groups = $this->userGroups;
-        foreach ( $user_groups as $user_group) {
-            if(is_object($user_group->rules()->where('name', $rule_name)->first())){
+        if ( !$this->isActiveUser() ) {
+            return FALSE;
+        }//if ( !(bool)$this->active )
+        foreach ( $this->userGroups as $user_group) {
+            if($user_group->rules()->where('name', $rule_name)->exists() || ('developer' === $user_group->group_name)){
                 return TRUE;
             }
         }

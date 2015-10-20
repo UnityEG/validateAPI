@@ -6,16 +6,21 @@ use App\EssentialEntities\Transformers\Transformer;
 
 class VoucherParametersTransformer extends Transformer {
 
-    function transform( $item ) {
+    function transform( array $item ) {
         return ["data"=>$this->beforeStandard( $item )];
     }
     
-    public function beforeStandard( $item ) {
-        return [
+    public function beforeStandard( array $item ) {
+        $business = (!empty($item['business'])) ? $item['business'] : ["data"=>["business_id"=>(string)$item['business_id']]];
+        $user = (!empty($item['user'])) ? $item['user'] : ["data"=>["user_id"=>(string)$item['user_id']]];
+        $voucher_image = (!empty($item['voucher_image'])) ? $item['voucher_image'] : ["data"=>["voucher_image_id"=>(string)$item['voucher_image_id']]];
+        $response = [
             'id'                    => ( string ) $item[ 'id' ],
             'voucher_type'          => ( string ) $item[ 'voucher_type' ],
             'title'                 => ( string ) $item[ 'title' ],
+//            todo convert purchase_start to Pacific/Auckland timezone
             'purchase_start'        => ( string ) $item[ 'purchase_start' ],
+//            todo convert purchase_expiry to Pacific/Auckland timezone
             'purchase_expiry'       => ( string ) $item[ 'purchase_expiry' ],
             'is_expire'             => ( boolean ) $item[ 'is_expire' ],
             'is_display'            => ( boolean ) $item[ 'is_display' ],
@@ -24,12 +29,14 @@ class VoucherParametersTransformer extends Transformer {
             'valid_for_amount'      => (isset($item['valid_for_amount']))?( string ) $item[ 'valid_for_amount' ]:'',
             'valid_for_units'       => (isset($item['valid_for_units']))?( string ) $item[ 'valid_for_units' ]:'',
             'valid_until'           => (isset($item['valid_until']))?( string ) $item[ 'valid_until' ]:'',
+//            todo add is_limited_quantity
             'quantity'              => (isset($item['quantity'])) ? ( string ) $item[ 'quantity' ] : '',
             'purchased_quantity'    => (isset($item['purchased_quantity']))?( string ) $item[ 'purchased_quantity' ]:'',
             'stock_quantity'        => (isset($item['stock_quantity']))?( string ) $item[ 'stock_quantity' ]:'',
             'short_description'     => (isset($item['short_description'])) ? ( string ) $item[ 'short_description' ] : '',
             'long_description'      => (isset($item['long_description'])) ? ( string ) $item[ 'long_description' ] : '',
             'no_of_uses'            => (isset($item['no_of_uses'])) ? ( string ) $item[ 'no_of_uses' ] : '',
+//            todo add is_single_use
             'retail_value'          => (isset($item['retail_value']))?( string ) $item[ 'retail_value' ]:'',
             'value'                 => (isset($item['value']))?( string ) $item[ 'value' ]:'',
             'min_value'             => (isset($item['min_value']))?( string ) $item[ 'min_value' ]:'',
@@ -39,23 +46,13 @@ class VoucherParametersTransformer extends Transformer {
             'created_at'            => ( string ) $item[ 'created_at' ],
             'updated_at'            => ( string ) $item[ 'updated_at' ],
             "relations"             => [
-                "user"          => [
-                    "data" => [
-                        'user_id' => ( string ) $item[ 'user_id' ],
-                    ]
-                ],
-                "business"      => [
-                    "data" => [
-                        'business_id' => ( string ) $item[ 'business_id' ],
-                    ]
-                ],
-                "voucher_image" => [
-                    "data" => [
-                        'voucher_image_id' => ( string ) $item[ 'voucher_image_id' ],
-                    ]
-                ],
+                "user"          => $user,
+                "business"      => $business,
+                "voucher_image" => $voucher_image,
             ]
         ];
+        (empty($item['use_terms'])) ?  : $response["relations"]["use_terms"] = $item['use_terms'];
+        return $response;
     }
 
 }

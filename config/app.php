@@ -77,9 +77,9 @@ return [
     | will not be safe. Please do this before deploying an application!
     |
     */
-
+//todo this key needs to be changed as it's now public on Github
     'key' => env('APP_KEY', 'bI3yJnZJB5AlnJJ2sZpsxZr2TsoNuqEG'),
-
+//todo this cipher needs to be changed as it's now public on Github
     'cipher' => 'AES-256-CBC',
 
     /*

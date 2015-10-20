@@ -11,6 +11,9 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class BusinessLogosController extends ApiController
 {
+//    todo update documentations of (@var, @param and @return)
+//    todo refine class by removing unused methods
+//    todo apply lazy instantiation principle by applying method dependency injection
     /**
      * Default path of business logos
      * @var string
@@ -27,6 +30,8 @@ class BusinessLogosController extends ApiController
     public function __construct(  
             BusinessLogo $business_logo_model
     ) {
+//        todo apply jwt.auth middleware to authenticate users
+//        todo apply jwt.refresh middleware to refresh token every request
         $this->DefaultBusinessLogosPath = config('validateconf.default_business_logos_path');
         $this->BusinessLogoModel = $business_logo_model;
     }
@@ -119,7 +124,7 @@ class BusinessLogosController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(  \App\Http\Requests\Business\BusinessLogos\DestroyBusinessLogoRequest $request, $id)
     {
         $business_logo_object = $this->BusinessLogoModel->findOrFail((int)$id);
 //        todo check if business logo is the current active logo of the business and if so change the active logo to the next business logo of this business in the business table

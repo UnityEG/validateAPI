@@ -3,17 +3,27 @@
 namespace App\Http\Requests\Users;
 
 use App\Http\Requests\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UpdateUserRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
+     * Users can just update their accounts.
+     * Users have rule user_update can update any user account.
      * @return bool
      */
     public function authorize()
     {
-        return true;
+        $response = FALSE;
+        $current_user_object = JWTAuth::parseToken()->authenticate();
+        if ( $current_user_object->isActiveUser() && ($this->request->get('data[id]', 0, TRUE) === (int)$current_user_object->id) ) {
+            $response = TRUE;
+        }//if ( $current_user_object->isActiveUser() && ($this->request->get('data[id]', 0, TRUE) === (int)$current_user_object->id) )
+        if ( $current_user_object->hasRule('user_update') ) {
+            $response = TRUE;
+        }//if ( $current_user_object->hasRule('user_update') )
+        return $response;
     }
 
     /**

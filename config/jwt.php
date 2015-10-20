@@ -26,7 +26,7 @@ return [
     | Shady: 20160 (2 weeks)
     |
     */
-
+//todo change ttl value before sending the code to the staging area
     'ttl' => 518400,
 
     /*

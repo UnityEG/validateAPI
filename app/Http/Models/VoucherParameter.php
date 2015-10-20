@@ -2,6 +2,11 @@
 
 namespace app\Http\Models;
 
+use App\EssentialEntities\Transformers\BusinessTransformer;
+use App\EssentialEntities\Transformers\UserTransformer;
+use App\EssentialEntities\Transformers\UseTermTransformer;
+use App\EssentialEntities\Transformers\VoucherImageTransformer;
+use App\EssentialEntities\Transformers\VoucherParametersTransformer;
 use Illuminate\Database\Eloquent\Model;
 
 class VoucherParameter extends Model {
@@ -22,11 +27,13 @@ class VoucherParameter extends Model {
         'valid_for_amount',
         'valid_for_units',
         'valid_until',
+        'is_limited_quantity',
         'quantity',
         'purchased_quantity',
         'stock_quantity',
         'short_description',
         'long_description',
+        'is_single_use',
         'no_of_uses',
         'retail_value',
         'value',
@@ -74,6 +81,37 @@ class VoucherParameter extends Model {
      */
     public function vouchers( ) {
         return $this->hasMany('App\Http\Models\Voucher', 'voucher_parameter_id', 'id');
+    }
+    
+//    Helpers
+    
+    /**
+     * Get Standard Json API format for single object
+     * @return array
+     */
+    public function getStandardJsonFormat( ) {
+        return (new VoucherParametersTransformer())->transform( $this->prepareVoucherParameterGreedyData());
+    }
+    
+    /**
+     * Get Before standard Json API format for single object
+     * @return array
+     */
+    public function getBeforeStandardArray( ) {
+        return (new VoucherParametersTransformer())->beforeStandard( $this->prepareVoucherParameterGreedyData());
+    }
+    
+    /**
+     * Prepare Data of VoucherParameter obect and its relationships data in a greedy way to be used in generating Standard Json API format
+     * @return array
+     */
+    private function prepareVoucherParameterGreedyData() {
+        $voucher_parameters_greedy_array = $this->load(['business', 'user', 'voucherImage', 'useTerms'])->toArray();
+        (empty($voucher_parameters_greedy_array['business'])) ? : $voucher_parameters_greedy_array['business'] = (new BusinessTransformer())->transform( $voucher_parameters_greedy_array['business']);
+        (empty($voucher_parameters_greedy_array['user'])) ?  : $voucher_parameters_greedy_array['user'] = (new UserTransformer())->transform( $voucher_parameters_greedy_array['user']);
+        (empty($voucher_parameters_greedy_array['voucher_image'])) ?  : $voucher_parameters_greedy_array['voucher_image'] = (new VoucherImageTransformer())->transform( $voucher_parameters_greedy_array['voucher_image']);
+        (empty($voucher_parameters_greedy_array['use_terms'])) ?  : $voucher_parameters_greedy_array['use_terms'] = (new UseTermTransformer())->transformCollection( $voucher_parameters_greedy_array['use_terms']);
+        return $voucher_parameters_greedy_array;
     }
 
 }

@@ -11,12 +11,11 @@ class UpdateVoucherParametersRequest extends Request {
 
     /**
      * Determine if the user is authorized to make this request.
-     *
+     * Only users belong to groups that have rule "voucher_parameter_update" will be authorized
      * @return bool
      */
     public function authorize() {
-//        todo add authorization rules to restrict voucher parameter update route
-        return true;
+        return ($this->CurrentUserObject->hasRule('voucher_parameter_update')) ? TRUE : FALSE;
     }
 
     /**

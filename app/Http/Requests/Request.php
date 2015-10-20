@@ -5,9 +5,21 @@ namespace App\Http\Requests;
 use App\Http\Controllers\ApiController;
 use Illuminate\Foundation\Http\FormRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 abstract class Request extends FormRequest
 {
+    /**
+     * Instance of current authenticated User Model
+     * @var \App\User
+     */
+    public $CurrentUserObject;
+    
+    public function __construct( ) {
+        parent::__construct();
+        (!JWTAuth::getToken()) ?  : $this->CurrentUserObject = JWTAuth::parseToken()->authenticate();
+    }
+    
     /**
      * Customize Json Response
      * @param array $errors
@@ -21,5 +33,16 @@ abstract class Request extends FormRequest
         return $this->redirector->to( $this->getRedirectUrl() )
                         ->withInput( $this->except( $this->dontFlash ) )
                         ->withErrors( $errors, $this->errorBag );
+    }
+    
+    /**
+     * Cusomize Forbidden Json response
+     * @return Json
+     */
+    public function forbiddenResponse( ) {
+        if ( $this->ajax() || $this->wantsJson() ) {
+            return (new ApiController())->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( $this->ajax() || $this->wantsJson() )
+        return parent::forbiddenResponse();
     }
 }
