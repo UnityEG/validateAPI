@@ -39,6 +39,7 @@ class BusinessTransformer extends Transformer{
             "contact_mobile" => (isset($item['contact_mobile'])) ? (string)$item['contact_mobile'] : '',
             "is_featured" => (boolean)$item['is_featured'],
             "is_display" => (boolean)$item['is_display'],
+//            todo remove created_at and updated at
             "created_at" => (string)$item['created_at'],
             "updated_at" => (string)$item['updated_at'],
             "relations"=>[

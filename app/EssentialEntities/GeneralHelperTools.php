@@ -50,7 +50,7 @@ class GeneralHelperTools {
 
     public static function formatDateTime( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
         //
-        return g::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone );
+        return self::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone );
     }
 
     public static function formatDate( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {

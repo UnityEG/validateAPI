@@ -14,7 +14,6 @@ namespace App\EssentialEntities\Transformers;
  * @author Sammy Guergachi <sguergachi at gmail.com>
  */
 abstract class Transformer {
-    
     /**
      * Transform arrays to standard JSONAPI
      * @param array $items

@@ -40,6 +40,7 @@ class UpdateVoucherParametersRequest extends Request {
             'data.attributes.is_display'                         => 'boolean',
             'data.attributes.valid_from'                         => 'sometimes|required|date_format:d/m/Y',
             'data.attributes.valid_for_amount'                   => 'sometimes|required|integer',
+//            todo modify valid_for_units to be hour, day, week, month
             'data.attributes.valid_for_units'                    => 'sometimes|required|alpha|size:1|in:d,m,y',
             'data.attributes.valid_until'                        => 'sometimes|required|date_format:d/m/Y',
             'data.attributes.quantity'                           => 'sometimes|required|integer|min:1',
