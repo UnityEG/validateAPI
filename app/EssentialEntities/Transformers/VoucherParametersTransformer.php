@@ -35,8 +35,6 @@ class VoucherParametersTransformer extends Transformer {
             'long_description'      => (isset($item['long_description'])) ? ( string ) $item[ 'long_description' ] : '',
             'is_single_use' => (bool)$item['is_single_use'],
             'no_of_uses'            => (isset($item['no_of_uses'])) ? ( string ) $item[ 'no_of_uses' ] : '',
-            'is_valid_during_month' => (isset($item['is_valid_during_month']))?( boolean ) $item[ 'is_valid_during_month' ]:'',
-            'discount_percentage'   => (isset($item['discount_percentage']))?( string ) $item[ 'discount_percentage' ]:'',
         ];
         switch ( $item['voucher_type']) {
             case 'gift':
