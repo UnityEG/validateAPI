@@ -320,6 +320,7 @@ class GeneralHelperTools {
      */
     public function arrayKeySearchRecursively(array $array, $keySearch)
     {
+//        todo solving the problem of deep array with adding another loop to walk throug non array values in the main array
         foreach ($array as $key => $item) {
             if ($key === $keySearch) {
                 if ( $array[$keySearch] === FALSE || $array[$keySearch] === 0 ) {
