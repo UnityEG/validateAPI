@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\EssentialEntities\GeneralHelperTools as GeneralHelperTools;
+use App\Http\Models\UserGroup;
 use App\Http\Requests\Users\StoreUserRequest;
+use App\Http\Requests\Users\UpdateUserRequest;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Psy\Util\Json;
 use Response;
-use App\Http\Models\UserGroup;
-use App\Http\Requests\Users\UpdateUserRequest;
-use App\Http\Requests\Users\ShowUserRequest;
-use App\Http\Requests\Users\IndexUserRequest;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UsersController extends ApiController {
 //    todo refine UserController to remove unused methods
@@ -50,10 +50,12 @@ class UsersController extends ApiController {
 
     /**
      * Display a listing of the resource.
-     * @param \App\Http\Requests\Users\IndexUserRequest $request
      * @return collection
      */
-    public function index(  IndexUserRequest $request) {
+    public function index() {
+        if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_show_all') ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_show_all') )
         $data = [];
         foreach ( $this->UserModel->all() as $user_object) {
             $data["data"][] = $user_object->getBeforeStandardArray();
@@ -73,7 +75,7 @@ class UsersController extends ApiController {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\Users\StoreUserRequest $request
+     * @param  StoreUserRequest $request
      * @return Json
      */
     public function store(StoreUserRequest $request) {
@@ -95,11 +97,14 @@ class UsersController extends ApiController {
     /**
      * Display the specified resource.
      *
-     * @param \App\Http\Requests\Users\ShowUserRequest $request Instance of ShowUserRequest class
      * @param  int  $id
      * @return Response
      */
-    public function show(ShowUserRequest $request, $id) {
+    public function show($id) {
+        $current_user_object = JWTAuth::parseToken()->authenticate();
+        if ( !($current_user_object->isActiveUser() && ($id==$current_user_object->id)) && !($current_user_object->hasRule('user_show')) ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !($current_user_object->isActiveUser() && ($id==$current_user_object->id)) && !($current_user_object->hasRule('user_show')) )
         return $this->UserModel->findOrFail($id)->getStandardJsonFormat();
     }
 

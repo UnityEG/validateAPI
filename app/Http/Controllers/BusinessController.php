@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\EssentialEntities\GeneralHelperTools as GeneralHelperTools;
 use App\Http\Models\Business;
-use App\Http\Requests\Business\IndexBusinessRequest;
-use App\Http\Requests\Business\ShowBusinessRequest;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Tymon\JWTAuth\Facades\JWTAuth as JWTAuth2;
 use Tymon\JWTAuth\JWTAuth;
 
 class BusinessController extends ApiController {
@@ -20,13 +19,13 @@ class BusinessController extends ApiController {
 
     /**
      * Instance of GeneralHelperTools class
-     * @var \App\EssentialEntities\GeneralHelperTools
+     * @var GeneralHelperTools
      */
     private $GeneralHelperTools;
     
     /**
      * Instance of Business Model
-     * @var \App\Http\Models\Business
+     * @var Business
      */
     private $businessModel;
     
@@ -50,14 +49,16 @@ class BusinessController extends ApiController {
 
     /**
      * Display all the business whether it's active or not.
-     * @param IndexBusinessRequest $request Instance of IndexBusinessRequest class
      * @return array
      */
-    public function index(IndexBusinessRequest $request) {
+    public function index() {
+        if ( !JWTAuth2::parseToken()->authenticate()->hasRule('business_show_all') ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !JWTAuth2::parseToken()->authenticate()->hasRule('business_show_all') )
         $result = [];
         foreach ($this->businessModel->get() as $business_object){
             $result["data"][] = $business_object->getBeforeStandardArray();
-        }
+        }//foreach ($this->businessModel->get() as $business_object)
         return $result;
     }
 
@@ -73,7 +74,7 @@ class BusinessController extends ApiController {
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\Business\StoreBusinessRequest  $request
+     * @param  StoreBusinessRequest  $request
      * @return mix
      */
     public function store( StoreBusinessRequest $request ) {
@@ -98,11 +99,14 @@ class BusinessController extends ApiController {
     /**
      * Display the specified resource.
      *
-     * @param \App\Http\Requests\Business\ShowBusinessRequest $request Instance of ShowBusinessRequest class
      * @param  int  $id
      * @return array
      */
-    public function show(  ShowBusinessRequest $request, $id ) {
+    public function show($id ) {
+        $current_user_object = JWTAuth2::parseToken()->authenticate();
+        if ( (!$current_user_object->business()->where('business_id', (int)$id)->exists()) && (!$current_user_object->hasRule('business_show')) ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if((!$current_user_object->business()->where('business_id', (int)$id)->exists())&&(!$current_user_object->hasRule('business_show')))
         return $this->businessModel->findOrFail($id)->getStandardJsonFormat();
     }
 

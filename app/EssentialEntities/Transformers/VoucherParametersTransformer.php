@@ -36,22 +36,32 @@ class VoucherParametersTransformer extends Transformer {
             'is_single_use' => (bool)$item['is_single_use'],
             'no_of_uses'            => (isset($item['no_of_uses'])) ? ( string ) $item[ 'no_of_uses' ] : '',
         ];
-        switch ( $item['voucher_type']) {
-            case 'gift':
-                $response["min_value"] = (!isset($item['min_value'])) ? : (string)$item['min_value'];
-                $response["max_value"] = (!isset($item['max_value'])) ?  : (string)$item['max_value'];
-                break;
-            case 'deal':
-                $response['retail_value'] = (!isset($item['retail_value'])) ?  : (string)$item['retail_value'];
-                $response["deal_value"] = (!isset($item['value'])) ?  : (string)$item['value'];
-                break;
-//            todo continue showing specific info about each type of vouchers
-        }//switch ( $item['voucher_type'])
+        $response = array_merge($response, $this->voucherTypeInfo($item));
         $response["relations"]["business"] = (!empty($item['business'])) ? $item['business'] : ["data"=>["business_id"=>(string)$item['business_id']]];
         $response["relations"]["user"] = (!empty($item['user'])) ? $item['user'] : ["data"=>["user_id"=>(string)$item['user_id']]];
         $response["relations"]["voucher_image"] = (!empty($item['voucher_image'])) ? $item['voucher_image'] : ["data"=>["voucher_image_id"=>(string)$item['voucher_image_id']]];
         (empty($item['use_terms'])) ?  : $response["relations"]["use_terms"] = $item['use_terms'];
         return $response;
     }
-//todo send just specific columns for every voucher 
+    
+    /**
+     * Return with specific information of each voucher type
+     * @param array $item
+     * @return array
+     */
+    private function voucherTypeInfo( array $item) {
+        $response = [];
+        switch ( $item['voucher_type'] ) {
+            case 'gift':
+                $response["min_value"] = (!isset($item['min_value'])) ?  : (string)$item['min_value'];
+                $response["max_value"] = (!isset($item['max_value'])) ?  : (string)$item['max_value'];
+                break;
+            case 'deal':
+                $response["retail_value"] = (!isset($item['retail_value'])) ?  : (string)$item['retail_value'];
+                $response["deal_value"] = (!isset($item['value'])) ?  : (string)$item['value'];
+                break;
+//            todo continue adding info of the rest of voucher types
+        }//switch ( $item['voucher_type'] )
+        return $response;
+    }
 }

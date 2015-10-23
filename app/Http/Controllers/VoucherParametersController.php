@@ -43,7 +43,10 @@ class VoucherParametersController extends ApiController
      */
     public function index()
     {
-//        todo Create IndexVoucherParameterRequest to apply authentication rules
+//        simple authentication check rule, if complex check needed then create a request class
+        if ( !JWTAuth::parseToken()->authenticate()->hasRule('voucher_parameter_show_all') ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !JWTAuth::parseToken()->authenticate()->hasRule('voucher_parameter_show_all') )
         $response = [];
         foreach ( $this->voucherParameterModel->all() as $voucher_parameter_object) {
             $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
@@ -53,15 +56,20 @@ class VoucherParametersController extends ApiController
     
     /**
      * List all active vouchers parameters method
-     * active voucher parameters means that is_expiry=0 and is_display=1
+     * Unlimited active voucher parameters means that is_expiry=0, is_display=1 and is_limited_quantity=0
+     * Limited active voucher parameters means that is_expire=0, is_display=1, is_limited_quantity=1 and stock_quantity >= 1
      * @return Response
      */
     public function listAllActiveVouchersParameters( ) {
-//        todo active voucherParameters must have stock_quantity more than 0 for limited voucherParameters
         $response = [];
-        foreach ( $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1])->get() as $voucher_parameter_object) {
-            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
-        }
+        $active_unlimited_voucher_objects = $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1, 'is_limited_quantity'=>0])->get();
+        $active_limited_voucher_objects = $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1, 'is_limited_quantity'=>1])->where('stock_quantity', '>=', 1)->get();
+        foreach ( $active_unlimited_voucher_objects as $unlimited_voucher_parameter_object) {
+            $response["data"][] = $unlimited_voucher_parameter_object->getBeforeStandardArray();
+        }//foreach ( $active_unlimited_voucher_objects as $voucher_parameter_object)
+        foreach ( $active_limited_voucher_objects as $limited_voucher_parameter_object) {
+            $response["data"][] = $limited_voucher_parameter_object->getBeforeStandardArray();
+        }//foreach ( $active_limited_voucher_objects as $limited_voucher_parameter)
         return $response;
     }
     
@@ -121,7 +129,7 @@ class VoucherParametersController extends ApiController
 
     /**
      * Store Deal voucher parameters
-     * @param CreateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\CreateVoucherParametersRequest $request
      * @return Json response
      */
     public function storeDealVoucherParameters(CreateVoucherParametersRequest $request ) {
@@ -132,7 +140,7 @@ class VoucherParametersController extends ApiController
     
     /**
      * Store Gift voucher patameters
-     * @param CreateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\CreateVoucherParametersRequest $request
      * @return Json response
      */
     public function storeGiftVoucherParameters( CreateVoucherParametersRequest $request) {
@@ -143,7 +151,7 @@ class VoucherParametersController extends ApiController
 
     /**
      * Update Gift voucher parameters
-     * @param UpdateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\UpdateVoucherParametersRequest $request
      * @return Json response
      */
     public function updateGiftVoucherParameters( UpdateVoucherParametersRequest $request) {
@@ -153,7 +161,7 @@ class VoucherParametersController extends ApiController
     
     /**
      * Update Deal voucher parameters
-     * @param UpdateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\UpdateVoucherParametersRequest $request
      * @return Json response
      */
     public function updateDealVoucherParameters(  UpdateVoucherParametersRequest $request) {
@@ -239,9 +247,8 @@ class VoucherParametersController extends ApiController
         }//if ( !empty($input['purchase_expiry']) )
         $modified_input['title'] = (string)$general_helper_tools->arrayKeySearchRecursively($old_input, 'title');
         $modified_input['voucher_type'] = $old_input['voucher_type'];
-        $modified_input[ 'is_expire' ] = 0;
+        $modified_input[ 'is_expire' ] = $modified_input['is_purchased'] = 0;
         $modified_input[ 'is_display' ] = 1;
-        $modified_input[ 'is_purchased' ] = 0;
         $modified_input[ 'valid_from' ] = $general_helper_tools->utcDateTime( $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_from'), 'd/m/Y H:i' );
         if($valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until')){
             $modified_input[ 'valid_until' ] = $general_helper_tools->utcDateTime( $valid_until, 'd/m/Y H:i' );
@@ -266,8 +273,7 @@ class VoucherParametersController extends ApiController
         }//if($valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until'))
         if ( $quantity = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'quantity') ) {
             $modified_input['is_limited_quantity'] = 1;
-            $modified_input['quantity'] = (int)$quantity;
-            $modified_input['stock_quantity'] = (int) $quantity;
+            $modified_input['quantity'] = $modified_input['stock_quantity'] = (int)$quantity;
         }else{
             $modified_input['is_limited_quantity'] = 0;
         }//if ( $quantity = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'quantity') )
@@ -293,7 +299,7 @@ class VoucherParametersController extends ApiController
      * @param array $raw_input
      * @return array
      */
-    private function prepareDataForUpdatingHelper( $raw_input , GeneralHelperTools $general_helper_tools) {
+    private function prepareDataForUpdatingHelper( array $raw_input , GeneralHelperTools $general_helper_tools) {
 //        todo refactor prepareDataForUpdatingHelper method
         ($voucher_image_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'voucher_image_id')) ? $modified_input['voucher_image_id'] = (int)$voucher_image_id : FALSE;
         ($use_term_ids = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'use_term_ids')) ? $modified_input['use_term_ids'] = array_map('intval', $use_term_ids) : FALSE;
@@ -351,6 +357,7 @@ class VoucherParametersController extends ApiController
         //        secure fields from XSS attack
          ($short_description = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'short_description') ) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : False;
          ($long_description = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : '';
+//         todo continue add specific fields to each voucher type to be updated
         return $modified_input;
     }
 }
