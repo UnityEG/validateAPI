@@ -4,10 +4,9 @@ namespace App\Http\Controllers\UsersControllers;
 
 use App\Http\Controllers\ApiController;
 use App\Http\Models\UserGroup;
-use App\Http\Requests\Users\UserGroups\IndexUserGroupRequest;
-use App\Http\Requests\Users\UserGroups\ShowUserGroupRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserGroupsController extends ApiController
 {
@@ -20,12 +19,14 @@ class UserGroupsController extends ApiController
     /**
      * Display all user groups except 'developers' group.
      *
-     * @param IndexUserGroupRequest $request Instance of IndexUserGroupRequest class
      * @param UserGroup $user_group_model Instance of UserGroup Model
      * @return Response
      */
-    public function index( IndexUserGroupRequest $request, UserGroup $user_group_model)
+    public function index(UserGroup $user_group_model)
     {
+        if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_group_show_all') ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_group_show_all') )
         $response = [];
         foreach ( $user_group_model->whereNotIN('group_name', ['developers'])->get() as $user_group_object ) {
             $response["data"][] = $user_group_object->getBeforeStandardArray();
@@ -57,13 +58,15 @@ class UserGroupsController extends ApiController
     /**
      * Display the specified user group except developers group.
      *
-     * @param ShowUserGroupRequest $request Instance of ShowUserGroupRequest class
      * @param UserGroup $user_group_model Instance of UserGroup Model
      * @param  int  $id
      * @return Response
      */
-    public function show(ShowUserGroupRequest $request, UserGroup $user_group_model, $id)
+    public function show(UserGroup $user_group_model, $id)
     {
+        if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_group_show') ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_group_show') )
         $user_group_object = $user_group_model->findOrFail((int) $id);
         return ('developers' == $user_group_object->group_name) ? $this->respond("success") : $user_group_object->getStandardJsonFormat();
     }

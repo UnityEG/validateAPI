@@ -50,7 +50,7 @@ class GeneralHelperTools {
 
     public static function formatDateTime( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
         //
-        return g::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone );
+        return self::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone );
     }
 
     public static function formatDate( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
@@ -320,6 +320,7 @@ class GeneralHelperTools {
      */
     public function arrayKeySearchRecursively(array $array, $keySearch)
     {
+//        todo solving the problem of deep array with adding another loop to walk throug non array values in the main array
         foreach ($array as $key => $item) {
             if ($key === $keySearch) {
                 if ( $array[$keySearch] === FALSE || $array[$keySearch] === 0 ) {

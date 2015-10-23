@@ -43,7 +43,10 @@ class VoucherParametersController extends ApiController
      */
     public function index()
     {
-//        todo Create IndexVoucherParameterRequest to apply authentication rules
+//        simple authentication check rule, if complex check needed then create a request class
+        if ( !JWTAuth::parseToken()->authenticate()->hasRule('voucher_parameter_show_all') ) {
+            return $this->setStatusCode(403)->respondWithError('Forbidden');
+        }//if ( !JWTAuth::parseToken()->authenticate()->hasRule('voucher_parameter_show_all') )
         $response = [];
         foreach ( $this->voucherParameterModel->all() as $voucher_parameter_object) {
             $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
@@ -53,14 +56,20 @@ class VoucherParametersController extends ApiController
     
     /**
      * List all active vouchers parameters method
-     * active voucher parameters means that is_expiry=0 and is_display=1
+     * Unlimited active voucher parameters means that is_expiry=0, is_display=1 and is_limited_quantity=0
+     * Limited active voucher parameters means that is_expire=0, is_display=1, is_limited_quantity=1 and stock_quantity >= 1
      * @return Response
      */
     public function listAllActiveVouchersParameters( ) {
         $response = [];
-        foreach ( $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1])->get() as $voucher_parameter_object) {
-            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
-        }
+        $active_unlimited_voucher_objects = $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1, 'is_limited_quantity'=>0])->get();
+        $active_limited_voucher_objects = $this->voucherParameterModel->where(['is_expire'=>0, 'is_display'=>1, 'is_limited_quantity'=>1])->where('stock_quantity', '>=', 1)->get();
+        foreach ( $active_unlimited_voucher_objects as $unlimited_voucher_parameter_object) {
+            $response["data"][] = $unlimited_voucher_parameter_object->getBeforeStandardArray();
+        }//foreach ( $active_unlimited_voucher_objects as $voucher_parameter_object)
+        foreach ( $active_limited_voucher_objects as $limited_voucher_parameter_object) {
+            $response["data"][] = $limited_voucher_parameter_object->getBeforeStandardArray();
+        }//foreach ( $active_limited_voucher_objects as $limited_voucher_parameter)
         return $response;
     }
     
@@ -87,8 +96,7 @@ class VoucherParametersController extends ApiController
         $optimized_voucher_title = strtolower(urldecode($voucher_title));
         $voucher_parameter_exist = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->exists();
         if ( !$voucher_parameter_exist ) {
-//            todo modify response with 204 "No content"
-            return $this->respond(["data"=>"No matched result"]);
+            return $this->respond([]);
         }//if ( !$voucher_parameter_exist )
         
         $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get();
@@ -108,8 +116,7 @@ class VoucherParametersController extends ApiController
         $optimized_business_name = strtolower(urlencode($business_name));
         $business_exist = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->exists();
         if ( !$business_exist ) {
-//            todo modify response with 204 "No content"
-            return $this->respond(["data"=>"No matched result"]);
+            return $this->respond([]);
         }//if ( !$business_exist )
         $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
         $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get();
@@ -122,7 +129,7 @@ class VoucherParametersController extends ApiController
 
     /**
      * Store Deal voucher parameters
-     * @param CreateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\CreateVoucherParametersRequest $request
      * @return Json response
      */
     public function storeDealVoucherParameters(CreateVoucherParametersRequest $request ) {
@@ -133,7 +140,7 @@ class VoucherParametersController extends ApiController
     
     /**
      * Store Gift voucher patameters
-     * @param CreateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\CreateVoucherParametersRequest $request
      * @return Json response
      */
     public function storeGiftVoucherParameters( CreateVoucherParametersRequest $request) {
@@ -144,7 +151,7 @@ class VoucherParametersController extends ApiController
 
     /**
      * Update Gift voucher parameters
-     * @param UpdateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\UpdateVoucherParametersRequest $request
      * @return Json response
      */
     public function updateGiftVoucherParameters( UpdateVoucherParametersRequest $request) {
@@ -154,7 +161,7 @@ class VoucherParametersController extends ApiController
     
     /**
      * Update Deal voucher parameters
-     * @param UpdateVoucherParametersRequest $request
+     * @param \App\Http\Requests\VoucherParameters\UpdateVoucherParametersRequest $request
      * @return Json response
      */
     public function updateDealVoucherParameters(  UpdateVoucherParametersRequest $request) {
@@ -197,10 +204,9 @@ class VoucherParametersController extends ApiController
     }
     
     /**
-     * Update the specified resource in storage.
+     * General Update helper.
      *
-     * @param  Request  $request
-     * @param  int  $id
+     * @param array $raw_input  raw input
      * @return Response
      */
     public function generalUpdateHelper(array $raw_input)
@@ -211,12 +217,11 @@ class VoucherParametersController extends ApiController
         if($voucher_parameter_object->update($modified_input)){
             $voucher_parameter_object->useTerms()->sync($modified_input['use_term_ids']);
             DB::commit();
-            $response = $voucher_parameter_object->getStandardJsonFormat();
+            return $voucher_parameter_object->getStandardJsonFormat();
         }else{
             DB::rollBack();
-            $response = $this->respondBadRequest('Something went wrong while updating voucher');
+            return $this->respondBadRequest('Something went wrong while updating voucher');
         }//if($voucher_parameter_object->update($input))
-        return $response;
     }
     
     /**
@@ -225,6 +230,7 @@ class VoucherParametersController extends ApiController
      * @return array
      */
     private function prepareDataForStoringHelper( array $old_input, GeneralHelperTools $general_helper_tools) {
+//        todo refactor prepareDataForStoringHelper method
         $modified_input['business_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'business_id');
         $modified_input['user_id'] = (int)JWTAuth::parseToken()->authenticate()->id;
         $modified_input['voucher_image_id'] = (int)$general_helper_tools->arrayKeySearchRecursively( $old_input, 'voucher_image_id');
@@ -238,34 +244,48 @@ class VoucherParametersController extends ApiController
         if ( $purchase_expiry = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'purchase_expiry') ) {
             $modified_input[ 'purchase_expiry' ] = $general_helper_tools->utcDateTime( $purchase_expiry, 'd/m/Y H:i' );
         }else{
-//            todo take a decision about the purchase_expiry if not exist
         }//if ( !empty($input['purchase_expiry']) )
         $modified_input['title'] = (string)$general_helper_tools->arrayKeySearchRecursively($old_input, 'title');
         $modified_input['voucher_type'] = $old_input['voucher_type'];
-        $modified_input[ 'is_expire' ] = 0;
+        $modified_input[ 'is_expire' ] = $modified_input['is_purchased'] = 0;
         $modified_input[ 'is_display' ] = 1;
-        $modified_input[ 'is_purchased' ] = 0;
-        if ( $valid_from = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_from') ) {
-            $modified_input[ 'valid_from' ] = $general_helper_tools->utcDateTime( $valid_from, 'd/m/Y H:i' );
-        }//if ( !empty($input['valid_from']) )
-        if ( $valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until') ) {
+        $modified_input[ 'valid_from' ] = $general_helper_tools->utcDateTime( $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_from'), 'd/m/Y H:i' );
+        if($valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until')){
             $modified_input[ 'valid_until' ] = $general_helper_tools->utcDateTime( $valid_until, 'd/m/Y H:i' );
         }else{
-            $modified_input['valid_for_amount'] = (int)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_amount');
-            $modified_input['valid_for_units'] = (string)  $general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_units');
-        }//if ( !empty($input['valid_until']) )
+            $modified_input['valid_for_amount'] = (int)$general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_amount');
+            $modified_input['valid_for_units'] = (string)$general_helper_tools->arrayKeySearchRecursively($old_input, 'valid_for_units');
+            $valid_from_clone = clone $modified_input['valid_from'];
+            switch ($modified_input['valid_for_units']){
+                case 'h':
+                    $modified_input['valid_until'] = $valid_from_clone->addHours($modified_input['valid_for_amount']);
+                    break;
+                case 'd':
+                    $modified_input['valid_until'] = $valid_from_clone->addDays($modified_input['valid_for_amount']);
+                    break;
+                case 'w':
+                    $modified_input['valid_until'] = $valid_from_clone->addWeeks($modified_input['valid_for_amount']);
+                    break;
+                case 'm':
+                    $modified_input['valid_until'] = $valid_from_clone->addMonths($modified_input['valid_for_amount']);
+                    break;
+            }//switch ($modified_input['valid_for_units'])
+        }//if($valid_until = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'valid_until'))
         if ( $quantity = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'quantity') ) {
             $modified_input['is_limited_quantity'] = 1;
-            $modified_input['quantity'] = (int)$quantity;
-            $modified_input['stock_quantity'] = (int) $quantity;
+            $modified_input['quantity'] = $modified_input['stock_quantity'] = (int)$quantity;
         }else{
             $modified_input['is_limited_quantity'] = 0;
         }//if ( $quantity = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'quantity') )
 //        secure fields from XSS attack
         ($short_description = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'short_description')) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : FALSE;
          ($long_description = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : FALSE;
-//         todo add no_of_uses if exists
-//         todo add is_single_use store with internal decision according to no_of_uses
+         if ( $no_of_uses = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'no_of_uses') ) {
+             $modified_input['is_single_use'] = (1 == (int)$no_of_uses) ? TRUE : FALSE;
+             $modified_input['no_of_uses'] = (int) $no_of_uses;
+         }else{
+             $modified_input['is_single_use'] = TRUE;
+         }//if ( $no_of_uses = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'no_of_uses') )
          ($retail_value = $general_helper_tools->arrayKeySearchRecursively( $old_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
          ($value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
          ($min_value = $general_helper_tools->arrayKeySearchRecursively($old_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
@@ -279,9 +299,8 @@ class VoucherParametersController extends ApiController
      * @param array $raw_input
      * @return array
      */
-    private function prepareDataForUpdatingHelper( $raw_input , GeneralHelperTools $general_helper_tools) {
-        ($business_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'business_id')) ? $modified_input['business_id'] = (int)$business_id : FALSE;
-        ($user_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'user_id')) ? $modified_input['user_id'] = (int)$user_id : FALSE;
+    private function prepareDataForUpdatingHelper( array $raw_input , GeneralHelperTools $general_helper_tools) {
+//        todo refactor prepareDataForUpdatingHelper method
         ($voucher_image_id = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'voucher_image_id')) ? $modified_input['voucher_image_id'] = (int)$voucher_image_id : FALSE;
         ($use_term_ids = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'use_term_ids')) ? $modified_input['use_term_ids'] = array_map('intval', $use_term_ids) : FALSE;
         ($title = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'title')) ? $modified_input['title'] = (string)$title:false;
@@ -291,13 +310,19 @@ class VoucherParametersController extends ApiController
         if($is_display = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_display')){
             $modified_input['is_display'] = ("false" === $is_display) ? FALSE : TRUE;
         }//if($is_display = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_display'))
-        ($valid_for_amount = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_amount')) ? $modified_input['valid_for_amount'] = (int)$valid_for_amount : FALSE;
-        ($valid_for_units = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_units')) ? $modified_input['valid_for_units'] = (string)$valid_for_units : FALSE;
-//        todo add is_limited_quantity column
-        ($quantity = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'quantity')) ? $modified_input['quantity' ] = (int)$quantity : FALSE;
-//        todo update stock_quantity according to new quantity
-        ($no_of_uses = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'no_of_uses')) ? $modified_input['no_of_uses'] = (int)$no_of_uses : FALSE;
-//         todo add is_single_use store with internal decision according to no_of_uses
+        if($quantity = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'quantity')) {
+            $modified_input['is_limited_quantity'] = 1;
+            $modified_input['quantity' ] = $modified_input['stock_quantity'] = (int)$quantity;
+        }else{
+            $modified_input['is_limited_quantity'] = $modified_input['quantity'] = $modified_input['stock_quantity'] = 0;
+        }//if($quantity = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'quantity'))
+        if($no_of_uses = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'no_of_uses')){
+            $modified_input['no_of_uses'] = (int)$no_of_uses;
+            $modified_input['is_single_use'] = 0;
+        }else{
+            $modified_input['no_of_uses'] = 0;
+            $modified_input['is_single_use'] = 1;
+        }//if($no_of_uses = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'no_of_uses'))
         ($retail_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'retail_value')) ? $modified_input['retail_value'] = (double)$retail_value : FALSE;
         ($value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'value')) ? $modified_input['value'] = (double)$value : FALSE;
         ($min_value = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'min_value')) ? $modified_input['min_value'] = (double)$min_value : FALSE;
@@ -306,12 +331,33 @@ class VoucherParametersController extends ApiController
         ($purchase_start = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_start')) ? $modified_input['purchase_start'] = $general_helper_tools->utcDateTime( $purchase_start, 'd/m/Y H:i' ) : FALSE;
         ($purchase_expiry = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'purchase_expiry')) ? $modified_input['purchase_expiry'] = $general_helper_tools->utcDateTime($purchase_expiry, 'd/m/Y H:i') : FALSE;
         ($valid_from = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_from')) ? $modified_input['valid_from'] = $general_helper_tools->utcDateTime($valid_from, 'd/m/Y H:i') : FALSE;
-        ($valid_until = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_until')) ? $modified_input['valid_until'] = $general_helper_tools->utcDateTime($valid_until, 'd/m/Y H:i') : false;
+        if($valid_until = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_until')){
+            $modified_input['valid_until'] = $general_helper_tools->utcDateTime($valid_until, 'd/m/Y H:i');
+            $modified_input['valid_for_amount'] = 0;
+            $modified_input['valid_for_units'] = '';
+        }elseif(($valid_for_amount = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_amount')) && ($valid_for_units = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_for_units'))){
+            $modified_input['valid_for_amount'] = (int)$valid_for_amount;
+            $modified_input['valid_for_units'] = (string)$valid_for_units;
+            $clone_valid_from = clone $modified_input['valid_from'];
+            switch ( $valid_for_units ) {
+                case 'h':
+                    $modified_input['valid_until'] = $clone_valid_from->addHours($modified_input['valid_for_amount']);
+                    break;
+                case 'd':
+                    $modified_input['valid_until'] = $clone_valid_from->addDays($modified_input['valid_for_amount']);
+                    break;
+                case 'w':
+                    $modified_input['valid_until'] = $clone_valid_from->addWeeks($modified_input['valid_for_amount']);
+                    break;
+                case 'm':
+                    $modified_input['valid_until'] = $clone_valid_from->addMonths($modified_input['valid_for_amount']);
+                    break;
+            }//switch ( $valid_for_units )
+        }//if($valid_until = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'valid_until'))
         //        secure fields from XSS attack
          ($short_description = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'short_description') ) ? $modified_input[ 'short_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $short_description ) : False;
          ($long_description = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'long_description')) ? $modified_input[ 'long_description' ] = preg_replace( ['/\<script\>/', '/\<\/script\>/' ], '', $long_description ) : '';
-//         todo add is_single_use to be updated
-//        todo take decision about working with (valid_for_amount and valid_for_units) or (valid_from and valid_until) or working with both
+//         todo continue add specific fields to each voucher type to be updated
         return $modified_input;
     }
 }

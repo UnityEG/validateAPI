@@ -24,35 +24,50 @@ class UpdateVoucherParametersRequest extends Request {
      * @return array
      */
     public function rules() {
+//        todo refactor rules method
         $this->voucherTypeCheckRule();
         $this->voucherPurchasedCheckRule();
         $common_rules = [
             'data.id'                                            => 'required|integer|min:1|exists:voucher_parameters,id|voucher_type_check|voucher_purchased_check',
-            'data.relations.business.data.business_id'           => 'sometimes|required|integer|exists:business,id',
-            'data.relations.user.data.user_id'                   => 'sometimes|required|integer|exists:users,id',
             'data.relations.voucher_image.data.voucher_image_id' => 'sometimes|required|exists:voucher_images,id',
-//            todo fix use_term_ids validation rules as an array
-            'data.relations.use_terms.data.use_term_ids'         => 'sometimes|required|exists:use_terms,id',
+            'data.relations.use_terms.data.use_term_ids'         => 'sometimes|required|array',
             'data.attributes.title'                              => 'sometimes|required|string',
-            'data.attributes.purchase_start'                     => 'sometimes|required|date_format:d/m/Y H:i',
-            'data.attributes.purchase_expiry'                       => 'sometimes|required|date_format:d/m/Y H:i',
+            'data.attributes.purchase_start'                     => 'required_with:data.attributes.purchase_expiry|date_format:d/m/Y H:i|before:data.attributes.purchase_expiry|after:today|before:next year',
+            'data.attributes.purchase_expiry'                       => 'required_with:data.attributes.purchase_start|date_format:d/m/Y H:i|after:data.attributes.purchase_start|before:next year',
             'data.attributes.is_expire'                          => 'boolean',
             'data.attributes.is_display'                         => 'boolean',
-            'data.attributes.valid_from'                         => 'sometimes|required|date_format:d/m/Y',
-            'data.attributes.valid_for_amount'                   => 'sometimes|required|integer',
-            'data.attributes.valid_for_units'                    => 'sometimes|required|alpha|size:1|in:d,m,y',
-            'data.attributes.valid_until'                        => 'sometimes|required|date_format:d/m/Y',
+            'data.attributes.valid_from'                         => ['required_with:data.attributes.valid_for_amount,data.attributes.valid_for_units,data.attributes.valid_until', 'date_format:d/m/Y H:i', 'after:data.attributes.purchase_start', 'before:next year'],
+            'data.attributes.valid_for_amount'                   => ['required_with:data.attributes.valid_for_units', 'integer', 'min:1'],
+            'data.attributes.valid_for_units'                    => 'required_with:data.attributes.valid_for_amount|alpha|size:1|in:h,d,w,m',
+            'data.attributes.valid_until'                        => ['sometimes', 'required', 'date_format:d/m/Y H:i', 'after:data.attributes.valid_from', 'before:next year'],
             'data.attributes.quantity'                           => 'sometimes|required|integer|min:1',
             'data.attributes.short_description'                  => 'string',
             'data.attributes.long_description'                   => 'string',
             'data.attributes.no_of_uses'                         => 'integer',
-            'data.attributes.retail_value'                       => 'sometimes|required|numeric',
-            'data.attributes.value'                              => 'sometimes|required|numeric',
-            'data.attributes.min_value'                          => 'sometimes|required|numeric',
-            'data.attributes.max_value'                          => 'sometimes|required|numeric',
-            'data.attributes.discount_percentage'                => 'sometimes|required|numeric'
         ];
-        return $common_rules;
+        if ( $this->request->get('data[attributes][valid_from]', FALSE, TRUE) ) {
+            if ( !$this->request->get('data[attributes][valid_until]', FALSE, TRUE) && !$this->request->get('data[attributes][valid_for_amount]', FALSE, TRUE)) {
+                $common_rules['data.attributes.valid_until'][0] = '';
+            }//if ( !$this->request->get('data[attributes][valid_until]', FALSE, TRUE) && !$this->request->get('data[attributes][valid_for_amount]', FALSE, TRUE))
+        }//if ( $this->request->get('data[attributes][valid_from]', FALSE, TRUE) )
+        (!$this->request->get( 'data[attributes][valid_until]', '', TRUE)) ? : $common_rules['data.attributes.valid_from'][] = 'before:data.attributes.valid_until';
+        if( $valid_for_units = $this->request->get( 'data[attributes][valid_for_units]', FALSE, TRUE) ){
+            switch ( $valid_for_units ) {
+                case 'h':
+                    $common_rules['data.attributes.valid_for_amount'][] = 'max:8760';
+                    break;
+                case 'd':
+                    $common_rules['data.attributes.valid_for_amount'][] = 'max:365';
+                    break;
+                case 'w':
+                    $common_rules['data.attributes.valid_for_amount'][] = 'max:48';
+                    break;
+                case 'm' :
+                    $common_rules['data.attributes.valid_for_amount'][] = 'max:12';
+                    break;
+            }//switch ( $valid_for_units )
+        }//if($valid_for_units = $this->request->get('data[attributes][valid_for_units]', FALSE, TRUE))
+        return (array_merge_recursive( $common_rules, $this->voucherSpecificTypeFieldRules(), $this->addUseTremRules() ));
     }
 
     public function messages() {
@@ -92,5 +107,38 @@ class UpdateVoucherParametersRequest extends Request {
         Validator::extend('voucher_purchased_check', function($attribute, $value, $parameters){
             return (!VoucherParameter::find($value)->is_purchased);
         });
+    }
+    
+    /**
+     * Add rules for specific types of vouchers
+     * @return array array of rules
+     */
+    private function voucherSpecificTypeFieldRules( ) {
+        $voucher_specific_type_rules = [];
+        $route_method_name = $this->route()->getName();
+        switch ( $route_method_name) {
+            case 'VoucherParameters.updateGiftVoucherParameters':
+                $voucher_specific_type_rules['data.attributes.min_value'] = ['required_with:data.attributes.max_value', 'numeric', 'between:20,'.$this->request->get('data[attributes][max_value]', 0, TRUE)];
+                $voucher_specific_type_rules['data.attributes.max_value'] = ['required_with:data.attributes.min_value', 'numeric', 'min:'.$this->request->get( 'data[attributes][min_value]', 0, TRUE)];
+                break;
+            case 'VoucherParameters.updateDealVoucherParameters':
+                $voucher_specific_type_rules['data.attributes.retail_value'] = ['required_with:data.attributes.value', 'numeric', 'min:'.$this->request->get( 'data[attributes][value]', 0, TRUE)];
+                $voucher_specific_type_rules['data.attributes.value'] = ['required_with:data.attributes.retail_value', 'numeric', 'between:20,'.$this->request->get( 'data[attributes][retail_value]', 0, TRUE)];
+                break;
+        }//switch ( $route_method_name)
+//        todo add other rules according to the rest of voucher types
+        return $voucher_specific_type_rules;
+    }
+    
+    /**
+     * Add rules for user term ids
+     * @return array
+     */
+    private function addUseTremRules( ) {
+        $rules = [];
+        foreach ( $this->request->get('data[relations][use_terms][data][use_term_ids]', [], TRUE) as $key => $value ) {
+            $rules['data.relations.use_terms.data.use_term_ids.'.$key] = ['required', 'integer', 'exists:use_terms,id'];
+        }
+        return $rules;
     }
 }

@@ -36,6 +36,7 @@ class UserTransformer extends Transformer {
             "phone"            => ( string ) $item[ 'phone' ],
             "mobile"           => ( string ) $item[ 'mobile' ],
             "is_notify_deal"   => ( boolean ) $item[ 'is_notify_deal' ],
+//            todo remove created_at and updated_at
             "created_at"       => ( string ) $item[ 'created_at' ],
             "updated_at"       => ( string ) $item[ 'updated_at' ],
             "relations"        => [
