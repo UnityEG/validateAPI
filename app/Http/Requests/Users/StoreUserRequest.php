@@ -30,7 +30,7 @@ class StoreUserRequest extends Request
             "data.relations.postcode.data.postcode_id" => ['required', 'integer', 'exists:lu_nz_postcodes,id'],
             "data.is_active" => ['boolean'],
             "data.email" => ['required', 'email', 'unique:users,email'],
-            "data.password" => ['required'],
+            "data.password" => ['required', 'min:8', 'regex:/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/'],
             "data.title" => ['string', 'max:5'],
             "data.first_name" => ['required', 'string'],
             "data.last_name" => ['required', 'string'],
@@ -41,6 +41,12 @@ class StoreUserRequest extends Request
             "data.phone" => ['string'],
             "data.mobile" => ['string'],
             "data.is_notify_deal" => ['boolean'],
+        ];
+    }
+    
+    public function messages( ) {
+        return[
+            "regex" => "Password must be a minimum of 8 characters and include a mix of letters and numbers"
         ];
     }
 }
