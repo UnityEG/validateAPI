@@ -215,7 +215,7 @@ class VoucherParametersController extends ApiController
         $modified_input = $this->prepareDataForUpdatingHelper($raw_input, new GeneralHelperTools());
         DB::beginTransaction();
         if($voucher_parameter_object->update($modified_input)){
-            $voucher_parameter_object->useTerms()->sync($modified_input['use_term_ids']);
+            (!isset($modified_input['use_term_ids']))?:$voucher_parameter_object->useTerms()->sync($modified_input['use_term_ids']);
             DB::commit();
             return $voucher_parameter_object->getStandardJsonFormat();
         }else{
