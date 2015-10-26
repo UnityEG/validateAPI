@@ -21,6 +21,9 @@ class UserTransformer extends Transformer {
         $region = (isset($item['region'])) ? $item['region'] : ["data"=>["region_id"=>(string)$item['region_id']]];
         $town = (isset($item['town'])) ? $item['town'] : ["data"=>["town_id"=>(string)$item['town_id']]];
         $postcode = (isset($item['postcode'])) ? $item['postcode'] : ["data"=>["postcode_id"=>(string)$item['postcode_id']]];
+//        many to may relationship
+        $user_groups = (empty($item['user_groups'])) ? ["data"=>[]] : $item['user_groups'];
+        $business = (empty($item['business'])) ? ["data"=>[]] : $item['business'];
         $response = [
             "id"               => ( string ) $item[ 'id' ],
             "facebook_user_id" => (isset($item['facebook_user_id'])) ? ( string ) $item[ 'facebook_user_id' ] : '',
@@ -36,21 +39,15 @@ class UserTransformer extends Transformer {
             "phone"            => ( string ) $item[ 'phone' ],
             "mobile"           => ( string ) $item[ 'mobile' ],
             "is_notify_deal"   => ( boolean ) $item[ 'is_notify_deal' ],
-//            todo remove created_at and updated_at
-            "created_at"       => ( string ) $item[ 'created_at' ],
-            "updated_at"       => ( string ) $item[ 'updated_at' ],
             "relations"        => [
                 "city"     => $city,
                 "region"   => $region,
                 "town"     => $town,
-                "postcode" => $postcode
+                "postcode" => $postcode,
+                "user_groups" => $user_groups,
+                "business" => $business,
             ]
         ];
-//        complex relations (many to many)
-        (empty($item['user_groups'])) ? :$response['relations']["user_groups"] = $item['user_groups'];
-        (empty($item['business'])) ? : $response['relations']['business'] = $item['business'];
-//        Add token if exist
-        (empty($item['token'])) ?  : $response['token'] = (string)$item['token'];
         return $response;
     }
 

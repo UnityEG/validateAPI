@@ -84,9 +84,19 @@ class BusinessController extends ApiController {
         $created_business_object = $this->businessModel->create($modified_input);
         if ( is_object( $created_business_object ) ) {
             $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
-            $current_user_id = $this->jwtAuth->parseToken()->authenticate()->id;
-            $created_business_object->users()->attach([$current_user_id]);
-//            todo add user created the business to the appropriate group according to the type of business created
+            $current_user_object = JWTAuth2::parseToken()->authenticate();
+            $created_business_object->users()->attach([$current_user_object->id]);
+//            get business types array
+            foreach($created_business_object->businessTypes()->get(['type']) as $business_type){
+                $business_types_array[] = $business_type->type;
+            }//foreach($created_business_object->businessTypes()->get(['type']) as $business_type)
+            $business_types_array[] = 'customers';
+//            get user groups according to business_types array
+            $user_groups_objects = \App\Http\Models\UserGroup::whereIn('group_name', $business_types_array)->get(['id']);
+//            loop on user_group_objects and attach with current user if not attached
+            foreach( $user_groups_objects as $user_group_object){
+                ($current_user_object->userGroups()->where('user_group_id', $user_group_object->id)->exists()) ? : $current_user_object->userGroups()->attach([$user_group_object->id]);
+            }//foreach( $user_groups_objects as $user_group_object)
             DB::commit();
             $response = $created_business_object->getStandardJsonFormat();
         }else{
