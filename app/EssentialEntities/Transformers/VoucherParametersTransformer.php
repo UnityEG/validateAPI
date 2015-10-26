@@ -37,10 +37,12 @@ class VoucherParametersTransformer extends Transformer {
             'no_of_uses'            => (isset($item['no_of_uses'])) ? ( string ) $item[ 'no_of_uses' ] : '',
         ];
         $response = array_merge($response, $this->voucherTypeInfo($item));
+//        many to one relations
         $response["relations"]["business"] = (!empty($item['business'])) ? $item['business'] : ["data"=>["business_id"=>(string)$item['business_id']]];
         $response["relations"]["user"] = (!empty($item['user'])) ? $item['user'] : ["data"=>["user_id"=>(string)$item['user_id']]];
         $response["relations"]["voucher_image"] = (!empty($item['voucher_image'])) ? $item['voucher_image'] : ["data"=>["voucher_image_id"=>(string)$item['voucher_image_id']]];
-        (empty($item['use_terms'])) ?  : $response["relations"]["use_terms"] = $item['use_terms'];
+//        many to many relations
+        (empty($item['use_terms'])) ?  ["data"=>[]]: $response["relations"]["use_terms"] = $item['use_terms'];
         return $response;
     }
     
@@ -53,11 +55,15 @@ class VoucherParametersTransformer extends Transformer {
         $response = [];
         switch ( $item['voucher_type'] ) {
             case 'gift':
+//                todo add empty string if min_value is empty
                 $response["min_value"] = (!isset($item['min_value'])) ?  : (string)$item['min_value'];
+//                tood add empty string if max_value is empty
                 $response["max_value"] = (!isset($item['max_value'])) ?  : (string)$item['max_value'];
                 break;
             case 'deal':
+//                todo add empty string if retail_value is empty
                 $response["retail_value"] = (!isset($item['retail_value'])) ?  : (string)$item['retail_value'];
+//                todo add empty string if value is empty
                 $response["deal_value"] = (!isset($item['value'])) ?  : (string)$item['value'];
                 break;
 //            todo continue adding info of the rest of voucher types

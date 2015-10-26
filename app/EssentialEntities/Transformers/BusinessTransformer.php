@@ -16,14 +16,16 @@ class BusinessTransformer extends Transformer{
     
     public function beforeStandard(array $item) {
 //        dealing with simple relations (many to one)
-        if ( !empty($item['business_logos']) ||  !empty($item['logo_id'])) {
-            $logo = (!empty($item['business_logos'])) ? $item['business_logos'] : ["data"=>["logo_id"=>$item['logo_id']]];
-        }//if ( !empty($item['business_logos']) ||  !empty($item['logo_id']))
         $city = (isset($item['city'])) ? $item['city'] : ["data"=>["city_id"=>(string)$item['city_id']]];
         $region = (isset($item['region'])) ? $item['region'] : ["data"=>["region_id"=>(string)$item['region_id']]];
         $town = (isset($item['town'])) ? $item['town'] : ["data"=>["town_id"=>(string)$item['town_id']]];
         $postcode = (isset($item['postcode'])) ? $item['postcode'] : ["data"=>["postcode_id"=>(string)$item['postcode_id']]];
         $industry = (isset($item['industry'])) ? $item['industry'] : ["data"=>["industry_id"=>(string)$item['industry_id']]];
+//        one to many relations ships data
+        $business_logos = (empty($item['business_logos'])) ? ['data'=>["logo_id"=>$item['logo_id']]] : $item['business_logos'];
+//        many to many relationships data
+        $business_types = (empty($item['business_types'])) ? ["data"=>[]] : $item['business_types'];
+        $users = (empty($item['users'])) ? ["data"=>[]] : $item['users'];
         $response = [
             "id" => (string)$item['id'],
             "facebook_page_id" => (isset($item['facebook_page_id'])) ? (string)$item['facebook_page_id'] : '',
@@ -39,21 +41,17 @@ class BusinessTransformer extends Transformer{
             "contact_mobile" => (isset($item['contact_mobile'])) ? (string)$item['contact_mobile'] : '',
             "is_featured" => (boolean)$item['is_featured'],
             "is_display" => (boolean)$item['is_display'],
-//            todo remove created_at and updated at
-            "created_at" => (string)$item['created_at'],
-            "updated_at" => (string)$item['updated_at'],
             "relations"=>[
                 "city" => $city,
                 "region" => $region,
                 "town" => $town,
                 "postcode" => $postcode,
                 "industry" => $industry,
+                "business_logos" => $business_logos,
+                "business_types" => $business_types,
+                "users" => $users
             ]
         ];
-        (!isset($logo)) ?  : $response["business_logos"] = $logo;
-//        complex relations (many to many)
-        (!isset($item['business_types'])) ?  : $response["relations"]["business_types"]=$item['business_types'];
-        (!isset($item['users'])) ?  : $response["relations"]["users"] = $item['users'];
         return $response;
     }
 }
