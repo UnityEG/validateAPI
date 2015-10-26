@@ -41,7 +41,7 @@ class UpdateUserRequest extends Request
             "data.relations.postcode.data.postcode_id" => ['sometimes', 'required', 'integer', 'min:1', 'exists:lu_nz_postcodes,id'],
             "data.attributes.is_active" => ['sometimes', 'required', 'boolean'],
             "data.attributes.email" => ['sometimes', 'required', 'email', 'unique:users,email'],
-            "data.attributes.password" => ['sometimes', 'required', 'string'],
+            "data.attributes.password" => ['sometimes', 'required', 'string', 'min:8', 'regex:/^(?=.*[0-9])(?=.*[a-zA-Z])(?:[a-zA-Z0-9]+)$/'],
             "data.attributes.title" => ['sometimes', 'required', 'max:5'],
             "data.attributes.first_name" => ['sometimes', 'required', 'string'],
             "data.attributes.last_name" => ['sometimes', 'required', 'string'],
@@ -52,6 +52,12 @@ class UpdateUserRequest extends Request
             "data.attributes.phone" => ['sometimes', 'required', 'string'],
             "data.attributes.mobile" => ['sometimes', 'required', 'string'],
             "data.attributes.is_notify_deal" => ['sometimes', 'required', 'boolean']
+        ];
+    }
+    
+    public function messages( ) {
+        return[
+            "regex" => "Password must be a minimum 8 characters and include a mix of letters and numbers"
         ];
     }
 }

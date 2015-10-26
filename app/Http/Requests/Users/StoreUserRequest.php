@@ -30,7 +30,7 @@ class StoreUserRequest extends Request
             "data.relations.postcode.data.postcode_id" => ['required', 'integer', 'exists:lu_nz_postcodes,id'],
             "data.is_active" => ['boolean'],
             "data.email" => ['required', 'email', 'unique:users,email'],
-            "data.password" => ['required', 'min:8', 'regex:/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/'],
+            "data.password" => ['required', 'min:8', 'regex:/^(?=.*[0-9])(?=.*[a-zA-Z])(?:[a-zA-Z0-9]+)$/'],
             "data.title" => ['string', 'max:5'],
             "data.first_name" => ['required', 'string'],
             "data.last_name" => ['required', 'string'],
