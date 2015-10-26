@@ -72,11 +72,10 @@ class BusinessLogosController extends ApiController
         $image_path = $this->DefaultBusinessLogosPath.$image_name.'.png';
         $resized_image = Image::make($request->file('business_logo'))->resize(310, 195);
         if ( $resized_image->save($image_path) ) {
-//            todo add business_id to the array to save in the business_logos table
             $store_data = [
                 "name"=>$image_name, 
                 "user_id"=>JWTAuth::parseToken()->authenticate()->id, 
-                "business_id"=>'1'
+                "business_id"=>(int)$request->get("business_id"),
             ];
             $created_business_object = $this->BusinessLogoModel->create($store_data);
             return (is_object( $created_business_object )) ? $created_business_object->getStandardJsonFormat() : $this->respondInternalError();
