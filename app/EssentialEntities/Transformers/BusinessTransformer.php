@@ -22,6 +22,7 @@ class BusinessTransformer extends Transformer{
         $postcode = (isset($item['postcode'])) ? $item['postcode'] : ["data"=>["postcode_id"=>(string)$item['postcode_id']]];
         $industry = (isset($item['industry'])) ? $item['industry'] : ["data"=>["industry_id"=>(string)$item['industry_id']]];
 //        one to many relations ships data
+        $item['logo_id'] = (isset($item['logo_id'])) ? $item['logo_id'] : 0;
         $business_logos = (empty($item['business_logos'])) ? ['data'=>["logo_id"=>$item['logo_id']]] : $item['business_logos'];
 //        many to many relationships data
         $business_types = (empty($item['business_types'])) ? ["data"=>[]] : $item['business_types'];
