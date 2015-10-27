@@ -125,7 +125,7 @@ class UsersController extends ApiController {
      * @param  int  $id
      * @return Response
      */
-    public function update(  UpdateUserRequest $request) {
+    public function update(  UpdateUserRequest $request, $id) {
         $user_object_to_update = $this->UserModel->findOrFail($request->json('data')['id']);
         $modified_input = $this->prepareDataForUpdatingHelper($request->json('data'));
         DB::beginTransaction();
