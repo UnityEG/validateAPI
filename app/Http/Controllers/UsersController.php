@@ -10,7 +10,6 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Psy\Util\Json;
 use Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -50,7 +49,7 @@ class UsersController extends ApiController {
 
     /**
      * Display a listing of the resource.
-     * @return collection
+     * @return array
      */
     public function index() {
         if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_show_all') ) {
@@ -76,7 +75,7 @@ class UsersController extends ApiController {
      * Store a newly created resource in storage.
      *
      * @param  StoreUserRequest $request
-     * @return Json
+     * @return array
      */
     public function store(StoreUserRequest $request) {
         $modified_input = $this->prepareDataForStoringHelper($request->json("data"));
@@ -98,7 +97,7 @@ class UsersController extends ApiController {
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return Response
+     * @return array
      */
     public function show($id) {
         $current_user_object = JWTAuth::parseToken()->authenticate();
@@ -123,7 +122,7 @@ class UsersController extends ApiController {
      *
      * @param  Request  $request
      * @param  int  $id
-     * @return Response
+     * @return array
      */
     public function update(  UpdateUserRequest $request, $id) {
         $user_object_to_update = $this->UserModel->findOrFail($request->json('data')['id']);

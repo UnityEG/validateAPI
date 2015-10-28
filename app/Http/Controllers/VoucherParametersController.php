@@ -9,10 +9,8 @@ use App\Http\Models\VoucherParameter;
 use App\Http\Requests\Vouchers\VoucherParameters\CreateVoucherParametersRequest;
 use App\Http\Requests\Vouchers\VoucherParameters\UpdateVoucherParametersRequest;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Psy\Util\Json;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -27,7 +25,6 @@ class VoucherParametersController extends ApiController
      * @var \App\Http\Models\VoucherParameter
      */
     private $voucherParameterModel;
-
 
     public function __construct(VoucherParameter $voucher_parameter_model) {
 //        Apply the jwt.auth middleware to all methods in this controller
@@ -90,7 +87,7 @@ class VoucherParametersController extends ApiController
     /**
      * Search for voucher parameters by title
      * @param string $voucher_title
-     * @return Response
+     * @return array
      */
     public function searchByVoucherTitle( $voucher_title) {
         $optimized_voucher_title = strtolower(urldecode($voucher_title));
@@ -110,7 +107,7 @@ class VoucherParametersController extends ApiController
     /**
      * Search for voucher parameters by business name
      * @param string $business_name
-     * @return Response
+     * @return array
      */
     public function searchByBusinessName( $business_name) {
         $optimized_business_name = strtolower(urlencode($business_name));
@@ -130,7 +127,7 @@ class VoucherParametersController extends ApiController
     /**
      * Store Deal voucher parameters
      * @param \App\Http\Requests\VoucherParameters\CreateVoucherParametersRequest $request
-     * @return Json response
+     * @return array
      */
     public function storeDealVoucherParameters(CreateVoucherParametersRequest $request ) {
         $raw_input= $request->get("data");

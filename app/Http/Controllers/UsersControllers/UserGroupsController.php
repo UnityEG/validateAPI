@@ -20,7 +20,7 @@ class UserGroupsController extends ApiController
      * Display all user groups except 'developers' group.
      *
      * @param UserGroup $user_group_model Instance of UserGroup Model
-     * @return Response
+     * @return array
      */
     public function index(UserGroup $user_group_model)
     {
@@ -58,7 +58,7 @@ class UserGroupsController extends ApiController
     /**
      * Display the specified user group except developers group.
      *
-     * @param UserGroup $user_group_model Instance of UserGroup Model
+     * @param \App\Http\Models\UserGroup $user_group_model Instance of UserGroup Model
      * @param  int  $id
      * @return Response
      */

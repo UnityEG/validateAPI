@@ -37,12 +37,12 @@ class VouchersController extends ApiController {
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly Voucher.
      *
-     * @param  $purchased_voucher_to_create
-     * @return Response
+     * @param  array $purchased_voucher_to_create
+     * @return mix
      */
-    public function store( $purchased_voucher_to_create ) {
+    public function store( array $purchased_voucher_to_create ) {
 //        todo if voucher parameter type is gift calculate specific fields is_gift, delivery_date and value else delivery_date will be today and value will equal value from voucher parameters
         $voucher_parameter_object = VoucherParameter::find($purchased_voucher_to_create['voucher_parameter_id']);
         $purchased_voucher_to_create['is_gift'] = ($voucher_parameter_object->voucher_type == 'gift') ? TRUE : FALSE;

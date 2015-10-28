@@ -47,7 +47,7 @@ class VoucherImagesController extends ApiController
     /**
      * Store a newly created resource in storage and save gift voucher image in default path.
      *
-     * @param  StoreVoucherImageRequest  $request
+     * @param  \App\Http\Requests\Vouchers\VoucherImages\StoreVoucherImageRequest  $request
      * @return Response
      */
     public function storeGiftImage( StoreVoucherImageRequest $request)
@@ -65,9 +65,9 @@ class VoucherImagesController extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * Display all Gift voucher images.
      *
-     * @return Response
+     * @return array
      */
     public function showGiftImages()
     {
@@ -75,6 +75,10 @@ class VoucherImagesController extends ApiController
         return $this->respond($this->voucherImageTransformer->transformCollection( $gift_image_objects));
     }
     
+    /**
+     * Display all Deal voucher images
+     * @return array
+     */
     public function showDealImages( ) {
         $deal_image_objects = VoucherImage::where('type', 'deal')->get()->toArray();
         return $this->respond($this->voucherImageTransformer->transformCollection( $deal_image_objects));
@@ -84,7 +88,7 @@ class VoucherImagesController extends ApiController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return Response
+     * @return Json
      */
     public function destroy($id)
     {
@@ -111,7 +115,7 @@ class VoucherImagesController extends ApiController
     
     /**
      * General storing image for all types
-     * @param UploadedFile $file_object
+     * @param \Symfony\Component\HttpFoundation\File\UploadedFile $file_object
      * @param string $type
      * @return Json response
      */

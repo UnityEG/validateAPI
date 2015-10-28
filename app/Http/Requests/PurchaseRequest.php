@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Controllers\ApiController;
 use App\Http\Requests\Request;
-use Illuminate\Http\JsonResponse;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PurchaseRequest extends Request {
 

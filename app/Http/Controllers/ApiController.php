@@ -66,36 +66,67 @@ use App\Http\Controllers\Controller;
 use Response;
 
 class ApiController extends Controller {
-
+    
+    /**
+     * Status code header
+     * @var integer
+     */
     protected $statusCode = 200;
-
+    
+    /**
+     * Get current status code
+     * @return integer
+     */
     public function getStatusCode() {
         return $this->statusCode;
     }
-
+    
+    /**
+     * Set Status code
+     * @param integer $statusCode
+     * @return \App\Http\Controllers\ApiController
+     */
     public function setStatusCode($statusCode) {
         $this->statusCode = $statusCode;
         return $this;
     }
 
-    // 400 respond Bad Request
+    /**
+     * Respond with status code 400 and message 'Bad Request'
+     * @param string $description
+     * @return Json
+     */
     function respondBadRequest($description = NULL) {
         $message = 'Bad Request';
         return $this->setStatusCode(400)->respondWithError($message, $description);
     }
 
-    // 404 respond Not Found
+    /**
+     * Respond with status 404 and message "Not Found"
+     * @param string $description
+     * @return Json
+     */
     function respondNotFound($description = NULL) {
         $message = 'Not Found';
         return $this->setStatusCode(404)->respondWithError($message, $description);
     }
 
-    // 500 respond Internal Error
+    /**
+     * Respond with status code 500 and message "Internal Error"
+     * @param string $description
+     * @return Json
+     */
     function respondInternalError($description = NULL) {
         $message = 'Internal Error';
         return $this->setStatusCode(500)->respondWithError($message, $description);
     }
-
+    
+    /**
+     * Respond with Custome status code and custome Error
+     * @param string $title
+     * @param string $detail
+     * @return Json
+     */
     function respondWithError($title, $detail = NULL) {
         $errors = [
                 'title' => $title,
@@ -107,7 +138,13 @@ class ApiController extends Controller {
         }
         return $this->respondStandardJsonError($errors);
     }
-
+    
+    /**
+     * Respond with custome data and custom header with default code 200 and put data inside "data" array to suit standard Json API format
+     * @param string $data
+     * @param array $header
+     * @return Json
+     */
     function respond($data, $header = []) {
         return Response::json(["data"=>$data], $this->getStatusCode(), $header);
     }
