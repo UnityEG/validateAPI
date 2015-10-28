@@ -66,6 +66,11 @@ Route::group(['prefix' => 'v1'], function() {
     Route::resource('Business', 'BusinessController');
     //    BusinessLogos
         Route::resource('BusinessLogos', 'BusinessControllers\BusinessLogosController');
+    //      BusinessTypes
+        Route::get('BusinessTypes', [
+            'uses' => 'BusinessControllers\BusinessTypesController@index',
+            'as' => 'BusinessTypes.index'
+        ]);
         
 //    VoucherParameters Routes
     Route::get('VoucherParameters', [
@@ -164,5 +169,23 @@ Route::group(['prefix' => 'v1'], function() {
     Route::get('VoucherValidationLog/getAllLogs/{voucher_id}', [
         'uses' => 'VoucherValidationLogController@getAllLogs',
         'as' => 'VoucherValidationLog.getAllLogs'
+    ]);
+    
+//    Regions
+    Route::get('Regions', [
+        'uses' => 'RegionsController@index',
+        'as' => 'Regions.index'
+    ]);
+    
+//    Postcodes
+    Route::get('Postcodes', [
+        'uses' => 'PostcodesController@index',
+        'as' => 'Postcode.index'
+    ]);
+    
+//    Towns
+    Route::get('Towns', [
+        'uses' => 'TownsController@index',
+        'as' => 'Towns.index'
     ]);
 });
