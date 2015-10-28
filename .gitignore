@@ -1,0 +1,16 @@
+#laravel
+composer.lock
+config/mail.php
+storage/logs/
+storage/framework/sessions/
+storage/framework/views/
+storage/framework/chache/
+bootstrap/compiled.php
+.env.*.php
+.env.php
+.env
+public/*.png
+public/images/
+public/voucher/images/
+public/voucher/images/default/
+public/voucher/qrcodepng/
