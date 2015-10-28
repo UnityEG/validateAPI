@@ -12,7 +12,7 @@ class PostcodeTransformer extends Transformer{
     public function beforeStandard( array $item ) {
         $response = [
             "id" => (string)$item['id'],
-            "postcode" => (string)$item['postcode']
+            "postcode" => (string)$item['postcode'],
         ];
         return $response;
     }
