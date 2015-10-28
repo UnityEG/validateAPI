@@ -34,6 +34,7 @@ class PurchaseController extends ApiController{
      */
     public function onlinePurchase(PurchaseRequest $request ) {
 //        todo go with the request to the payment gateway and wait for the response
+//        todo create order and get order_id to put it with each purchased voucher
         foreach ( $request->get('data') as $purchased_voucher) {
             $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
             $this->sendVirtualVoucherMail($purchased_voucher_object);
@@ -58,7 +59,7 @@ class PurchaseController extends ApiController{
      */
     private function createPurchasedVoucher( $purchased_voucher ) {
         $purchased_voucher_to_create = [
-          'user_id'=> (int)$purchased_voucher['relations']['user']['data']['user_id']  ,
+          'user_id'=> (int)  JWTAuth::parseToken()->authenticate()->id  ,
             'voucher_parameter_id'=>(int)$purchased_voucher['relations']['voucher_parameter']['data']['voucher_parameter_id'],
             'value'=>$purchased_voucher['value'],
             'delivery_date'=>$purchased_voucher['delivery_date'],

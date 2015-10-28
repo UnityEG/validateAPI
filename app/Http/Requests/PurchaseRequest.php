@@ -11,11 +11,11 @@ class PurchaseRequest extends Request {
 
     /**
      * Determine if the user is authorized to make this request.
-     *
+     * Only Users belongs to user groups that have 'purchase_voucher' rule are authorized
      * @return bool
      */
     public function authorize() {
-        return JWTAuth::parseToken()->authenticate()->hasRule('purchase_voucher');
+        return $this->CurrentUserObject->hasRule('purchase_voucher');
     }
 
     /**
@@ -24,19 +24,18 @@ class PurchaseRequest extends Request {
      * @return array
      */
     public function rules() {
-//        dd($this->request->get( 'data' )[0]['recipient_email']);
+//        todo add vouchers as a container of vouchers data objects
+//        todo values and delivery will be used with gift voucher parameters only
+//        todo delivery date must not be after valid_from in voucher parameters
+//        todo add rules according to voucher parameter type
 //        we use loop as we actually don't know how many items will be purchased
         $rules = [];
         foreach ( $this->request->get( 'data' ) as $key=>$voucher_to_purchase ) {
-            $rules_to_merge = [
-                'data.'.$key.'.relations.user.data.user_id' => 'required|integer|exists:users,id',
-                'data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id' => 'required|integer|exists:voucher_parameters,id',
-               'data.'.$key.'.value'                => 'required|numeric|min:1',
-                'data.'.$key.'.delivery_date'        => 'date_format:d/m/Y',
-                'data.'.$key.'.recipient_email'      => 'email',
-                'data.'.$key.'.message'              => 'string',
-            ];
-            $rules = array_merge($rules, $rules_to_merge);
+                $rules['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id'] = 'required|integer|exists:voucher_parameters,id';
+               $rules['data.'.$key.'.value']                = 'required|numeric|min:1';
+                $rules['data.'.$key.'.delivery_date']        = 'date_format:d/m/Y';
+                $rules['data.'.$key.'.recipient_email']      = 'email';
+                $rules['data.'.$key.'.message']              = 'string';
         }//foreach ( $this->request->get( 'data' ) as $key=>$voucher_to_purchase )
         return $rules;
     }
@@ -48,20 +47,14 @@ class PurchaseRequest extends Request {
     public function messages( ) {
         $error_messages = [];
         foreach ( $this->request->get('data') as $key => $voucher_to_purchase ) {
-            $error_messages_to_merge = [
-                'data.'.$key.'.relations.user.data.user_id.required' => 'user_id is required',
-                'data.'.$key.'.relations.user.data.user_id.integer' => 'user_id must be an integer',
-                'data.'.$key.'.relations.user.data.user_id.exists' => 'invalid user',
-                'data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.required' => 'voucher_parameter_id is required',
-                'data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.integer' => 'voucher_parameter_id must be integer',
-                'data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.exists' => 'invalid voucher',
-                'data.'.$key.'.value.required' => 'value is required',
-                'data.'.$key.'.value.numeric' => 'value must be numeric',
-                'data.'.$key.'.delivery_date.date_format' => 'format must be d/m/Y H:i',
-                'data.'.$key.'.recipient_email.email' => 'recipient_email must be valid email address',
-                'data.'.$key.'.message.string' => 'message must be string',
-            ];
-            $error_messages = array_merge($error_messages_to_merge, $error_messages);
+                $error_messages['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.required'] = 'voucher_parameter_id is required';
+                $error_messages['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.integer'] = 'voucher_parameter_id must be integer';
+                $error_messages['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.exists'] = 'invalid voucher';
+                $error_messages['data.'.$key.'.value.required'] = 'value is required';
+                $error_messages['data.'.$key.'.value.numeric'] = 'value must be numeric';
+                $error_messages['data.'.$key.'.delivery_date.date_format'] = 'format must be d/m/Y H:i';
+                $error_messages['data.'.$key.'.recipient_email.email'] = 'recipient_email must be valid email address';
+                $error_messages['data.'.$key.'.message.string'] = 'message must be string';
         }//foreach ( $this->request->get('data') as $key => $voucher_to_purchase )
         return $error_messages;
     }

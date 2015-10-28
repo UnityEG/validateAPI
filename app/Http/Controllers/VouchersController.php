@@ -43,6 +43,7 @@ class VouchersController extends ApiController {
      * @return Response
      */
     public function store( $purchased_voucher_to_create ) {
+//        todo if voucher parameter type is gift calculate specific fields is_gift, delivery_date and value else delivery_date will be today and value will equal value from voucher parameters
         $voucher_parameter_object = VoucherParameter::find($purchased_voucher_to_create['voucher_parameter_id']);
         $purchased_voucher_to_create['is_gift'] = ($voucher_parameter_object->voucher_type == 'gift') ? TRUE : FALSE;
         $purchased_voucher_to_create['recipient_email'] = (!empty($purchased_voucher_to_create['recipient_email'])) ? $purchased_voucher_to_create['recipient_email'] : JWTAuth::parseToken()->authenticate()->email;
@@ -51,35 +52,16 @@ class VouchersController extends ApiController {
         $purchased_voucher_to_create['code'] = self::generateVoucherCode($voucher_parameter_object->voucher_type);
         
         // Convert local time to UTC time in order to save it in DB
-        $purchased_voucher_to_create['delivery_date'] = g::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s');
-        
-//        expiry date
-        if ( !empty($voucher_parameter_object->valid_until->year) && ($voucher_parameter_object->valid_until->year !== -1) ) {
-            $purchased_voucher_to_create['expiry_date'] = $voucher_parameter_object->valid_until;
-            
-        }//if ( !empty($voucher_parameter_object->valid_until) && !is_null( $voucher_parameter_object->valid_until) )
-        else {
-            $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'delivery_date' ]->copy();
-            switch ( $voucher_parameter_object->valid_for_units ) {
-                case 'd':
-                    $purchased_voucher_to_create[ 'expiry_date' ]->addDays( $voucher_parameter_object->valid_for_amount );
-                    break;
-                case 'w':
-                    $purchased_voucher_to_create[ 'expiry_date' ]->addWeeks( $voucher_parameter_object->valid_for_amount );
-                    break;
-                case 'm':
-                    $purchased_voucher_to_create[ 'expiry_date' ]->addMonths( $voucher_parameter_object->valid_for_amount );
-                    break;
-                default:
-            } // switch
-            // -1 second
-            $purchased_voucher_to_create[ 'expiry_date' ] = $purchased_voucher_to_create[ 'expiry_date' ]->subSeconds( 1 ); // toDateTimeString();
-        }//else
+        $purchased_voucher_to_create['delivery_date'] = \App\EssentialEntities\GeneralHelperTools::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s');
+//        expiry date -1 second
+            $purchased_voucher_to_create['expiry_date'] = $voucher_parameter_object->valid_until->subSeconds(1);
+        dd($purchased_voucher_to_create);
         DB::beginTransaction();
         if($purchased_voucher = Voucher::create($purchased_voucher_to_create)){
             $voucher_parameter_update_data = [
-              'is_purchased'  => TRUE,
-                'purchased_quantity' => $voucher_parameter_object->purchased_quantity+1
+                'is_purchased'       => TRUE,
+                'purchased_quantity' => $voucher_parameter_object->purchased_quantity + 1
+//                    todo calculate store_quantity if is_limited_quantity true
             ];
             $voucher_parameter_object->update($voucher_parameter_update_data);
             DB::commit();

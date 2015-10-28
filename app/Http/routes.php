@@ -44,11 +44,6 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    Users Routes
     
-    Route::patch('Users', [
-        'uses' => 'UsersController@update',
-        'as' => 'Users.update'
-    ]);
-    
     Route::resource('Users', 'UsersController');
     
     // login, logout and authentication
