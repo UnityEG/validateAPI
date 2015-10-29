@@ -44,7 +44,7 @@ class UpdateBusinessRequest extends Request
             "data.attributes.website" => ['string'],
             "data.attributes.business_email" => ['email'],
             "data.attributes.contact_name" => ['string'],
-            "data.contact_mobile" => ['string'],
+            "data.attributes.contact_mobile" => ['string'],
             "data.attributes.is_featured" => ['sometimes', 'required','boolean'],
             "data.attributes.is_display" => ['sometimes', 'required','boolean']
         ];

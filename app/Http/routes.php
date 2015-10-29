@@ -152,11 +152,11 @@ Route::group(['prefix' => 'v1'], function() {
 //    Purchase Routes
     
     Route::post('Purchase/onlinePurchase', [
-        'uses' => 'PurchaseController@onlinePurchase',
+        'uses' => 'PurchaseControllers\PurchaseController@onlinePurchase',
         'as' => 'Purchase.onlinePurchase'
     ]);
     Route::post('Purchase/instorePurchase', array(
-        'uses' => 'PurchaseController@instorePurchase',
+        'uses' => 'PurchaseControllers\PurchaseController@instorePurchase',
         'as' => 'Purchase.instorePurchase'
     ));
     
