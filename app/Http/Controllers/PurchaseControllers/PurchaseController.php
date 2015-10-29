@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\PurchaseControllers;
 
 use App\EssentialEntities\GeneralHelperTools;
 use App\Http\Controllers\ApiController;
@@ -8,6 +8,7 @@ use App\Http\Controllers\VouchersController;
 use App\Http\Models\Voucher;
 use App\Http\Requests\PurchaseRequest;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\PurchaseControllers\OrdersController;
 
 /**
  * Description of PurchaseController
@@ -30,12 +31,13 @@ class PurchaseController extends ApiController{
     
     /**
      * Purchase vouchers online
-     * @param PurchaseRequest $request
+     * @param \App\Http\Requests\PurchaseRequest $request
      */
     public function onlinePurchase(PurchaseRequest $request ) {
 //        todo go with the request to the payment gateway and wait for the response
-//        todo create order and get order_id to put it with each purchased voucher
-        foreach ( $request->get('data') as $purchased_voucher) {
+        $order_id = (int)(new OrdersController())->store()->id;
+        foreach ( $request->get('data[vouchers]', [], TRUE) as $purchased_voucher) {
+            $purchased_voucher['order_id'] = $order_id;
             $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
             $this->sendVirtualVoucherMail($purchased_voucher_object);
             $receipt_data[] =$this->vouchersReceipt($purchased_voucher_object);
@@ -58,8 +60,9 @@ class PurchaseController extends ApiController{
      * @param object $purchased_voucher
      */
     private function createPurchasedVoucher( $purchased_voucher ) {
+//        todo remove unnecessary fields and leave just necessary fields with order_id field
         $purchased_voucher_to_create = [
-          'user_id'=> (int)  JWTAuth::parseToken()->authenticate()->id  ,
+          'user_id'=> (int)JWTAuth::parseToken()->authenticate()->id  ,
             'voucher_parameter_id'=>(int)$purchased_voucher['relations']['voucher_parameter']['data']['voucher_parameter_id'],
             'value'=>$purchased_voucher['value'],
             'delivery_date'=>$purchased_voucher['delivery_date'],
