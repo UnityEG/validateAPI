@@ -35,7 +35,6 @@ class PurchaseController extends ApiController{
             $receipt_data[] =$this->vouchersReceipt($purchased_voucher_object);
             $total_value = (!isset($total_value))? $purchased_voucher_object->value : $total_value + $purchased_voucher_object->value;
         }//foreach ( $request->get('data') as $purchased_voucher)
-//        todo add total to the tax from the order
         $total_value_with_tax = $total_value + (double)$order_object->tax;
         $this->sendReceiptMailToCustomer($receipt_data, $total_value_with_tax);
     }
