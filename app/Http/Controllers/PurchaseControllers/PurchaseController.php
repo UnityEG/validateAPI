@@ -4,29 +4,21 @@ namespace App\Http\Controllers\PurchaseControllers;
 
 use App\EssentialEntities\GeneralHelperTools;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\PurchaseControllers\OrdersController;
 use App\Http\Controllers\VouchersController;
 use App\Http\Models\Voucher;
 use App\Http\Requests\PurchaseRequest;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Http\Controllers\PurchaseControllers\OrdersController;
 
 /**
- * Description of PurchaseController
+ * PurchaseController Responsible for purchasing voucher process
  *
- * @author mohamed
+ * @author Mohamed Atef <en.mohamed.atef@gmail.com>
  */
 class PurchaseController extends ApiController{
-    
-    /**
-     * App\Http\Controllers\VouchersController instance
-     * @var object
-     */
-    private $voucher_controller;
 
-
-    public function __construct( VouchersController $voucher_controller) {
+    public function __construct( ) {
 //        todo apply JWTAuth middleware on all methods in this controller
-        $this->voucher_controller = $voucher_controller;
     }
     
     /**
@@ -35,60 +27,91 @@ class PurchaseController extends ApiController{
      */
     public function onlinePurchase(PurchaseRequest $request ) {
 //        todo go with the request to the payment gateway and wait for the response
-        $order_id = (int)(new OrdersController())->store()->id;
+        $order_object = (new OrdersController())->store((double)$request->get('data[tax]', 0, TRUE));
         foreach ( $request->get('data[vouchers]', [], TRUE) as $purchased_voucher) {
-            $purchased_voucher['order_id'] = $order_id;
+            $purchased_voucher['order_id'] = (int)$order_object->id;
             $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
             $this->sendVirtualVoucherMail($purchased_voucher_object);
             $receipt_data[] =$this->vouchersReceipt($purchased_voucher_object);
             $total_value = (!isset($total_value))? $purchased_voucher_object->value : $total_value + $purchased_voucher_object->value;
         }//foreach ( $request->get('data') as $purchased_voucher)
-        $this->sendReceiptMailToCustomer($receipt_data, $total_value);
+//        todo add total to the tax from the order
+        $total_value_with_tax = $total_value + (double)$order_object->tax;
+        $this->sendReceiptMailToCustomer($receipt_data, $total_value_with_tax);
     }
     
     /**
      * Purchase vouchers instore
-     * @param PurchaseRequest $request
+     * @param \App\Http\Requests\PurchaseRequest $request
      */
     public function instorePurchase(PurchaseRequest $request) {
 //        todo decisions to make with instorePurchase
-        
     }
     
     /**
      * Create purchased voucher In Database (vouchers table)
-     * @param object $purchased_voucher
+     * @param array $purchased_voucher
+     * @return Voucher Voucher object
      */
-    private function createPurchasedVoucher( $purchased_voucher ) {
-//        todo remove unnecessary fields and leave just necessary fields with order_id field
+    private function createPurchasedVoucher( array $purchased_voucher ) {
         $purchased_voucher_to_create = [
-          'user_id'=> (int)JWTAuth::parseToken()->authenticate()->id  ,
             'voucher_parameter_id'=>(int)$purchased_voucher['relations']['voucher_parameter']['data']['voucher_parameter_id'],
-            'value'=>$purchased_voucher['value'],
-            'delivery_date'=>$purchased_voucher['delivery_date'],
+            'order_id' => $purchased_voucher['order_id'],
             'recipient_email'=>$purchased_voucher['recipient_email'],
             'message'=>$purchased_voucher['message']
         ];
-        $purchased_voucher_object = $this->voucher_controller->store($purchased_voucher_to_create);
-        return $purchased_voucher_object;
+        (!isset($purchased_voucher['value'])) ? : $purchased_voucher_to_create['value'] = $purchased_voucher['value'];
+        (!isset($purchased_voucher['delivery_date'])) ?  : $purchased_voucher_to_create['delivery_date'] = $purchased_voucher['delivery_date'];
+        return (new VouchersController())->store($purchased_voucher_to_create);
     }
     
+    /**
+     * Send Virtual Voucher Mail
+     * @param Voucher $purchased_voucher_object
+     * @param string $MailBodyView Mail template to be sent
+     */
+    private function sendVirtualVoucherMail(Voucher $purchased_voucher_object, $MailBodyView='email.vouchers.virtualVoucher') {
+        // Generate Virtual Voucher
+        $data = $this->generateVirtualVoucher($purchased_voucher_object);
+        $data['email_to_email'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_email'];
+        $data['email_to_name'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_name'];
+        extract($data);
+        // set ini_get to 180 seconds to take a suitable uploading attachements with the mail
+        if (ini_get('max_execution_time') < 180) {
+            ini_set('max_execution_time', 180);
+        }
+        // Send Mail with virtual voucher image attached
+        \Mail::queue($MailBodyView, $data, function($message) use ($data, $voucher_filename) {
+            //
+            $message->to($data['email_to_email'], $data['email_to_name'])->subject('Validate Voucher');
+            //$message->to('shadymag@gmail.com', 'customer_name')->subject('Voucher Purchased'); // for Testing
+            $message->attach($voucher_filename);
+        });
+        // For security delete virtual voucher file after use it
+        $this->unlinkVirtualVoucher($voucher_filename);
+    }
+    
+    /**
+     * Generate Virtual Voucher
+     * @param \App\Http\Models\Voucher $purchased_voucher_object
+     * @return array
+     */
     private function generateVirtualVoucher(Voucher $purchased_voucher_object) {
-        
         // Gathering Data for email
         $data = $this->getDataForEmail($purchased_voucher_object);
-        
         // Generate virtual voucher image 
-        $voucher_filename = g::voucher($data);
-        //
+        $voucher_filename = GeneralHelperTools::voucher($data);
         // Add $voucher_filename to $data array
         $data['voucher_filename'] = $voucher_filename;
-        //
         return $data;
     }
     
+    /**
+     * Get prepared data for email to be sent
+     * @param \App\Http\Models\Voucher $purchased_voucher_object
+     * @return array
+     */
     private function getDataForEmail(Voucher $purchased_voucher_object) {
-        
         $business_logo_object = $purchased_voucher_object->voucherParameter->business->getActiveLogo();
         $business_logo_filename = (is_object($business_logo_object)) ? 'images/merchant/logos/' . $business_logo_object->name . '.' . $business_logo_object->extension : 'voucher/images/validate_logo.png';
         // get Gift Vouchers Parameter Terms Of Use
@@ -115,50 +138,24 @@ class PurchaseController extends ApiController{
         return $data;
     }
     
-    
-    private function sendVirtualVoucherMail(Voucher $purchased_voucher_object, $MailBodyView='email.vouchers.virtualVoucher') {
-        //
-        // Generate Virtual Voucher
-        $data = $this->generateVirtualVoucher($purchased_voucher_object);
-        //
-        
-            $data['email_to_email'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_email'];
-            $data['email_to_name'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_name'];
-        
-//        echo '<pre>';
-//        dd($data);
-        // extract $data array as variables
-        extract($data);
-        // 
-        if (ini_get('max_execution_time') < 180) {
-            ini_set('max_execution_time', 180);
-        }
-        // Send Mail with virtual voucher image attached
-        \Mail::queue($MailBodyView, $data, function($message) use ($data, $voucher_filename) {
-            //
-            $message->to($data['email_to_email'], $data['email_to_name'])->subject('Validate Voucher');
-            //$message->to('shadymag@gmail.com', 'customer_name')->subject('Voucher Purchased'); // for Testing
-            $message->attach($voucher_filename);
-        });
-        // 
-        // For security delete virtual voucher file after use it
-        $this->unlinkVirtualVoucher($voucher_filename);
-    }
-    
+    /**
+     * Delete Virtual voucher if found
+     * @param string $voucher_filename
+     */
     private function unlinkVirtualVoucher($voucher_filename) {
-        //
         // For security delete virtual voucher file after use it
         if (file_exists($voucher_filename)) {
             unlink($voucher_filename);
-        }
+        }//if (file_exists($voucher_filename))
     }
     
     /**
      * Prepare receipt data
-     * @param Voucher $purchased_voucher_object
+     * @param \App\Http\Models\Voucher $purchased_voucher_object
      * @return array
      */
-    public function vouchersReceipt(  Voucher $purchased_voucher_object ) {
+    private function vouchersReceipt(  Voucher $purchased_voucher_object ) {
+//        todo fix missing g class
         return [
             'voucher_title' => $purchased_voucher_object->voucherParameter->title,
             'voucher_value' => g::formatCurrency($purchased_voucher_object->value),
@@ -174,7 +171,8 @@ class PurchaseController extends ApiController{
      * @param array $receipt_data
      * @param integer $total_value
      */
-    public function sendReceiptMailToCustomer( $receipt_data, $total_value ) {
+    private function sendReceiptMailToCustomer( $receipt_data, $total_value ) {
+//        todo fix missing g class
         $data = [
             'receipt_data'=>$receipt_data, 
             'total_value'=>g::formatCurrency($total_value),
