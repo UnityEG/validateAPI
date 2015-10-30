@@ -25,7 +25,7 @@ class PurchaseRequest extends Request {
     public function rules() {
         $this->expireVoucherValidationRule();
 //        we use loop as we actually don't know how many items will be purchased
-        $rules = [];
+        $rules = ["tax" => ['numeric']];
         foreach ( $this->request->get( 'data[vouchers]', [], TRUE ) as $key=>$voucher_to_purchase ) {
                 $rules['data.vouchers.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id'] = 'required|integer|exists:voucher_parameters,id|expire_voucher';
                 $rules['data.vouchers.'.$key.'.recipient_email']      = 'email';
@@ -40,6 +40,7 @@ class PurchaseRequest extends Request {
      * @return array
      */
     public function messages( ) {
+//        todo modify messages to deal with vouchers array inside data array
         $error_messages = [];
         foreach ( $this->request->get('data') as $key => $voucher_to_purchase ) {
                 $error_messages['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.required'] = 'voucher_parameter_id is required';
