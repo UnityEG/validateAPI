@@ -4,7 +4,7 @@ config/mail.php
 storage/logs/
 storage/framework/sessions/
 storage/framework/views/
-storage/framework/chache/
+storage/framework/cache/
 bootstrap/compiled.php
 .env.*.php
 .env.php
