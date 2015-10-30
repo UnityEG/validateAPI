@@ -17,6 +17,7 @@ use App\EssentialEntities\Transformers\UserGroupTransformer;
 use App\EssentialEntities\Transformers\UserTransformer;
 
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
+//    todo modify @return documentation to be correct type for all relationship methods
 
     use Authenticatable,
         CanResetPassword;
@@ -153,6 +154,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      */
     public function businessLogos( ) {
         return $this->hasMany('App\Http\Models\BusinessLogo', 'user_id', 'id');
+    }
+    
+    /**
+     * Relationship between User Model and Order Model (one to many)
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders(){
+        return $this->hasMany('App\Http\Models\Order', 'user_id', 'id');
     }
     
     

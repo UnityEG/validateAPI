@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\BusinessControllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests\Business\StoreBusinessLogoRequest;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\BusinessLogo;
+use App\Http\Requests\Business\BusinessLogos\DestroyBusinessLogoRequest;
+use App\Http\Requests\Business\StoreBusinessLogoRequest;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -39,7 +41,7 @@ class BusinessLogosController extends ApiController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -53,7 +55,7 @@ class BusinessLogosController extends ApiController
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -63,8 +65,8 @@ class BusinessLogosController extends ApiController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreBusinessLogoRequest  $request
+     * @return mixed
      */
     public function store(StoreBusinessLogoRequest $request)
     {
@@ -87,7 +89,7 @@ class BusinessLogosController extends ApiController
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function show($id)
     {
@@ -98,7 +100,7 @@ class BusinessLogosController extends ApiController
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function edit($id)
     {
@@ -108,9 +110,9 @@ class BusinessLogosController extends ApiController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function update(Request $request, $id)
     {
@@ -119,11 +121,11 @@ class BusinessLogosController extends ApiController
 
     /**
      * Remove the specified resource from storage.
-     *
+     * @param \App\Http\Requests\Business\BusinessLogos\DestroyBusinessLogoRequest $request Instance of DestroyBusinessLogoRequest class
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
-    public function destroy(  \App\Http\Requests\Business\BusinessLogos\DestroyBusinessLogoRequest $request, $id)
+    public function destroy(  DestroyBusinessLogoRequest $request, $id)
     {
         $business_logo_object = $this->BusinessLogoModel->findOrFail((int)$id);
 //        todo check if business logo is the current active logo of the business and if so change the active logo to the next business logo of this business in the business table

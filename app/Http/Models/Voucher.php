@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Voucher extends Model
 {
+//    todo modify @return documentation to be the correct type for all relationship methods
     protected $table = "vouchers";
     protected $dates = ['delivery_date', 'expiry_date', 'last_validation_date'];
     protected $fillable = [
         'user_id',
         'voucher_parameter_id',
+        'order_id',
         'status',
         'code',
         'value',
@@ -46,5 +48,13 @@ class Voucher extends Model
      */
     public function voucherValidationLogs( ) {
         return $this->hasMany('App\Http\Models\VoucherValidationLog', 'voucher_id', 'id');
+    }
+    
+    /**
+     * Relationship between Voucher Model and Order Model (many to one)
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function order(){
+        return $this->belongsTo('App\Http\Models\Order', 'order_id', 'id');
     }
 }

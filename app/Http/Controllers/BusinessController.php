@@ -6,7 +6,6 @@ use App\EssentialEntities\GeneralHelperTools as GeneralHelperTools;
 use App\Http\Models\Business;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth as JWTAuth2;
@@ -133,9 +132,9 @@ class BusinessController extends ApiController {
     /**
      * Update the specified resource in storage.
      *
-     * @param  Request  $request
+     * @param  \App\Http\Requests\Business\UpdateBusinessRequest  $request
      * @param  int  $id
-     * @return Response
+     * @return mix array|Json
      */
     public function update( UpdateBusinessRequest $request, $id ) {
 //        todo Modify authenticate method in UpdateBusinessRequest class to apply authentication rules

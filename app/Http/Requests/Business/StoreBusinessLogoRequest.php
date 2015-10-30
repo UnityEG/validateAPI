@@ -3,7 +3,7 @@
 namespace App\Http\Requests\Business;
 
 use App\Http\Requests\Request;
-
+// todo remove this class to BusinessLogos directory
 class StoreBusinessLogoRequest extends Request
 {
     /**

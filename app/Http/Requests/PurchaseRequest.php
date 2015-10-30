@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Controllers\ApiController;
+use App\Http\Models\VoucherParameter;
 use App\Http\Requests\Request;
-use Illuminate\Http\JsonResponse;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Validator;
 
 class PurchaseRequest extends Request {
 
@@ -24,20 +23,16 @@ class PurchaseRequest extends Request {
      * @return array
      */
     public function rules() {
-//        todo add vouchers as a container of vouchers data objects
-//        todo values and delivery will be used with gift voucher parameters only
-//        todo delivery date must not be after valid_from in voucher parameters
-//        todo add rules according to voucher parameter type
+        $this->expireVoucherValidationRule();
 //        we use loop as we actually don't know how many items will be purchased
-        $rules = [];
-        foreach ( $this->request->get( 'data' ) as $key=>$voucher_to_purchase ) {
-                $rules['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id'] = 'required|integer|exists:voucher_parameters,id';
-               $rules['data.'.$key.'.value']                = 'required|numeric|min:1';
-                $rules['data.'.$key.'.delivery_date']        = 'date_format:d/m/Y';
-                $rules['data.'.$key.'.recipient_email']      = 'email';
-                $rules['data.'.$key.'.message']              = 'string';
+        $rules = ["tax" => ['numeric']];
+        foreach ( $this->request->get( 'data[vouchers]', [], TRUE ) as $key=>$voucher_to_purchase ) {
+                $rules['data.vouchers.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id'] = 'required|integer|exists:voucher_parameters,id|expire_voucher';
+                $rules['data.vouchers.'.$key.'.recipient_email']      = 'email';
+                $rules['data.vouchers.'.$key.'.message']              = 'string';
+                $rules = array_merge($rules, $this->voucherTypeSpecificValidationRules($voucher_to_purchase['relations']['voucher_parameter']['data']['voucher_parameter_id'], $key));
         }//foreach ( $this->request->get( 'data' ) as $key=>$voucher_to_purchase )
-        return $rules;
+        return($rules);
     }
     
     /**
@@ -45,6 +40,7 @@ class PurchaseRequest extends Request {
      * @return array
      */
     public function messages( ) {
+//        todo modify messages to deal with vouchers array inside data array
         $error_messages = [];
         foreach ( $this->request->get('data') as $key => $voucher_to_purchase ) {
                 $error_messages['data.'.$key.'.relations.voucher_parameter.data.voucher_parameter_id.required'] = 'voucher_parameter_id is required';
@@ -57,6 +53,38 @@ class PurchaseRequest extends Request {
                 $error_messages['data.'.$key.'.message.string'] = 'message must be string';
         }//foreach ( $this->request->get('data') as $key => $voucher_to_purchase )
         return $error_messages;
+    }
+    
+    /**
+     * Validation rules for different types of vouchers
+     * @param int $id
+     * @param int $key
+     * @return array
+     */
+    private function voucherTypeSpecificValidationRules($id, $key){
+        $voucher_parameter_object = VoucherParameter::findOrFail((int)$id);
+        $rules = [];
+        switch ( $voucher_parameter_object->voucher_type ) {
+            case 'gift':
+                $rules['data.vouchers.'.$key.'.value'] = ['required', 'numeric', 'min:'.$voucher_parameter_object->min_value];
+                $rules['data.vouchers.'.$key.'.delivery_date'] = ['date_format:d/m/Y', 'after:today', 'before:'.$voucher_parameter_object->valid_until];
+                break;
+//            todo continue custom validation rules for specific type of vouchers
+        }//switch ( $voucher_parameter_object )
+        return $rules;
+    }
+    
+    /**
+     * Register custom validation rule (expire_voucher)
+     */
+    private function expireVoucherValidationRule( ) {
+        Validator::extend('expire_voucher', function($attribute, $value, $parameters){
+          $voucher_parameter_object = VoucherParameter::findOrFail((int)$value);
+          if(!(bool)$voucher_parameter_object->is_expire){
+              return TRUE;
+          }//if((bool)$voucher_parameter_object->is_expire)
+          return FALSE;
+        });
     }
 
 }
