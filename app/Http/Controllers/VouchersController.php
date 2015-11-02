@@ -33,7 +33,6 @@ class VouchersController extends ApiController {
      * @return \App\Http\Models\Voucher
      */
     public function store( array $purchased_voucher_to_create ) {
-//        todo if voucher parameter type is gift calculate specific fields is_gift, delivery_date and value else delivery_date will be today and value will equal value from voucher parameters
         $voucher_parameter_object = VoucherParameter::find($purchased_voucher_to_create['voucher_parameter_id']);
         $current_user_object = JWTAuth::parseToken()->authenticate();
         $purchased_voucher_to_create['user_id'] = $current_user_object->id;
@@ -53,7 +52,6 @@ class VouchersController extends ApiController {
             $voucher_parameter_update_data = [
                 'is_purchased'       => TRUE,
                 'purchased_quantity' => $voucher_parameter_object->purchased_quantity + 1
-//                    todo calculate store_quantity if is_limited_quantity true
             ];
             (!$voucher_parameter_object->is_limited_quantity) ?  : $voucher_parameter_update_data['stock_quantity'] = $voucher_parameter_object->stock_quantity - 1;
             $voucher_parameter_object->update($voucher_parameter_update_data);
