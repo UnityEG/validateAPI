@@ -16,9 +16,12 @@ use Tymon\JWTAuth\Facades\JWTAuth;
  * @author Mohamed Atef <en.mohamed.atef@gmail.com>
  */
 class PurchaseController extends ApiController{
-
+    
+    /**
+     * Apply Authentication Middleware on all methods
+     */
     public function __construct( ) {
-//        todo apply JWTAuth middleware on all methods in this controller
+        $this->middleware('jwt.auth');
     }
     
     /**
@@ -37,6 +40,7 @@ class PurchaseController extends ApiController{
         }//foreach ( $request->get('data') as $purchased_voucher)
         $total_value_with_tax = $total_value + (double)$order_object->tax;
         $this->sendReceiptMailToCustomer($receipt_data, $total_value_with_tax);
+        return $this->respond('Successful purchasing process and the receipt has been sent to your email address');
     }
     
     /**
@@ -112,7 +116,7 @@ class PurchaseController extends ApiController{
      */
     private function getDataForEmail(Voucher $purchased_voucher_object) {
         $business_logo_object = $purchased_voucher_object->voucherParameter->business->getActiveLogo();
-        $business_logo_filename = (is_object($business_logo_object)) ? 'images/merchant/logos/' . $business_logo_object->name . '.' . $business_logo_object->extension : 'voucher/images/validate_logo.png';
+        $business_logo_filename = (is_object($business_logo_object)) ? config( 'validateconf.default_business_logos_path') . $business_logo_object->name . '.png' : 'voucher/images/validate_logo.png';
         // get Gift Vouchers Parameter Terms Of Use
         $terms_of_use_objects = $purchased_voucher_object->voucherParameter->useTerms()->get(['name'])->toArray();
         $terms_of_use = implode(' ● ', array_pluck($terms_of_use_objects, 'name'));
@@ -138,7 +142,7 @@ class PurchaseController extends ApiController{
     }
     
     /**
-     * Delete Virtual voucher if found
+     * Delete Virtual voucher if found for security reason
      * @param string $voucher_filename
      */
     private function unlinkVirtualVoucher($voucher_filename) {
@@ -154,13 +158,12 @@ class PurchaseController extends ApiController{
      * @return array
      */
     private function vouchersReceipt(  Voucher $purchased_voucher_object ) {
-//        todo fix missing g class
         return [
             'voucher_title' => $purchased_voucher_object->voucherParameter->title,
-            'voucher_value' => g::formatCurrency($purchased_voucher_object->value),
+            'voucher_value' => GeneralHelperTools::formatCurrency($purchased_voucher_object->value),
             'recipient_email' => $purchased_voucher_object->recipient_email ,
-            'delivery_date' => g::formatDate($purchased_voucher_object->delivery_date),
-            'expiry_date' => g::formatDate($purchased_voucher_object->expiry_date)
+            'delivery_date' => GeneralHelperTools::formatDate($purchased_voucher_object->delivery_date),
+            'expiry_date' => GeneralHelperTools::formatDate($purchased_voucher_object->expiry_date)
         ];
         
     }
@@ -171,12 +174,11 @@ class PurchaseController extends ApiController{
      * @param integer $total_value
      */
     private function sendReceiptMailToCustomer( $receipt_data, $total_value ) {
-//        todo fix missing g class
         $data = [
-            'receipt_data'=>$receipt_data, 
-            'total_value'=>g::formatCurrency($total_value),
-            'customer_mail'=>JWTAuth::parseToken()->authenticate()->email
-                ];
+            'receipt_data'  => $receipt_data,
+            'total_value'   => GeneralHelperTools::formatCurrency( $total_value ),
+            'customer_mail' => JWTAuth::parseToken()->authenticate()->email
+        ];
         \Mail::queue('email.vouchers.receipt', $data, function($message) use ($data) {
             extract($data);
             $message->to($customer_mail)->subject('Validate Vouchers Receipt');
