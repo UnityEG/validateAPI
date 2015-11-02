@@ -33,7 +33,7 @@ class OrdersController extends ApiController
      * @return integer
      */
     private function generateOrderNumber(){
-        $largest_order_number = max(array_map('intval', Order::lists('number')->toArray()));
+        $largest_order_number = (int)Order::max('number');
         return (1000 > $largest_order_number) ? 1001 : ++$largest_order_number;
     }
 }
