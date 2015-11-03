@@ -11,6 +11,7 @@ class VoucherValidationLogTransformer extends Transformer {
     }
     
     public function beforeStandard( array $item) {
+//        todo modify beforeStandard method to deal with greedy data
         return [
             "id"        => ( string ) $item[ "id" ],
             "value"     => ( string ) $item[ "value" ],
