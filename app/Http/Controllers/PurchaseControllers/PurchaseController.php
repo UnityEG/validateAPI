@@ -26,13 +26,14 @@ class PurchaseController extends ApiController{
     
     /**
      * Purchase vouchers online
-     * @param \App\Http\Requests\PurchaseRequest $request
+     * @param PurchaseRequest $request
      */
     public function onlinePurchase(PurchaseRequest $request ) {
 //        todo go with the request to the payment gateway and wait for the response
         $order_object = (new OrdersController())->store((double)$request->get('data[tax]', 0, TRUE));
         foreach ( $request->get('data[vouchers]', [], TRUE) as $purchased_voucher) {
             $purchased_voucher['order_id'] = (int)$order_object->id;
+            $purchased_voucher['is_instore'] = FALSE;
             $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
             $this->sendVirtualVoucherMail($purchased_voucher_object);
             $receipt_data[] =$this->vouchersReceipt($purchased_voucher_object);
@@ -45,7 +46,7 @@ class PurchaseController extends ApiController{
     
     /**
      * Purchase vouchers instore
-     * @param \App\Http\Requests\PurchaseRequest $request
+     * @param PurchaseRequest $request
      */
     public function instorePurchase(PurchaseRequest $request) {
 //        todo decisions to make with instorePurchase
@@ -58,8 +59,9 @@ class PurchaseController extends ApiController{
      */
     private function createPurchasedVoucher( array $purchased_voucher ) {
         $purchased_voucher_to_create = [
-            'voucher_parameter_id'=>(int)$purchased_voucher['relations']['voucher_parameter']['data']['voucher_parameter_id'],
+            'voucher_parameter_id'=>(int)(new GeneralHelperTools())->arrayKeySearchRecursively( $purchased_voucher, 'voucher_parameter_id'),
             'order_id' => $purchased_voucher['order_id'],
+            'is_instore' => $purchased_voucher['is_instore'],
             'recipient_email'=>$purchased_voucher['recipient_email'],
             'message'=>$purchased_voucher['message']
         ];
@@ -96,7 +98,7 @@ class PurchaseController extends ApiController{
     
     /**
      * Generate Virtual Voucher
-     * @param \App\Http\Models\Voucher $purchased_voucher_object
+     * @param Voucher $purchased_voucher_object
      * @return array
      */
     private function generateVirtualVoucher(Voucher $purchased_voucher_object) {
@@ -111,7 +113,7 @@ class PurchaseController extends ApiController{
     
     /**
      * Get prepared data for email to be sent
-     * @param \App\Http\Models\Voucher $purchased_voucher_object
+     * @param Voucher $purchased_voucher_object
      * @return array
      */
     private function getDataForEmail(Voucher $purchased_voucher_object) {
@@ -154,7 +156,7 @@ class PurchaseController extends ApiController{
     
     /**
      * Prepare receipt data
-     * @param \App\Http\Models\Voucher $purchased_voucher_object
+     * @param Voucher $purchased_voucher_object
      * @return array
      */
     private function vouchersReceipt(  Voucher $purchased_voucher_object ) {
