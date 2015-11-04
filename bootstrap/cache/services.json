@@ -27,7 +27,9 @@
         "Intervention\\Image\\ImageServiceProvider",
         "App\\Providers\\AppServiceProvider",
         "App\\Providers\\EventServiceProvider",
-        "App\\Providers\\RouteServiceProvider"
+        "App\\Providers\\RouteServiceProvider",
+        "App\\EssentialEntities\\Transformers\\Providers\\TransformerServiceProvider",
+        "App\\EssentialEntities\\GeneralHelperTools\\Providers\\GeneralHelperToolsServiceProvider"
     ],
     "eager": [
         "Illuminate\\Auth\\AuthServiceProvider",
@@ -45,7 +47,9 @@
         "Intervention\\Image\\ImageServiceProvider",
         "App\\Providers\\AppServiceProvider",
         "App\\Providers\\EventServiceProvider",
-        "App\\Providers\\RouteServiceProvider"
+        "App\\Providers\\RouteServiceProvider",
+        "App\\EssentialEntities\\Transformers\\Providers\\TransformerServiceProvider",
+        "App\\EssentialEntities\\GeneralHelperTools\\Providers\\GeneralHelperToolsServiceProvider"
     ],
     "deferred": {
         "command.app.name": "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider",

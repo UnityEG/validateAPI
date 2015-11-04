@@ -144,6 +144,10 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        
+//        Validate service providers
+        App\EssentialEntities\Transformers\Providers\TransformerServiceProvider::class,
+        App\EssentialEntities\GeneralHelperTools\Providers\GeneralHelperToolsServiceProvider::class,
 
     ],
 
@@ -195,7 +199,12 @@ return [
         'JWTAuth'   => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory'=> Tymon\JWTAuth\Facades\JWTFactory::class,
         'Image' => Intervention\Image\Facades\Image::class,
-
+//        Validation specific aliases
+        'GeneralHelperTools' => \App\EssentialEntities\GeneralHelperTools\Facades\GeneralHelperTools::class,
+        'VoucherValidationLogTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherValidationLogTransformer::class,
+        'UserTransformer' => \App\EssentialEntities\Transformers\Facades\UserTransformer::class,
+        'BusinessTransformer' => \App\EssentialEntities\Transformers\Facades\BusinessTransformer::class,
+        'VoucherTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherTransformer::class,
     ],
 
 ];
