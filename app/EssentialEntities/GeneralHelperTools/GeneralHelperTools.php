@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EssentialEntities;
+namespace App\EssentialEntities\GeneralHelperTools;
 use Carbon\Carbon;
 use Intervention\Image\Facades\Image;
 
