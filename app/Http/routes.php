@@ -86,7 +86,7 @@ Route::group(['prefix' => 'v1'], function() {
         ]);
 
         Route::get('VoucherParameters/listAllActiveVouchersParameters', [
-            'uses' => 'VoucherParametersController@listAllActiveVouchersParameters',
+            'uses' => 'VouchersControllers\VoucherParametersController@listAllActiveVouchersParameters',
             'as' => 'VoucherParameters.listAllActiveVouchersParameters'
         ]);
         
