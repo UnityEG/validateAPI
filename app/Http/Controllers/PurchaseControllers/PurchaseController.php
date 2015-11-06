@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\PurchaseControllers;
 
-use App\EssentialEntities\GeneralHelperTools;
+use GeneralHelperTools;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\PurchaseControllers\OrdersController;
-use App\Http\Controllers\VouchersController;
+use App\Http\Controllers\VouchersControllers\VouchersController;
 use App\Http\Models\Voucher;
 use App\Http\Requests\PurchaseRequest;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use JWTAuth;
 
 /**
  * PurchaseController Responsible for purchasing voucher process
@@ -28,13 +28,17 @@ class PurchaseController extends ApiController{
      * Purchase vouchers online
      * @param PurchaseRequest $request
      */
-    public function onlinePurchase(PurchaseRequest $request ) {
+    public function onlinePurchase(
+            PurchaseRequest $request,
+            VouchersController $vouchers_controller
+//            todo continue injecting all the dependencies that we will need until the end of the request
+    ) {
 //        todo go with the request to the payment gateway and wait for the response
         $order_object = (new OrdersController())->store((double)$request->get('data[tax]', 0, TRUE));
         foreach ( $request->get('data[vouchers]', [], TRUE) as $purchased_voucher) {
             $purchased_voucher['order_id'] = (int)$order_object->id;
             $purchased_voucher['is_instore'] = FALSE;
-            $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher);
+            $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher, $vouchers_controller);
             $this->sendVirtualVoucherMail($purchased_voucher_object);
             $receipt_data[] =$this->vouchersReceipt($purchased_voucher_object);
             $total_value = (!isset($total_value))? $purchased_voucher_object->value : $total_value + $purchased_voucher_object->value;
@@ -50,6 +54,11 @@ class PurchaseController extends ApiController{
      */
     public function instorePurchase(PurchaseRequest $request) {
 //        todo decisions to make with instorePurchase
+//        todo Create OnlinePurchaseRequest class.
+//        todo Create validation rules for online purchase data {voucher_parameter_id, value, tax}
+//        todo Create purchased voucher object, save it in the database and return with purchased voucher object
+//        todo Create virtual voucher and get stream as base64
+//        todo return with response 
     }
     
     /**
@@ -57,9 +66,12 @@ class PurchaseController extends ApiController{
      * @param array $purchased_voucher
      * @return Voucher Voucher object
      */
-    private function createPurchasedVoucher( array $purchased_voucher ) {
+    private function createPurchasedVoucher( 
+            array $purchased_voucher,
+            VouchersController $vouchers_controller
+    ) {
         $purchased_voucher_to_create = [
-            'voucher_parameter_id'=>(int)(new GeneralHelperTools())->arrayKeySearchRecursively( $purchased_voucher, 'voucher_parameter_id'),
+            'voucher_parameter_id'=>(int)GeneralHelperTools::arrayKeySearchRecursively( $purchased_voucher, 'voucher_parameter_id'),
             'order_id' => $purchased_voucher['order_id'],
             'is_instore' => $purchased_voucher['is_instore'],
             'recipient_email'=>$purchased_voucher['recipient_email'],
@@ -67,7 +79,7 @@ class PurchaseController extends ApiController{
         ];
         (!isset($purchased_voucher['value'])) ? : $purchased_voucher_to_create['value'] = $purchased_voucher['value'];
         (!isset($purchased_voucher['delivery_date'])) ?  : $purchased_voucher_to_create['delivery_date'] = $purchased_voucher['delivery_date'];
-        return (new VouchersController())->store($purchased_voucher_to_create);
+        return $vouchers_controller->store($purchased_voucher_to_create);
     }
     
     /**

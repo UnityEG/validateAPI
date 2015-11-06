@@ -44,18 +44,18 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    Users Routes
     
-    Route::resource('Users', 'UsersController');
+    Route::resource('Users', 'UsersControllers\UsersController');
     
     // login, logout and authentication
         Route::get('authenticate', 'AuthenticateController@index');
 
         Route::get('logout', [
-            'uses' => 'AuthenticateController@logout',
+            'uses' => 'UsersControllers\AuthenticateController@logout',
             'as' => 'Authenticate.logout'
         ]);
 
         Route::post('authenticate', [
-            'uses' => 'AuthenticateController@authenticate',
+            'uses' => 'UsersControllers\AuthenticateController@authenticate',
             'as' => 'Authenticate.authenticate'
         ]);
     
@@ -76,11 +76,12 @@ Route::group(['prefix' => 'v1'], function() {
         
     //    VoucherParameters Routes
         Route::get('VoucherParameters', [
-            'uses' => 'VoucherParametersController@index'
+            'uses' => 'VouchersControllers\VoucherParametersController@index',
+            'as' => 'VoucherParameters.index'
         ]);
 
         Route::get('VoucherParameters/show/{voucher_id}', [
-            'uses' => 'VoucherParametersController@show',
+            'uses' => 'VouchersControllers\VoucherParametersController@show',
             'as' => 'VoucherParameters.show'
         ]);
 
@@ -88,34 +89,39 @@ Route::group(['prefix' => 'v1'], function() {
             'uses' => 'VoucherParametersController@listAllActiveVouchersParameters',
             'as' => 'VoucherParameters.listAllActiveVouchersParameters'
         ]);
+        
+        Route::get('VoucherParameters/listVoucherParametersTypes', [
+            'uses' => 'VouchersControllers\VoucherParametersController@listVoucherParametersTypes',
+            'as' => 'VoucherParameters.listVoucherParametersTypes'
+        ]);
 
         Route::get('VoucherParameters/searchByVoucherTitle/{voucher_title}', [
-            'uses' => 'VoucherParametersController@searchByVoucherTitle',
+            'uses' => 'VouchersControllers\VoucherParametersController@searchByVoucherTitle',
             'as' => 'VoucherParameter.searchByVoucherTitle'
         ]);
 
         Route::get('VoucherParameters/searchByBusinessName/{business_name}', [
-            'uses' => 'VoucherParametersController@searchByBusinessName',
+            'uses' => 'VouchersControllers\VoucherParametersController@searchByBusinessName',
             'as' => 'VoucherParameters.searchByBusinessName'
         ]);
 
         Route::post('VoucherParameters/storeDealVoucherParameters', [
-            'uses' => 'VoucherParametersController@storeDealVoucherParameters',
+            'uses' => 'VouchersControllers\VoucherParametersController@storeDealVoucherParameters',
             'as' => 'VoucherParameters.storeDealVoucherParameters'
         ]);
 
         Route::post('VoucherParameters/storeGiftVoucherParameters', [
-            'uses' => 'VoucherParametersController@storeGiftVoucherParameters',
+            'uses' => 'VouchersControllers\VoucherParametersController@storeGiftVoucherParameters',
             'as' => 'VoucherParameters.storeGiftVoucherParameters'
         ]);
 
         Route::patch('VoucherParameters/updateGiftVoucherParameters',[
-            'uses' => 'VoucherParametersController@updateGiftVoucherParameters',
+            'uses' => 'VouchersControllers\VoucherParametersController@updateGiftVoucherParameters',
             'as' => 'VoucherParameters.updateGiftVoucherParameters'
         ]);
 
         Route::patch('VoucherParameters/updateDealVoucherParameters', [
-            'uses' => 'VoucherParametersController@updateDealVoucherParameters',
+            'uses' => 'VouchersControllers\VoucherParametersController@updateDealVoucherParameters',
             'as' => 'VoucherParameters.updateDealVoucherParameters'
         ]);
 
@@ -151,10 +157,26 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherImages.destroy'
         ]);
         
+    //  Vouchers
+        Route::get('Vouchers', [
+            'uses' => 'VouchersControllers\VouchersController@index',
+            'as' => 'Vouchers.index'
+        ]);
+        
+        Route::get('Vouchers/{id}', [
+            'uses' => 'VouchersControllers\VouchersController@show',
+            'as' => 'Vouchers.show'
+        ]);
+        
     //    VoucherValidationLog Routes
         Route::get('VoucherValidationLogs/getAllLogs/{voucher_id}', [
             'uses' => 'VouchersControllers\VoucherValidationLogsController@getAllLogs',
             'as' => 'VoucherValidationLogs.getAllLogs'
+        ]);
+        
+        Route::get('VoucherValidationLogs/{voucher_validation_log_id}', [
+            'uses' => 'VouchersControllers\VoucherValidationLogsController@show',
+            'as' => 'VoucherValidationLogs.show'
         ]);
         
         Route::post('VoucherValidationLogs/validateVoucher', [

@@ -2,7 +2,7 @@
 
 namespace App\EssentialEntities\Transformers;
 
-use App\EssentialEntities\GeneralHelperTools;
+use GeneralHelperTools;
 use App\EssentialEntities\Transformers\Transformer;
 
 class VoucherParametersTransformer extends Transformer {
@@ -13,20 +13,19 @@ class VoucherParametersTransformer extends Transformer {
     
     public function beforeStandard( array $item) {
 //        todo refactor beforeStandard method
-        $general_helper_tools = new GeneralHelperTools();
         $response = [
             'id'                    => ( string ) $item[ 'id' ],
             'voucher_type'          => ( string ) $item[ 'voucher_type' ],
             'title'                 => ( string ) $item[ 'title' ],
-            'purchase_start'        => ( string ) $general_helper_tools->formatDateTime($item[ 'purchase_start' ]),
-            'purchase_expiry'       => ( string ) $general_helper_tools->formatDateTime($item[ 'purchase_expiry' ]),
+            'purchase_start'        => ( string ) GeneralHelperTools::formatDateTime($item[ 'purchase_start' ]),
+            'purchase_expiry'       => ( string ) GeneralHelperTools::formatDateTime($item[ 'purchase_expiry' ]),
             'is_expire'             => ( boolean ) $item[ 'is_expire' ],
             'is_display'            => ( boolean ) $item[ 'is_display' ],
             'is_purchased'          => ( boolean ) $item[ 'is_purchased' ],
-            'valid_from'            => (isset($item['valid_from']))?( string ) $general_helper_tools->formatDateTime($item[ 'valid_from' ]):'',
+            'valid_from'            => (isset($item['valid_from']))?( string ) GeneralHelperTools::formatDateTime($item[ 'valid_from' ]):'',
             'valid_for_amount'      => (isset($item['valid_for_amount']))?( string ) $item[ 'valid_for_amount' ]:'',
             'valid_for_units'       => (isset($item['valid_for_units']))?( string ) $item[ 'valid_for_units' ]:'',
-            'valid_until'           => (isset($item['valid_until']))?( string ) $general_helper_tools->formatDateTime($item[ 'valid_until' ]):'',
+            'valid_until'           => (isset($item['valid_until']))?( string ) GeneralHelperTools::formatDateTime($item[ 'valid_until' ]):'',
             'is_limited_quantity' => (bool) $item['is_limited_quantity'],
             'quantity'              => (isset($item['quantity'])) ? ( string ) $item[ 'quantity' ] : '',
             'purchased_quantity'    => (isset($item['purchased_quantity']))?( string ) $item[ 'purchased_quantity' ]:'',

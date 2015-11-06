@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Vouchers\VoucherValidationRequests;
 
-use App\EssentialEntities\GeneralHelperTools;
+use GeneralHelperTools;
 use App\Http\Models\Voucher;
 use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Validator;
@@ -70,7 +70,7 @@ class ValidateVoucherRequest extends Request {
      */
     private function maxRedeemValueValidationRule( ) {
         Validator::extend( 'max_redeem_value', function($attribute, $value, $parameters) {
-            $voucher_id = (int)(new GeneralHelperTools())->arrayKeySearchRecursively($this->request->get('data'), 'voucher_id');
+            $voucher_id = (int)GeneralHelperTools::arrayKeySearchRecursively($this->request->get('data'), 'voucher_id');
             $voucher_object = Voucher::findOrFail($voucher_id);
             if ( !is_null( $voucher_object ) ) {
                 return ($voucher_object->balance >= (double)$value);

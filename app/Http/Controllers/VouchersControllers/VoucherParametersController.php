@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\VouchersControllers;
 
-use App\EssentialEntities\GeneralHelperTools;
+use App\EssentialEntities\GeneralHelperTools\GeneralHelperTools;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Business;
 use App\Http\Models\VoucherParameter;
@@ -22,7 +22,7 @@ class VoucherParametersController extends ApiController
     
     /**
      * instance of VoucherParameter Model class
-     * @var \App\Http\Models\VoucherParameter
+     * @var VoucherParameter
      */
     private $voucherParameterModel;
 
@@ -71,6 +71,15 @@ class VoucherParametersController extends ApiController
     }
     
     /**
+     * List all types and IDs of Voucher parameters
+     * @param \App\Http\Models\VoucherParameter $voucher_parameter_model
+     * @return array
+     */
+    public function listVoucherParametersTypes(VoucherParameter $voucher_parameter_model){
+        return $this->respond($voucher_parameter_model->all(['id', 'voucher_type'])->toArray());
+    }
+    
+    /**
      * Display a voucher parameters by ID.
      *
      * @param  int  $id
@@ -83,6 +92,7 @@ class VoucherParametersController extends ApiController
     
 //    todo create showGiftVoucherParameters method
 //    todo Create showDealVoucherParameters method
+//    todo Create showActiveVoucherParameters method to show single ACTIVE voucher parameters only
     
     /**
      * Search for voucher parameters by title
@@ -95,7 +105,7 @@ class VoucherParametersController extends ApiController
         if ( !$voucher_parameter_exist ) {
             return $this->respond([]);
         }//if ( !$voucher_parameter_exist )
-        
+//        todo use getStandardJsonCollection method in VoucherParameter Model
         $voucher_parameter_objects = VoucherParameter::where('title', 'like', '%'.$optimized_voucher_title.'%')->get();
         $response = [];
         foreach ( $voucher_parameter_objects as $voucher_parameter_object) {

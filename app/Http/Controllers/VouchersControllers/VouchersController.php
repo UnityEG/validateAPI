@@ -1,29 +1,28 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\VouchersControllers;
 
-use App\EssentialEntities\GeneralHelperTools;
+use GeneralHelperTools;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Voucher;
 use App\Http\Models\VoucherParameter;
 use Carbon\Carbon;
-use Exception;
-use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\Response;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use DB;
+use JWTAuth;
 
 class VouchersController extends ApiController {
-    
-//    todo Add JWTAuth middleware to apply on all methods in this controller
+
+    public function __construct(){
+        $this->middleware('jwt.auth');
+    }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of all purchased vouchers.
      *
-     * @return Response
+     * @return array
      */
-    public function index() {
-        $all_sold_vouchers = Voucher::orderBy( 'created_at', 'desc' )->get();
-        return $this->respond( $all_sold_vouchers );
+    public function index(Voucher $voucher_model) {
+        return $voucher_model->getStandardJsonCollection();
     }
 
     /**
@@ -42,7 +41,6 @@ class VouchersController extends ApiController {
         ('gift' == $voucher_parameter_object->voucher_type) ?: $purchased_voucher_to_create['value'] = $voucher_parameter_object->value;
         $purchased_voucher_to_create['balance'] = $purchased_voucher_to_create['value'];
         $purchased_voucher_to_create['code'] = self::generateVoucherCode($voucher_parameter_object->voucher_type);
-        
         // Convert local time to UTC time in order to save it in DB
         $purchased_voucher_to_create['delivery_date'] = ('gift' == $voucher_parameter_object->voucher_type) ? GeneralHelperTools::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s') : Carbon::today();
 //        expiry date -1 second
@@ -65,50 +63,42 @@ class VouchersController extends ApiController {
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified purchased voucher.
      *
      * @param  int  $id
-     * @return Response
+     * @return array
      */
     public function show( $id ) {
-        try {
-            $voucher_object = Voucher::findOrFail( $id );
-        } catch ( Exception $ex ) {
-            return $this->respondNotFound( $ex->getMessage() );
-        }
-
-        return $this->respond( $voucher_object );
+        return Voucher::findOrFail((int)$id)->getStandardJsonFormat();
     }
     
 //    Helper Methods
     
-    public static function generateVoucherCode($voucher_param_type) {
+    private function generateVoucherCode($voucher_param_type) {
         switch ( $voucher_param_type ) {
             case 'gift':
-                $code = '3';
+                $code = 3;
                 break;
             case 'concession':
-                $code = '4';
+                $code = 4;
                 break;
             case 'deal':
-                $code = '5';
+                $code = 5;
                 break;
             case 'birthday':
-                $code = '6';
+                $code = 6;
                 break;
             case 'discount':
-                $code = '7';
+                $code = 7;
                 break;
         }//switch ( $voucher_param_type )
-        $code .= mt_rand(00000001, 99999999); // better than rand()
-        // call the same function if the barcode exists already
+        $code .= mt_rand(00000001, 99999999);
         if (Voucher::where('code', '=', $code)->exists()) {
-            return self::generateVoucherCode($voucher_param_type);
+            return $this->generateVoucherCode($voucher_param_type);
         }//if (Voucher::where('code', '=', $code)->exists())
         if (strlen($code) < 9) {
-            return self::generateVoucherCode($voucher_param_type);
-        }
-        // otherwise, it's valid and can be used
+            return $this->generateVoucherCode($voucher_param_type);
+        }//if (strlen($code) < 9)
         return $code;
     }
 }

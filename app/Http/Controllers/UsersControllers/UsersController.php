@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\UsersControllers;
 
-use App\EssentialEntities\GeneralHelperTools as GeneralHelperTools;
+use App\EssentialEntities\GeneralHelperTools\GeneralHelperTools;
 use App\Http\Models\UserGroup;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Response;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use DB;
+use Hash;
+use JWTAuth;
+use App\Http\Controllers\ApiController;
 
 class UsersController extends ApiController {
 //    todo refine UserController to remove unused methods
@@ -85,12 +84,11 @@ class UsersController extends ApiController {
             $customer_group_object = $this->UserGroupModel->where('group_name', 'customers')->first();
             $customer_group_object->users()->attach([$created_user->id]);
             DB::commit();
-            $response = $created_user->getStandardJsonFormat();
+            return $created_user->getStandardJsonFormat();
         }else{
             DB::rollBack();
-            $response = $this->respondInternalError();
+            return $this->respondInternalError();
         }//if ( is_object( $created_user ) )
-        return $response;
     }
 
     /**
@@ -131,12 +129,11 @@ class UsersController extends ApiController {
         if ( $user_object_to_update->update($modified_input) ) {
             $user_object_to_update->userGroups()->sync($modified_input['user_group_ids']);
             DB::commit();
-            $response = $user_object_to_update->getStandardJsonFormat();
+            return $user_object_to_update->getStandardJsonFormat();
         }else{
             DB::rollBack();
-            $response = $this->respondInternalError();
-        }
-        return $response;
+            return $this->respondInternalError();
+        }//if ( $user_object_to_update->update($modified_input) )
     }
 
     /**

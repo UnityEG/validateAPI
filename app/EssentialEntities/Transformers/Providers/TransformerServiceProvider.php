@@ -2,6 +2,11 @@
 
 namespace App\EssentialEntities\Transformers\Providers;
 
+use App\EssentialEntities\Transformers\BusinessTransformer;
+use App\EssentialEntities\Transformers\OrderTransformer;
+use App\EssentialEntities\Transformers\UserTransformer;
+use App\EssentialEntities\Transformers\VoucherParametersTransformer;
+use App\EssentialEntities\Transformers\VoucherTransformer;
 use App\EssentialEntities\Transformers\VoucherValidationLogTransformer;
 use Illuminate\Support\ServiceProvider;
 
@@ -11,11 +16,14 @@ use Illuminate\Support\ServiceProvider;
  * @author mohamed
  */
 class TransformerServiceProvider extends ServiceProvider{
+    
     public function register() {
         $this->voucherValidationLogTransformer();
         $this->userTransformer();
         $this->businessTransformer();
         $this->voucherTransformer();
+        $this->voucherParametersTransformer();
+        $this->orderTransformer();
     }
     
     protected function voucherValidationLogTransformer(){
@@ -26,19 +34,31 @@ class TransformerServiceProvider extends ServiceProvider{
     
     protected function userTransformer(){
         $this->app->singleton('UserTransformer', function($app){
-            return new \App\EssentialEntities\Transformers\UserTransformer();
+            return new UserTransformer();
         });
     }
 
     protected function businessTransformer() {
         $this->app->singleton('BusinessTransformer', function ($app){
-            return new \App\EssentialEntities\Transformers\BusinessTransformer();
+            return new BusinessTransformer();
         });
     }
 
-    public function voucherTransformer() {
+    protected function voucherTransformer() {
         $this->app->singleton('voucherTransformer', function($app){
-            return new \App\EssentialEntities\Transformers\VoucherTransformer();
+            return new VoucherTransformer();
+        });
+    }
+    
+    protected function voucherParametersTransformer() {
+        $this->app->singleton('voucherParametersTransformer', function($app){
+            return new VoucherParametersTransformer();
+        });
+    }
+
+    public function orderTransformer() {
+        $this->app->singleton('orderTransformer', function($app){
+            return new OrderTransformer();
         });
     }
 

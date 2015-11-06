@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\UsersControllers;
 
 use App\Http\Requests\Users\LoginUserRequest;
 use App\Http\Controllers\ApiController;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use JWTAuth;
 use Auth;
-use App\EssentialEntities\GeneralHelperTools;
+use App\EssentialEntities\GeneralHelperTools\GeneralHelperTools;
 
 class AuthenticateController extends ApiController {
     
@@ -23,7 +22,7 @@ class AuthenticateController extends ApiController {
         $credentials['password'] = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'password');
         // verify the credentials and create a token for the user
         if (!$token = JWTAuth::attempt($credentials)) {
-            throw new JWTException('invalid credentials', 417);
+            $this->setStatusCode(417)->respondWithError('invalid credentials');
         }//if (!$token = JWTAuth::attempt($credentials))
         $user = Auth::user()->getStandardJsonFormat();
         $user["data"]["token"] = $token;
