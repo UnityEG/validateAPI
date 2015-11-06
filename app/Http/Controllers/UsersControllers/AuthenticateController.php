@@ -22,7 +22,7 @@ class AuthenticateController extends ApiController {
         $credentials['password'] = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'password');
         // verify the credentials and create a token for the user
         if (!$token = JWTAuth::attempt($credentials)) {
-            $this->setStatusCode(417)->respondWithError('invalid credentials');
+            return $this->setStatusCode(417)->respondWithError('invalid email or password');
         }//if (!$token = JWTAuth::attempt($credentials))
         $user = Auth::user()->getStandardJsonFormat();
         $user["data"]["token"] = $token;
