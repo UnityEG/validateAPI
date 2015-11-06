@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Http\Models;
+namespace App\Http\Models;
 
 use App\EssentialEntities\Transformers\BusinessTransformer;
 use App\EssentialEntities\Transformers\UserTransformer;
@@ -93,6 +93,7 @@ class VoucherParameter extends Model {
         return (new VoucherParametersTransformer())->transform( $this->prepareVoucherParameterGreedyData());
     }
     
+//    todo Create getStandardJsonCollection method instead of getBeforeStandardArray method
     /**
      * Get Before standard Json API format for single object
      * @return array
@@ -106,6 +107,7 @@ class VoucherParameter extends Model {
      * @return array
      */
     private function prepareVoucherParameterGreedyData() {
+//        todo use Facade instead of instantiating objects inside prepareVoucherParameterGreedyData method
         $voucher_parameters_greedy_array = $this->load(['business', 'user', 'voucherImage', 'useTerms'])->toArray();
         (empty($voucher_parameters_greedy_array['business'])) ? : $voucher_parameters_greedy_array['business'] = (new BusinessTransformer())->transform( $voucher_parameters_greedy_array['business']);
         (empty($voucher_parameters_greedy_array['user'])) ?  : $voucher_parameters_greedy_array['user'] = (new UserTransformer())->transform( $voucher_parameters_greedy_array['user']);

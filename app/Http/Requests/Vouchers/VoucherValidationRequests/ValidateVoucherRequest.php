@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vouchers\VoucherValidationRequests;
 
+use GeneralHelperTools;
 use App\Http\Models\Voucher;
 use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +15,7 @@ class ValidateVoucherRequest extends Request {
      * @return bool
      */
     public function authorize() {
+//        todo add authorization rules for validation vouchers
         return true;
     }
 
@@ -28,8 +30,8 @@ class ValidateVoucherRequest extends Request {
 //        Balance validation rule
         $this->maxRedeemValueValidationRule();
         $voucher_validation_rules = [
-            "data.value"=> 'required|numeric|min:1|max_redeem_value:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ]['data'][ 'voucher_id' ].'|voucher_expire:' . $this->request->get( 'data' )[ 'relations' ][ 'voucher' ]['data'][ 'voucher_id' ],
-            "data.relations.voucher.data.voucher_id" => ['required', 'integer', 'exists:vouchers,id' ],
+            "data.value"=> 'required|numeric|min:1|max_redeem_value',
+            "data.relations.voucher.data.voucher_id" => ['required', 'integer', 'exists:vouchers,id', 'voucher_expire' ],
             "data.relations.business.data.business_id" => ['required', 'integer', 'exists:business,id']
         ];
 
@@ -53,16 +55,12 @@ class ValidateVoucherRequest extends Request {
         ];
     }
 
-    
-    
-//    Helper methods
-    
     /**
      * voucher_expire custom validation rule
      */
     private function expireVoucherValidationRule(  ) {
         Validator::extend('voucher_expire', function($attribute, $value, $parameters){
-            $voucher_object = Voucher::find($parameters[0]);
+            $voucher_object = Voucher::findOrFail((int)$value);
             return ('valid' === $voucher_object->status) ? TRUE : FALSE;
         });
     }
@@ -72,7 +70,8 @@ class ValidateVoucherRequest extends Request {
      */
     private function maxRedeemValueValidationRule( ) {
         Validator::extend( 'max_redeem_value', function($attribute, $value, $parameters) {
-            $voucher_object = Voucher::find( $parameters[ 0 ] );
+            $voucher_id = (int)GeneralHelperTools::arrayKeySearchRecursively($this->request->get('data'), 'voucher_id');
+            $voucher_object = Voucher::findOrFail($voucher_id);
             if ( !is_null( $voucher_object ) ) {
                 return ($voucher_object->balance >= (double)$value);
             }//if ( !is_null( $voucher_object ) )

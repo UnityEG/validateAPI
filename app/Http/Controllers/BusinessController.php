@@ -87,6 +87,8 @@ class BusinessController extends ApiController {
             $created_business_object->users()->attach([$current_user_object->id]);
 //            get business types array
             foreach($created_business_object->businessTypes()->get(['type']) as $business_type){
+//                todo Add "s" at the end of eacy business type to match the name of user groups
+//                todo rename $business_types_arry to be $user_groups_array
                 $business_types_array[] = $business_type->type;
             }//foreach($created_business_object->businessTypes()->get(['type']) as $business_type)
             $business_types_array[] = 'customers';
@@ -144,6 +146,7 @@ class BusinessController extends ApiController {
         if ( $business_object->update($modified_input) ) {
             $business_object->businessTypes()->sync($modified_input['business_type_ids']);
 //            todo update relationships between business and users
+//            todo update relationships between users and user groups according to updated business types
             DB::commit();
             return $business_object->getStandardJsonFormat();
         }//if ( $business_object->update($modified_input) )

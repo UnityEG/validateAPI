@@ -44,18 +44,18 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    Users Routes
     
-    Route::resource('Users', 'UsersController');
+    Route::resource('Users', 'UsersControllers\UsersController');
     
     // login, logout and authentication
         Route::get('authenticate', 'AuthenticateController@index');
 
         Route::get('logout', [
-            'uses' => 'AuthenticateController@logout',
+            'uses' => 'UsersControllers\AuthenticateController@logout',
             'as' => 'Authenticate.logout'
         ]);
 
         Route::post('authenticate', [
-            'uses' => 'AuthenticateController@authenticate',
+            'uses' => 'UsersControllers\AuthenticateController@authenticate',
             'as' => 'Authenticate.authenticate'
         ]);
     
@@ -72,85 +72,119 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'BusinessTypes.index'
         ]);
         
-//    VoucherParameters Routes
-    Route::get('VoucherParameters', [
-        'uses' => 'VoucherParametersController@index'
-    ]);
-    
-    Route::get('VoucherParameters/show/{voucher_id}', [
-        'uses' => 'VoucherParametersController@show',
-        'as' => 'VoucherParameters.show'
-    ]);
-    
-    Route::get('VoucherParameters/listAllActiveVouchersParameters', [
-        'uses' => 'VoucherParametersController@listAllActiveVouchersParameters',
-        'as' => 'VoucherParameters.listAllActiveVouchersParameters'
-    ]);
-    
-    Route::get('VoucherParameters/searchByVoucherTitle/{voucher_title}', [
-        'uses' => 'VoucherParametersController@searchByVoucherTitle',
-        'as' => 'VoucherParameter.searchByVoucherTitle'
-    ]);
-    
-    Route::get('VoucherParameters/searchByBusinessName/{business_name}', [
-        'uses' => 'VoucherParametersController@searchByBusinessName',
-        'as' => 'VoucherParameters.searchByBusinessName'
-    ]);
-    
-    Route::post('VoucherParameters/storeDealVoucherParameters', [
-        'uses' => 'VoucherParametersController@storeDealVoucherParameters',
-        'as' => 'VoucherParameters.storeDealVoucherParameters'
-    ]);
-    
-    Route::post('VoucherParameters/storeGiftVoucherParameters', [
-        'uses' => 'VoucherParametersController@storeGiftVoucherParameters',
-        'as' => 'VoucherParameters.storeGiftVoucherParameters'
-    ]);
-    
-    Route::patch('VoucherParameters/updateGiftVoucherParameters',[
-        'uses' => 'VoucherParametersController@updateGiftVoucherParameters',
-        'as' => 'VoucherParameters.updateGiftVoucherParameters'
-    ]);
-    
-    Route::patch('VoucherParameters/updateDealVoucherParameters', [
-        'uses' => 'VoucherParametersController@updateDealVoucherParameters',
-        'as' => 'VoucherParameters.updateDealVoucherParameters'
-    ]);
-    
-    
-//    VoucherImages Routes
-    Route::get('VoucherImages', [
-        'uses' => 'VoucherImagesController@index',
-        'as' => 'VoucherImages.index'
-    ]);
-    
-    Route::get('VoucherImages/showGiftImages', [
-        'uses' => 'VoucherImagesController@showGiftImages',
-        'as' => 'VoucherImages.showGiftImages'
-    ]);
-    
-    Route::get('VoucherImages/showDealImages', [
-        'uses' => 'VoucherImagesController@showDealImages',
-        'as' => 'VoucherImages.showDealImages'
-    ]);
-    
-    Route::post('VoucherImages/storeGiftImage', [
-        'uses' => 'VoucherImagesController@storeGiftImage',
-        'as' => 'VoucherImages.storeGiftImage'
-    ]);
-    
-    Route::post('VoucherImages/storeDealImage', [
-        'uses' => 'VoucherImagesController@storeDealImage' ,
-        'as' => 'VoucherImages.storeDealImage' 
-    ]);
-    
-    Route::delete('VoucherImages/{voucher_image_id}', [
-        'uses' => 'VoucherImagesController@destroy',
-        'as' => 'VoucherImages.destroy'
-    ]);
-    
+//  Vouchers Routes
+        
+    //    VoucherParameters Routes
+        Route::get('VoucherParameters', [
+            'uses' => 'VouchersControllers\VoucherParametersController@index',
+            'as' => 'VoucherParameters.index'
+        ]);
+
+        Route::get('VoucherParameters/show/{voucher_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@show',
+            'as' => 'VoucherParameters.show'
+        ]);
+
+        Route::get('VoucherParameters/listAllActiveVouchersParameters', [
+            'uses' => 'VoucherParametersController@listAllActiveVouchersParameters',
+            'as' => 'VoucherParameters.listAllActiveVouchersParameters'
+        ]);
+        
+        Route::get('VoucherParameters/listVoucherParametersTypes', [
+            'uses' => 'VouchersControllers\VoucherParametersController@listVoucherParametersTypes',
+            'as' => 'VoucherParameters.listVoucherParametersTypes'
+        ]);
+
+        Route::get('VoucherParameters/searchByVoucherTitle/{voucher_title}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@searchByVoucherTitle',
+            'as' => 'VoucherParameter.searchByVoucherTitle'
+        ]);
+
+        Route::get('VoucherParameters/searchByBusinessName/{business_name}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@searchByBusinessName',
+            'as' => 'VoucherParameters.searchByBusinessName'
+        ]);
+
+        Route::post('VoucherParameters/storeDealVoucherParameters', [
+            'uses' => 'VouchersControllers\VoucherParametersController@storeDealVoucherParameters',
+            'as' => 'VoucherParameters.storeDealVoucherParameters'
+        ]);
+
+        Route::post('VoucherParameters/storeGiftVoucherParameters', [
+            'uses' => 'VouchersControllers\VoucherParametersController@storeGiftVoucherParameters',
+            'as' => 'VoucherParameters.storeGiftVoucherParameters'
+        ]);
+
+        Route::patch('VoucherParameters/updateGiftVoucherParameters',[
+            'uses' => 'VouchersControllers\VoucherParametersController@updateGiftVoucherParameters',
+            'as' => 'VoucherParameters.updateGiftVoucherParameters'
+        ]);
+
+        Route::patch('VoucherParameters/updateDealVoucherParameters', [
+            'uses' => 'VouchersControllers\VoucherParametersController@updateDealVoucherParameters',
+            'as' => 'VoucherParameters.updateDealVoucherParameters'
+        ]);
+
+
+    //    VoucherImages Routes
+        Route::get('VoucherImages', [
+            'uses' => 'VoucherImagesController@index',
+            'as' => 'VoucherImages.index'
+        ]);
+
+        Route::get('VoucherImages/showGiftImages', [
+            'uses' => 'VoucherImagesController@showGiftImages',
+            'as' => 'VoucherImages.showGiftImages'
+        ]);
+
+        Route::get('VoucherImages/showDealImages', [
+            'uses' => 'VoucherImagesController@showDealImages',
+            'as' => 'VoucherImages.showDealImages'
+        ]);
+
+        Route::post('VoucherImages/storeGiftImage', [
+            'uses' => 'VoucherImagesController@storeGiftImage',
+            'as' => 'VoucherImages.storeGiftImage'
+        ]);
+
+        Route::post('VoucherImages/storeDealImage', [
+            'uses' => 'VoucherImagesController@storeDealImage' ,
+            'as' => 'VoucherImages.storeDealImage' 
+        ]);
+
+        Route::delete('VoucherImages/{voucher_image_id}', [
+            'uses' => 'VoucherImagesController@destroy',
+            'as' => 'VoucherImages.destroy'
+        ]);
+        
+    //  Vouchers
+        Route::get('Vouchers', [
+            'uses' => 'VouchersControllers\VouchersController@index',
+            'as' => 'Vouchers.index'
+        ]);
+        
+        Route::get('Vouchers/{id}', [
+            'uses' => 'VouchersControllers\VouchersController@show',
+            'as' => 'Vouchers.show'
+        ]);
+        
+    //    VoucherValidationLog Routes
+        Route::get('VoucherValidationLogs/getAllLogs/{voucher_id}', [
+            'uses' => 'VouchersControllers\VoucherValidationLogsController@getAllLogs',
+            'as' => 'VoucherValidationLogs.getAllLogs'
+        ]);
+        
+        Route::get('VoucherValidationLogs/{voucher_validation_log_id}', [
+            'uses' => 'VouchersControllers\VoucherValidationLogsController@show',
+            'as' => 'VoucherValidationLogs.show'
+        ]);
+        
+        Route::post('VoucherValidationLogs/validateVoucher', [
+            'uses' => 'VouchersControllers\VoucherValidationLogsController@validateVoucher',
+            'as' => 'VoucherValidationLogs.validate'
+        ]);
+
 //    Purchase Routes
-    
     Route::post('Purchase/onlinePurchase', [
         'uses' => 'PurchaseControllers\PurchaseController@onlinePurchase',
         'as' => 'Purchase.onlinePurchase'
@@ -159,17 +193,6 @@ Route::group(['prefix' => 'v1'], function() {
         'uses' => 'PurchaseControllers\PurchaseController@instorePurchase',
         'as' => 'Purchase.instorePurchase'
     ));
-    
-//    VoucherValidationLog Routes
-    Route::post('VoucherValidationLog/validateVoucher', [
-        'uses' => 'VoucherValidationLogController@validateVoucher',
-        'as' => 'VoucherValidationLog.validate'
-    ]);
-    
-    Route::get('VoucherValidationLog/getAllLogs/{voucher_id}', [
-        'uses' => 'VoucherValidationLogController@getAllLogs',
-        'as' => 'VoucherValidationLog.getAllLogs'
-    ]);
     
 //    Regions
     Route::get('Regions', [

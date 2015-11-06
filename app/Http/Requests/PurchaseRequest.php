@@ -7,7 +7,7 @@ use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Validator;
 
 class PurchaseRequest extends Request {
-
+//todo change class name to be OnlinePurchaseRequest
     /**
      * Determine if the user is authorized to make this request.
      * Only Users belongs to user groups that have 'purchase_voucher' rule are authorized
