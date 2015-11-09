@@ -72,7 +72,7 @@ class Voucher extends Model
         $instance = new static;
         $response["data"] = [];
         foreach ( $instance->get() as $voucher_object ) {
-            $response["data"][] = $voucher_object->getStandardJsonFormat();
+            $response["data"][] = $voucher_object->getBeforeStandardArray();
         }//foreach ( $instance->get() as $voucher_object )
         return $response;
     }
@@ -86,10 +86,18 @@ class Voucher extends Model
     }
     
     /**
+     * Get Before Standard array to get Json collection object
+     * @return array
+     */
+    public function getBeforeStandardArray(){
+        return VoucherTransformer::beforeStandard($this->prepareVoucherGreedyData());
+    }
+    
+    /**
      * Prepare Data to be used in Json response
      * @return array
      */
-    public function prepareVoucherGreedyData() {
+    private function prepareVoucherGreedyData() {
         $voucher_greedy_array = $this->load(['voucherParameter', 'order', 'user', 'voucherValidationLogs'])->toArray();
         (empty($voucher_greedy_array['voucher_parameter'])) ?  : $voucher_greedy_array['voucher_parameter'] = VoucherParametersTransformer::transform($voucher_greedy_array['voucher_parameter']);
         (empty($voucher_greedy_array['order'])) ?  : $voucher_greedy_array['order'] = OrderTransformer::transform($voucher_greedy_array['order']);

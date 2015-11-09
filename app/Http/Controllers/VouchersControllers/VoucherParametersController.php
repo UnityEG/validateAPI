@@ -72,11 +72,41 @@ class VoucherParametersController extends ApiController
     
     /**
      * List all types and IDs of Voucher parameters
-     * @param \App\Http\Models\VoucherParameter $voucher_parameter_model
+     * @param VoucherParameter $voucher_parameter_model
      * @return array
      */
     public function listVoucherParametersTypes(VoucherParameter $voucher_parameter_model){
         return $this->respond($voucher_parameter_model->all(['id', 'voucher_type'])->toArray());
+    }
+    
+    /**
+     * List all Gift Voucher Parameters of specific Business by business id
+     * @param integer $business_id
+     * @param VoucherParameter $voucher_parameter_model
+     * @return array
+     */
+    public function listGiftVoucherParametersOfBusiness($business_id, VoucherParameter $voucher_parameter_model){
+        $filtered_voucher_parameter_objects = $voucher_parameter_model->where(['business_id'=>(int)$business_id, 'voucher_type'=>'gift'])->get();
+        $response["data"] = [];
+        foreach ( $filtered_voucher_parameter_objects as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }//foreach ( $filterd_voucher_parameter_objects as $voucher_parameter_object)
+        return $response;
+    }
+    
+    /**
+     * list all Deal Voucher Parameters of specific Business by business_id
+     * @param integer $business_id
+     * @param VoucherParameter $voucher_parameter_model
+     * @return array
+     */
+    public function listDealVoucherParametersOfBusiness($business_id, VoucherParameter $voucher_parameter_model){
+        $filtered_voucher_parameter_object = $voucher_parameter_model->where(['business_id'=>(int)$business_id, 'voucher_type'=>'deal'])->get();
+        $response["data"] = [];
+        foreach ( $filtered_voucher_parameter_object as $voucher_parameter_object) {
+            $response['data'][] = $voucher_parameter_object->getBeforeStandardArray();
+        }//foreach ( $filtered_voucher_parameter_object as $voucher_parameter_object)
+        return $response;
     }
     
     /**
@@ -89,6 +119,8 @@ class VoucherParametersController extends ApiController
     {
         return $this->voucherParameterModel->findOrFail((int)$id)->getStandardJsonFormat();
     }
+    
+    
     
 //    todo create showGiftVoucherParameters method
 //    todo Create showDealVoucherParameters method

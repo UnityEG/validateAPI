@@ -207,6 +207,8 @@ return [
         'VoucherTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherTransformer::class,
         'VoucherParametersTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherParametersTransformer::class,
         'OrderTransformer' => \App\EssentialEntities\Transformers\Facades\OrderTransformer::class,
+        'UseTermTransformer' => \App\EssentialEntities\Transformers\Facades\UseTermTransformer::class,
+        'VoucherImageTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherImageTransformer::class,
     ],
 
 ];
