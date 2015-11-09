@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\VouchersControllers;
 
-use GeneralHelperTools;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Voucher;
 use App\Http\Models\VoucherValidationLog;
+use App\Http\Requests\Vouchers\VoucherValidationRequests\CheckVoucherRequest;
 use App\Http\Requests\Vouchers\VoucherValidationRequests\ValidateVoucherRequest;
 use DB;
+use GeneralHelperTools;
 use JWTAuth;
 
 class VoucherValidationLogsController extends ApiController
@@ -33,7 +34,7 @@ class VoucherValidationLogsController extends ApiController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\Vouchers\VoucherValidationRequests\ValidateVoucherRequest  $request
+     * @param  ValidateVoucherRequest  $request
      * @return array
      */
     public function validateVoucher(  ValidateVoucherRequest $request)
@@ -77,5 +78,15 @@ class VoucherValidationLogsController extends ApiController
     public function show($voucher_validation_log_id)
     {
         return VoucherValidationLog::findOrFail((int)$voucher_validation_log_id)->getStandardJsonFormat();
+    }
+    
+    /**
+     * Check Validation of Purchased Voucher
+     * @param CheckVoucherRequest $request
+     * @param Voucher $voucher_model
+     * @return array
+     */
+    public function checkVoucher( CheckVoucherRequest $request, Voucher $voucher_model){
+        return $voucher_model->where('code', $request->get('data[voucher_code]', '', TRUE))->first()->getStandardJsonFormat();
     }
 }

@@ -104,6 +104,16 @@ Route::group(['prefix' => 'v1'], function() {
             'uses' => 'VouchersControllers\VoucherParametersController@searchByBusinessName',
             'as' => 'VoucherParameters.searchByBusinessName'
         ]);
+        
+        Route::get('VoucherParameters/listGiftVoucherParametersOfBusiness/{business_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@listGiftVoucherParametersOfBusiness',
+            'as' => 'VoucherParameters.listGiftVoucherParametersOfBusiness'
+        ]);
+        
+        Route::get('VoucherParameters/listDealVoucherParametersOfBusiness/{business_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@listDealVoucherParametersOfBusiness',
+            'as' => 'VoucherParameters.listDealVoucherParametersOfBusiness'
+        ]);
 
         Route::post('VoucherParameters/storeDealVoucherParameters', [
             'uses' => 'VouchersControllers\VoucherParametersController@storeDealVoucherParameters',
@@ -157,6 +167,12 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherImages.destroy'
         ]);
         
+    //  UseTerms
+        Route::get('UseTerms', [
+            'uses' => 'VouchersControllers\UseTermsController@index',
+            'as' => 'UseTerms.index'
+        ]);
+        
     //  Vouchers
         Route::get('Vouchers', [
             'uses' => 'VouchersControllers\VouchersController@index',
@@ -181,7 +197,12 @@ Route::group(['prefix' => 'v1'], function() {
         
         Route::post('VoucherValidationLogs/validateVoucher', [
             'uses' => 'VouchersControllers\VoucherValidationLogsController@validateVoucher',
-            'as' => 'VoucherValidationLogs.validate'
+            'as' => 'VoucherValidationLogs.validateVoucher'
+        ]);
+        
+        Route::post('VoucherValidationLogs/checkVoucher', [
+            'uses' => 'VouchersControllers\VoucherValidationLogsController@checkVoucher',
+            'as' => 'VoucherValidationLogs.checkVoucher'
         ]);
 
 //    Purchase Routes
