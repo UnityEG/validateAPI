@@ -2,11 +2,11 @@
 
 namespace App\Http\Models;
 
-use App\EssentialEntities\Transformers\BusinessTransformer;
-use App\EssentialEntities\Transformers\UserTransformer;
-use App\EssentialEntities\Transformers\UseTermTransformer;
-use App\EssentialEntities\Transformers\VoucherImageTransformer;
-use App\EssentialEntities\Transformers\VoucherParametersTransformer;
+use BusinessTransformer;
+use UserTransformer;
+use UseTermTransformer;
+use VoucherImageTransformer;
+use VoucherParametersTransformer;
 use Illuminate\Database\Eloquent\Model;
 
 class VoucherParameter extends Model {
@@ -45,7 +45,7 @@ class VoucherParameter extends Model {
 
     /**
      * Relationship between VoucherParameter Model and Business Model (many to one)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function business() {
         return $this->belongsTo( 'App\Http\Models\Business', 'business_id', 'id' );
@@ -53,7 +53,7 @@ class VoucherParameter extends Model {
     
     /**
      * Relationship between VoucherParameter Model and User Model (Many to One)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user( ) {
         return $this->belongsTo('App\User', 'user_id', 'id');
@@ -61,7 +61,7 @@ class VoucherParameter extends Model {
     
     /**
      * Relationship between VoucherParameter Model and VoucherImage Model (Many to One)
-     * @return objec
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function voucherImage() {
         return $this->belongsTo( 'App\Http\Models\VoucherImage', 'voucher_image_id', 'id' );
@@ -69,7 +69,7 @@ class VoucherParameter extends Model {
 
     /**
      * Relationship method between Voucher Model and UseTerm Model (many to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function useTerms() {
         return $this->belongsToMany( 'App\Http\Models\UseTerm', 'voucher_parameters_use_terms_rel', 'voucher_parameter_id', 'use_term_id' );
@@ -77,29 +77,39 @@ class VoucherParameter extends Model {
     
     /**
      * Relationship between VoucherParameter Model and Voucher Model ( one to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function vouchers( ) {
         return $this->hasMany('App\Http\Models\Voucher', 'voucher_parameter_id', 'id');
     }
     
-//    Helpers
+    /**
+     * Get Standard Json collection of Voucher Parameter objects
+     * @return array
+     */
+    public static function getStandardJsonCollection(){
+        $instance = new static;
+        $response["data"] = [];
+        foreach ( $instance->get() as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }
+        return $response;
+    }
     
     /**
      * Get Standard Json API format for single object
      * @return array
      */
     public function getStandardJsonFormat( ) {
-        return (new VoucherParametersTransformer())->transform( $this->prepareVoucherParameterGreedyData());
+        return VoucherParametersTransformer::transform( $this->prepareVoucherParameterGreedyData());
     }
     
-//    todo Create getStandardJsonCollection method instead of getBeforeStandardArray method
     /**
      * Get Before standard Json API format for single object
      * @return array
      */
     public function getBeforeStandardArray( ) {
-        return (new VoucherParametersTransformer())->beforeStandard( $this->prepareVoucherParameterGreedyData());
+        return VoucherParametersTransformer::beforeStandard( $this->prepareVoucherParameterGreedyData());
     }
     
     /**
@@ -109,10 +119,10 @@ class VoucherParameter extends Model {
     private function prepareVoucherParameterGreedyData() {
 //        todo use Facade instead of instantiating objects inside prepareVoucherParameterGreedyData method
         $voucher_parameters_greedy_array = $this->load(['business', 'user', 'voucherImage', 'useTerms'])->toArray();
-        (empty($voucher_parameters_greedy_array['business'])) ? : $voucher_parameters_greedy_array['business'] = (new BusinessTransformer())->transform( $voucher_parameters_greedy_array['business']);
-        (empty($voucher_parameters_greedy_array['user'])) ?  : $voucher_parameters_greedy_array['user'] = (new UserTransformer())->transform( $voucher_parameters_greedy_array['user']);
-        (empty($voucher_parameters_greedy_array['voucher_image'])) ?  : $voucher_parameters_greedy_array['voucher_image'] = (new VoucherImageTransformer())->transform( $voucher_parameters_greedy_array['voucher_image']);
-        (empty($voucher_parameters_greedy_array['use_terms'])) ?  : $voucher_parameters_greedy_array['use_terms'] = (new UseTermTransformer())->transformCollection( $voucher_parameters_greedy_array['use_terms']);
+        (empty($voucher_parameters_greedy_array['business'])) ? : $voucher_parameters_greedy_array['business'] = BusinessTransformer::transform( $voucher_parameters_greedy_array['business']);
+        (empty($voucher_parameters_greedy_array['user'])) ?  : $voucher_parameters_greedy_array['user'] = UserTransformer::transform( $voucher_parameters_greedy_array['user']);
+        (empty($voucher_parameters_greedy_array['voucher_image'])) ?  : $voucher_parameters_greedy_array['voucher_image'] = VoucherImageTransformer::transform( $voucher_parameters_greedy_array['voucher_image']);
+        (empty($voucher_parameters_greedy_array['use_terms'])) ?  : $voucher_parameters_greedy_array['use_terms'] = UseTermTransformer::transformCollection( $voucher_parameters_greedy_array['use_terms']);
         return $voucher_parameters_greedy_array;
     }
 
