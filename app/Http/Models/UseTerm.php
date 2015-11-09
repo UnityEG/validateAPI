@@ -2,7 +2,7 @@
 
 namespace App\Http\Models;
 
-use App\EssentialEntities\Transformers\UseTermTransformer;
+use UseTermTransformer;
 use Illuminate\Database\Eloquent\Model;
 
 class UseTerm extends Model {
@@ -18,11 +18,24 @@ class UseTerm extends Model {
     }
     
     /**
+     * Get Standard Json API collection format for muti use term objects
+     * @return array
+     */
+    public static function getStandardJsonCollection( ) {
+        $instance = new static;
+        $response["data"] = [];
+        foreach ( $instance->get() as $use_term_object) {
+            $response['data'][] = $use_term_object->getBeforeStandardArray();
+        }
+        return $response;
+    }
+    
+    /**
      * Get Standard Json API format for single object
      * @return array
      */
     public function getStandardJsonFormat( ) {
-        return (new UseTermTransformer())->transform($this->prepareUseTermGreedyData());
+        return UseTermTransformer::transform($this->prepareUseTermGreedyData());
     }
     
     /**
@@ -30,7 +43,7 @@ class UseTerm extends Model {
      * @return array
      */
     public function getBeforeStandardArray( ) {
-        return (new UseTermTransformer())->beforeStandard($this->prepareUseTermGreedyData());
+        return UseTermTransformer::beforeStandard($this->prepareUseTermGreedyData());
     }
 
     /**
