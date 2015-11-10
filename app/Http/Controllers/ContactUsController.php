@@ -13,7 +13,7 @@ class ContactUsController extends Controller
         $result = Mail::raw($data['message'], function($message) use ($data){
             $message->from("donotreply@validate.co.nz", "validate.co.nz")
                     ->sender("donotreply@validate.co.nz", "validate.co.nz")
-                    ->to("en.mohamed.atef@gmail.com", "Mohamed Atef")
+                    ->to("info@validate.co.nz", "Validate Customer Service")
                     ->subject('Comments from '.$data['email'])
                     ->replyTo($data['email']);
         });
