@@ -232,4 +232,10 @@ Route::group(['prefix' => 'v1'], function() {
         'uses' => 'TownsController@index',
         'as' => 'Towns.index'
     ]);
+    
+//    ContactUs
+    Route::post('ContactUs', [
+        'uses' => 'ContactUsController@contactUs',
+        'as' => 'ContactUs.contactUs'
+    ]);
 });

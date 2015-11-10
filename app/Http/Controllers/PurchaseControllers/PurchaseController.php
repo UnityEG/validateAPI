@@ -13,7 +13,7 @@ use JWTAuth;
 /**
  * PurchaseController Responsible for purchasing voucher process
  *
- * @author Mohamed Atef <en.mohamed.atef@gmail.com>
+ * @author Mohamed Atef <en.mohamed.atef at gmail.com>
  */
 class PurchaseController extends ApiController{
     
