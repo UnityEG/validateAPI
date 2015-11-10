@@ -8,8 +8,16 @@ use Mail;
 
 class ContactUsController extends ApiController
 {
+    /**
+     * Send comments message from clients to "info at validate.co.nz"
+     * @param ContactUsRequest $request
+     * @return Json response
+     */
     public function contactUs(ContactUsRequest $request){
         $data = $request->get('data');
+//        sanitize message
+        $data['message'] = preg_replace('/(?:\<script\>|\<\/script\>)/', '', $data['message']);
+        $data['message'] = htmlspecialchars($data['message']);
         $result = Mail::raw($data['message'], function($message) use ($data){
             $message->from("donotreply@validate.co.nz", "validate.co.nz")
                     ->sender("donotreply@validate.co.nz", "validate.co.nz")
