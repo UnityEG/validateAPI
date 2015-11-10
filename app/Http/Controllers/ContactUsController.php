@@ -11,7 +11,11 @@ class ContactUsController extends Controller
     public function contactUs(ContactUsRequest $request){
         $data = $request->get('data');
         $result = Mail::raw($data['message'], function($message) use ($data){
-            $message->to("therock_624@hotmail.com", "Mohamed Atef")->subject('Comments from '.$data['email'])->replyTo($data['email']);
+            $message->from("donotreply@validate.co.nz", "Validate.co.nz")
+                    ->sender("donotreply@validate.co.nz")
+                    ->to("therock_624@hotmail.com", "Mohamed Atef")
+                    ->subject('Comments from '.$data['email'])
+                    ->replyTo($data['email']);
         });
         return $result;
     }
