@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 use App\Http\Requests\ContactUsRequest;
 use Mail;
 
-class ContactUsController extends Controller
+class ContactUsController extends ApiController
 {
     public function contactUs(ContactUsRequest $request){
         $data = $request->get('data');
@@ -17,6 +17,6 @@ class ContactUsController extends Controller
                     ->subject('Comments from '.$data['email'])
                     ->replyTo($data['email']);
         });
-        return $result;
+        return (1==$result) ? $this->respond( "Your message has been sent successfully and we will reply soon on ".$data['email']." Thanks") : $this->setStatusCode( 500)->respondWithError( "Internal Server Error");
     }
 }
