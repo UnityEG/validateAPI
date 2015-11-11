@@ -1,8 +1,9 @@
 <?php
 
 namespace App\EssentialEntities\GeneralHelperTools;
+
 use Carbon\Carbon;
-use Intervention\Image\Facades\Image;
+use Image;
 
 class GeneralHelperTools {
 

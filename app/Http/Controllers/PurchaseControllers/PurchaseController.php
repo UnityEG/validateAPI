@@ -54,7 +54,8 @@ class PurchaseController extends ApiController{
      */
     public function instorePurchase(PurchaseRequest $request) {
 //        todo decisions to make with instorePurchase
-//        todo Create OnlinePurchaseRequest class.
+//        todo Change PurchaseRequest class name to OnlinePurchaseRequest.
+//        toto Create InstorePurchaseRequest class.
 //        todo Create validation rules for online purchase data {voucher_parameter_id, value, tax}
 //        todo Create purchased voucher object, save it in the database and return with purchased voucher object
 //        todo Create virtual voucher and get stream as base64
@@ -130,7 +131,7 @@ class PurchaseController extends ApiController{
      */
     private function getDataForEmail(Voucher $purchased_voucher_object) {
         $business_logo_object = $purchased_voucher_object->voucherParameter->business->getActiveLogo();
-        $business_logo_filename = (is_object($business_logo_object)) ? config( 'validateconf.default_business_logos_path') . $business_logo_object->name . '.png' : 'voucher/images/validate_logo.png';
+        $business_logo_filename = (is_object($business_logo_object)) ? config( 'validateconf.default_business_logos_path') . $business_logo_object->name . '.png' : 'voucher/images/validate_m_logo.png';
         // get Gift Vouchers Parameter Terms Of Use
         $terms_of_use_objects = $purchased_voucher_object->voucherParameter->useTerms()->get(['name'])->toArray();
         $terms_of_use = implode(' ● ', array_pluck($terms_of_use_objects, 'name'));
