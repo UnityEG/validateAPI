@@ -19,9 +19,11 @@ class ContactUsController extends ApiController
         $data['message'] = preg_replace('/(?:\<script\>|\<\/script\>)/', '', $data['message']);
         $data['message'] = htmlspecialchars($data['message']);
         $result = Mail::raw($data['message'], function($message) use ($data){
-            $message->to("info@validate.co.nz", "Validate Customer Service")
+            $message->to("therock_624@hotmail.com", "Validate Customer Service")
+            	    ->from("donotreply@validate.co.nz", "donotreply@validate.co.nz")
                     ->subject('Comments from '.$data['email'])
                     ->replyTo($data['email']);
+            $headers = $message->getHeaders();
         });
         return (1==$result) ? $this->respond( "Your message has been sent successfully and we will reply soon on ".$data['email']." Thanks") : $this->setStatusCode( 500)->respondWithError( "Internal Server Error");
     }
