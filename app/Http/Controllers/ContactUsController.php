@@ -22,6 +22,9 @@ class ContactUsController extends ApiController
             $message->to("info@validate.co.nz", "Validate Customer Service")
                     ->subject('Comments from '.$data['email'])
                     ->replyTo($data['email']);
+//            Add custom header to the message if necessary
+//            $headers = $message->getHeaders();
+//            $headers->addTextHeader('Header-Text', 'value');
         });
         return (1==$result) ? $this->respond( "Your message has been sent successfully and we will reply soon on ".$data['email']." Thanks") : $this->setStatusCode( 500)->respondWithError( "Internal Server Error");
     }
