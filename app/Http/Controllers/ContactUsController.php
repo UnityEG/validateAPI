@@ -19,9 +19,7 @@ class ContactUsController extends ApiController
         $data['message'] = preg_replace('/(?:\<script\>|\<\/script\>)/', '', $data['message']);
         $data['message'] = htmlspecialchars($data['message']);
         $result = Mail::raw($data['message'], function($message) use ($data){
-            $message->from("donotreply@validate.co.nz", "validate.co.nz")
-                    ->sender("donotreply@validate.co.nz", "validate.co.nz")
-                    ->to("info@validate.co.nz", "Validate Customer Service")
+            $message->to("info@validate.co.nz", "Validate Customer Service")
                     ->subject('Comments from '.$data['email'])
                     ->replyTo($data['email']);
         });
