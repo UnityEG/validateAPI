@@ -95,8 +95,8 @@ class PurchaseController extends ApiController{
         $data['email_to_name'] = (!is_null($data['recipient_email'])) ? $data['recipient_email'] : $data['customer_name'];
         extract($data);
         // set ini_get to 180 seconds to take a suitable uploading attachements with the mail
-        if (ini_get('max_execution_time') < 180) {
-            ini_set('max_execution_time', 180);
+        if (ini_get('max_execution_time') < 1800) {
+            ini_set('max_execution_time', 1800);
         }
         // Send Mail with virtual voucher image attached
         \Mail::queue($MailBodyView, $data, function($message) use ($data, $voucher_filename) {
