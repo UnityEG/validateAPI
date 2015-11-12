@@ -58,6 +58,11 @@ Route::group(['prefix' => 'v1'], function() {
             'uses' => 'UsersControllers\AuthenticateController@authenticate',
             'as' => 'Authenticate.authenticate'
         ]);
+        
+        Route::post('Authenticate/facebook', [
+            'uses' => 'UsersControllers\AuthenticateController@facebook',
+            'as' => 'Authenticate.facebook'
+        ]);
     
     // UserGroups
         Route::resource('UserGroups', 'UsersControllers\UserGroupsController');

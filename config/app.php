@@ -81,6 +81,16 @@ return [
     'key' => env('APP_KEY', 'bI3yJnZJB5AlnJJ2sZpsxZr2TsoNuqEG'),
 //todo this cipher needs to be changed as it's now public on Github
     'cipher' => 'AES-256-CBC',
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Facebook Secret Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is used by the Facebook.com to Authenticate users
+    |
+    */
+    'facebook_secret' => '65eed00af1201485c0f0e830e28619c2',
 
     /*
     |--------------------------------------------------------------------------

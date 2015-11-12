@@ -9,7 +9,9 @@
         "laravel/framework": "5.1.*",
         "tymon/jwt-auth": "0.5.*",
         "intervention/image": "2.*",
-        "intervention/imagecache": "^2.3"
+        "intervention/imagecache": "^2.3",
+        "firebase/php-jwt": "^3.0",
+        "guzzlehttp/guzzle": "^6.1"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

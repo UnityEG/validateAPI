@@ -39,4 +39,26 @@ class AuthenticateController extends ApiController {
             return $this->respond('token became invalid');
         }//if(JWTAuth::invalidate(JWTAuth::getToken()))
     }
+    
+    /**
+     * Facebook Authentication method
+     * @param \Illuminate\Http\Request $request
+     * @param \GuzzleHttp\Client $client
+     */
+    public function facebook( \Illuminate\Http\Request $request, \GuzzleHttp\Client $client) {
+        $access_token_url = 'https://graph.facebook.com/v2.3/oauth/access_token';
+        $graph_api_url = 'https://graph.facebook.com/v2.3/me';
+        $params = [
+            'code' => $request->get( 'data[code]', '', TRUE),
+            'client_id' => $request->get('data[client_id]', '', TRUE),
+            'redirect_uri' => $request->get('data[redirect_uri]', '', TRUE),
+            'client_secret' => config('app.facebook_secret'),
+        ];
+//        step.1 Exchange authorization code for access token
+        $access_token = $client->get($access_token_url, ['query' => $params])->json();
+//        step.2 Retrieve profile information about the current user
+        $profile = $client->get($graph_api_url, ['query' => $access_token])->json();
+        
+        return (!empty($profile)) ? $this->respond( "success logging in with facebook account") : $this->setStatusCode( 402)->respondWithError( "Error while logging in with facebook account");
+    }
 }

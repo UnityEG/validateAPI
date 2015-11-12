@@ -15,6 +15,7 @@ class ContactUsController extends ApiController
      */
     public function contactUs(ContactUsRequest $request){
         $data = $request->get('data');
+//        todo modify message body like the pictrue contactus in validate project
 //        sanitize message
         $data['message'] = preg_replace('/(?:\<script\>|\<\/script\>)/', '', $data['message']);
         $data['message'] = htmlspecialchars($data['message']);
