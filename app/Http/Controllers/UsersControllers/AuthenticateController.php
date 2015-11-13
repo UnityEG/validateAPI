@@ -2,24 +2,27 @@
 
 namespace App\Http\Controllers\UsersControllers;
 
-use App\Http\Requests\Users\LoginUserRequest;
 use App\Http\Controllers\ApiController;
-use JWTAuth;
+use App\Http\Requests\Users\LoginUserRequest;
 use Auth;
-use App\EssentialEntities\GeneralHelperTools\GeneralHelperTools;
+use GeneralHelperTools;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use JWTAuth;
+use Psy\Util\Json;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthenticateController extends ApiController {
     
     /**
      * Login user and return with user information with token or error
-     * @param \App\Http\Requests\Users\LoginUserRequest $request
-     * @param \App\EssentialEntities\GeneralHelperTools $general_helper_tools
+     * @param LoginUserRequest $request
      * @return Response
      */
-    public function authenticate(  LoginUserRequest $request, GeneralHelperTools $general_helper_tools) {
+    public function authenticate(  LoginUserRequest $request) {
         $raw_input = $request->json("data");
-        $credentials['email'] = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'email');
-        $credentials['password'] = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'password');
+        $credentials['email'] = GeneralHelperTools::arrayKeySearchRecursively( $raw_input, 'email');
+        $credentials['password'] = GeneralHelperTools::arrayKeySearchRecursively($raw_input, 'password');
         // verify the credentials and create a token for the user
         if (!$token = JWTAuth::attempt($credentials)) {
             return $this->setStatusCode(417)->respondWithError('invalid email or password');
@@ -42,23 +45,31 @@ class AuthenticateController extends ApiController {
     
     /**
      * Facebook Authentication method
-     * @param \Illuminate\Http\Request $request
-     * @param \GuzzleHttp\Client $client
+     * @param Request $request
+     * @param Client $client
      */
-    public function facebook( \Illuminate\Http\Request $request, \GuzzleHttp\Client $client) {
-        $access_token_url = 'https://graph.facebook.com/v2.3/oauth/access_token';
-        $graph_api_url = 'https://graph.facebook.com/v2.3/me';
+    public function facebook(Request $request)
+    {
+        $accessTokenUrl = 'https://graph.facebook.com/v2.3/oauth/access_token';
+        $graphApiUrl = 'https://graph.facebook.com/v2.3/me';
+
         $params = [
-            'code' => $request->get( 'data[code]', '', TRUE),
-            'client_id' => $request->get('data[client_id]', '', TRUE),
-            'redirect_uri' => $request->get('data[redirect_uri]', '', TRUE),
-            'client_secret' => config('app.facebook_secret'),
+            'code' => $request->input('code'),
+            'client_id' => $request->input('client_id'),
+            'redirect_uri' => $request->input('redirect_uri'),
+            'client_secret' => \Config::get('app.facebook_secret')
         ];
-//        step.1 Exchange authorization code for access token
-        $access_token = $client->get($access_token_url, ['query' => $params])->json();
-//        step.2 Retrieve profile information about the current user
-        $profile = $client->get($graph_api_url, ['query' => $access_token])->json();
         
-        return (!empty($profile)) ? $this->respond( "success logging in with facebook account") : $this->setStatusCode( 402)->respondWithError( "Error while logging in with facebook account");
+        $client = new \GuzzleHttp\Client();
+
+        $client->setDefaultOption('verify', false);
+// Step 1. Exchange authorization code for access token.
+        $accessToken = $client->get($accessTokenUrl, ['query' => $params])->json();
+
+// Step 2. Retrieve profile information about the current user.
+        $profile = $client->get($graphApiUrl, ['query' => $accessToken])->json();
+
+        return response()->json(["data" => ["profile" => $profile]]);
+
     }
 }
