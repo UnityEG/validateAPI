@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\EssentialEntities\GeneralHelperTools as GeneralHelperTools;
+use App\EssentialEntities\GeneralHelperTools\GeneralHelperTools;
 use App\Http\Models\Business;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;

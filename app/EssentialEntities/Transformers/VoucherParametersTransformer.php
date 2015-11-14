@@ -38,6 +38,7 @@ class VoucherParametersTransformer extends Transformer {
         $response = array_merge($response, $this->voucherTypeInfo($item));
 //        many to one relations
         $response["relations"]["business"] = (!empty($item['business'])) ? $item['business'] : ["data"=>["business_id"=>(string)$item['business_id']]];
+//        todo change user key name to creator
         $response["relations"]["user"] = (!empty($item['user'])) ? $item['user'] : ["data"=>["user_id"=>(string)$item['user_id']]];
         $response["relations"]["voucher_image"] = (!empty($item['voucher_image'])) ? $item['voucher_image'] : ["data"=>["voucher_image_id"=>(string)$item['voucher_image_id']]];
 //        many to many relations
