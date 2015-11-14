@@ -39,7 +39,7 @@ class BusinessController extends ApiController {
             Business $business_model,
             JWTAuth $jwt_auth
     ) {
-        $this->middleware( 'jwt.auth' );
+        $this->middleware( 'jwt.auth', ['except'=>['showActiveBusiness']] );
 //        todo apply jwt.refresh middleware to refresh token every request
         $this->GeneralHelperTools = $general_helper_tools;
         $this->businessModel = $business_model;
@@ -165,6 +165,10 @@ class BusinessController extends ApiController {
     
 //    todo create showAllActiveBusiness method
 //    todo create showActiveBusiness method
+    public function showActiveBusiness( $id, Business $business_model) {
+        $business_object = $business_model->where(['id'=>(int)$id, 'is_active'=>1])->first();
+        return (is_object( $business_object )) ? $business_object->getStandardJsonFormat() : $this->respondNotFound();
+    }
     
 //    Helpers
     /**

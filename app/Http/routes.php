@@ -69,6 +69,11 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    Business Routes
     Route::resource('Business', 'BusinessController');
+    
+    Route::get('Business/showActiveBusiness/{id}', [
+        'uses' => 'BusinessController@showActiveBusiness',
+        'as' => 'BusinessController.showActiveBusiness'
+    ]);
     //    BusinessLogos
         Route::resource('BusinessLogos', 'BusinessControllers\BusinessLogosController');
     //      BusinessTypes
