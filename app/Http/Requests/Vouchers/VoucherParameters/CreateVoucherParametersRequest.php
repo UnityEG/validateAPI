@@ -34,10 +34,11 @@ class CreateVoucherParametersRequest extends Request {
             'data.valid_for_amount'                              => ['required_with:data.valid_for_units', 'integer', 'min:1'],
             'data.valid_for_units'                               => ['required_with:data.valid_for_amount', 'alpha', 'size:1', 'in:h,d,w,m'],
             'data.valid_until'                                   => 'required_without_all:data.valid_for_amount,data.valid_for_units|date_format:d/m/Y H:i|after:data.valid_from|before:next year',
-            'data.quantity'                                      => ['sometimes', 'required', 'integer', 'min:1' ],
+            'data.quantity'                                      => ['integer', 'min:0' ],
             'data.short_description'                             => 'required|string',
             'data.long_description'                              => 'required|string',
-            'data.no_of_uses'                                    => 'sometimes|required|integer|min:1',
+//            todo modify no_of_uses rule to accept 0
+            'data.no_of_uses'                                    => 'integer|min:0',
         ];
         (!$this->request->get('data[valid_until]', FALSE, TRUE))? : $common_rules['data.valid_from'][] = 'before:data.valid_until';
         if ( $valid_for_units = $this->request->get('data[valid_for_units]', FALSE, TRUE) ) {

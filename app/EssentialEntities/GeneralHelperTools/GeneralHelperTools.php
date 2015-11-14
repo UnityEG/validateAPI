@@ -275,11 +275,12 @@ class GeneralHelperTools {
      */
     public function arrayKeySearchRecursively(array $array, $keySearch)
     {
+//        todo Fix get value if equal to 0
 //        todo solving the problem of deep array with adding another loop to walk throug non array values in the main array
         foreach ($array as $key => $item) {
             if ($key === $keySearch) {
-                if ( $array[$keySearch] === FALSE || $array[$keySearch] === 0 ) {
-                    return "false";
+                if ( $array[$keySearch] === FALSE || $array[$keySearch] === 0 || $array[$keySearch] === "0") {
+                    return (FALSE === $array[$keySearch]) ? "false" : "0";
                 }else{
                     return $array[$keySearch];
                 }
