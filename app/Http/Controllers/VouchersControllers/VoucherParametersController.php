@@ -229,7 +229,6 @@ class VoucherParametersController extends ApiController
      */
     public function generalStoreHelper( array $raw_input ) {
         $input = $this->prepareDataForStoringHelper($raw_input);
-        dd($input);
         DB::beginTransaction();
         $created_voucher_parameters = VoucherParameter::create( $input );
         if(  is_object( $created_voucher_parameters)){
