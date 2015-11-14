@@ -33,7 +33,7 @@ class VoucherTransformer extends Transformer{
             'relations' => [
                 'voucher_parameter' => $voucher_parameter,
                 'order' => $order,
-                'user' => $user,
+                'customer' => $user,
                 'voucher_validation_logs' => $voucher_validation_logs,
             ]
         ];
