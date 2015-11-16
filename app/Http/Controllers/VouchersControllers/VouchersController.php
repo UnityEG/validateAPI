@@ -72,8 +72,27 @@ class VouchersController extends ApiController {
         return Voucher::findOrFail((int)$id)->getStandardJsonFormat();
     }
     
+    /**
+     * List all vouchers purchased by specific customer using customer's ID
+     * @param integer $customer_id
+     * @param Voucher $voucher_model
+     * @return array
+     */
+    public function listAllVouchersPurchasedByCustomer($customer_id, Voucher $voucher_model){
+        $response["data"] = [];
+        foreach ( $voucher_model->where('user_id', (int)$customer_id)->get() as $voucher_object) {
+            $response["data"][] = $voucher_object->getBeforeStandardArray();
+        }
+        return $response;
+    }
+    
 //    Helper Methods
     
+    /**
+     * Generate Voucher code and each voucher type start with unique number ( gift=>3, concession=>4, deal=>5, birthday=>6, discount=>7)
+     * @param string $voucher_param_type
+     * @return integer
+     */
     private function generateVoucherCode($voucher_param_type) {
         switch ( $voucher_param_type ) {
             case 'gift':
@@ -93,12 +112,9 @@ class VouchersController extends ApiController {
                 break;
         }//switch ( $voucher_param_type )
         $code .= mt_rand(00000001, 99999999);
-        if (Voucher::where('code', '=', $code)->exists()) {
+        if (Voucher::where('code', '=', $code)->exists() || (9 > strlen( $code)) ) {
             return $this->generateVoucherCode($voucher_param_type);
         }//if (Voucher::where('code', '=', $code)->exists())
-        if (strlen($code) < 9) {
-            return $this->generateVoucherCode($voucher_param_type);
-        }//if (strlen($code) < 9)
         return $code;
     }
 }

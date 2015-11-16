@@ -194,6 +194,11 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'Vouchers.show'
         ]);
         
+        Route::get('Vouchers/listAllVouchersPurchasedByCustomer/{customer_id}', [
+            'uses' => 'VouchersControllers\VouchersController@listAllVouchersPurchasedByCustomer',
+            'as' => 'Vouchers.listAllVouchersPurchasedByCustomer'
+        ]);
+        
     //    VoucherValidationLog Routes
         Route::get('VoucherValidationLogs/getAllLogs/{voucher_id}', [
             'uses' => 'VouchersControllers\VoucherValidationLogsController@getAllLogs',
