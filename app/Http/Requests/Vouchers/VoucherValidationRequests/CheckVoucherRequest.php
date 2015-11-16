@@ -28,7 +28,7 @@ class CheckVoucherRequest extends Request
     {
         $this->validVoucherCheckRule();
         return [
-            'data.voucher_code' => ['required', 'regex:/^\d{9}$/', 'exists:vouchers,code', 'valid_voucher_check']
+            'data.voucher_code' => ['required', 'regex:/^\d{9}$/', 'exists:vouchers,code']
         ];
     }
     
@@ -44,6 +44,7 @@ class CheckVoucherRequest extends Request
     
     /**
      * Register valid_voucher_check custom validation rule
+     * Not used for now :(
      */
     private function validVoucherCheckRule() {
         Validator::extend( 'valid_voucher_check', function($attribute, $value, $parameters) {
