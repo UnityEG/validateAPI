@@ -7,7 +7,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\PurchaseControllers\OrdersController;
 use App\Http\Controllers\VouchersControllers\VouchersController;
 use App\Http\Models\Voucher;
-use App\Http\Requests\PurchaseRequest;
+use App\Http\Requests\OnlinePurchaseRequest;
 use JWTAuth;
 
 /**
@@ -29,7 +29,7 @@ class PurchaseController extends ApiController{
      * @param PurchaseRequest $request
      */
     public function onlinePurchase(
-            PurchaseRequest $request,
+            OnlinePurchaseRequest $request,
             VouchersController $vouchers_controller
 //            todo continue injecting all the dependencies that we will need until the end of the request
     ) {
@@ -52,9 +52,7 @@ class PurchaseController extends ApiController{
      * Purchase vouchers instore
      * @param PurchaseRequest $request
      */
-    public function instorePurchase(PurchaseRequest $request) {
-//        todo decisions to make with instorePurchase
-//        todo Change PurchaseRequest class name to OnlinePurchaseRequest.
+    public function instorePurchase(  \App\Http\Requests\InstorePurchaseRequest $request) {
 //        toto Create InstorePurchaseRequest class.
 //        todo Create validation rules for online purchase data {voucher_parameter_id, value, tax}
 //        todo Create purchased voucher object, save it in the database and return with purchased voucher object

@@ -6,8 +6,8 @@ use App\Http\Models\VoucherParameter;
 use App\Http\Requests\Request;
 use Illuminate\Support\Facades\Validator;
 
-class PurchaseRequest extends Request {
-//todo change class name to be OnlinePurchaseRequest
+class OnlinePurchaseRequest extends Request {
+
     /**
      * Determine if the user is authorized to make this request.
      * Only Users belongs to user groups that have 'purchase_voucher' rule are authorized
@@ -66,7 +66,7 @@ class PurchaseRequest extends Request {
         $rules = [];
         switch ( $voucher_parameter_object->voucher_type ) {
             case 'gift':
-                $rules['data.vouchers.'.$key.'.value'] = ['required', 'numeric', 'min:'.$voucher_parameter_object->min_value];
+                $rules['data.vouchers.'.$key.'.value'] = ['required', 'numeric', 'between:'.$voucher_parameter_object->min_value.','.$voucher_parameter_object->max_value];
                 $rules['data.vouchers.'.$key.'.delivery_date'] = ['date_format:d/m/Y', 'after:today', 'before:'.$voucher_parameter_object->valid_until];
                 break;
 //            todo continue custom validation rules for specific type of vouchers
