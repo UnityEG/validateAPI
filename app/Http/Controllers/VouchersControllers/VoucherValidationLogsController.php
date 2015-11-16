@@ -44,13 +44,15 @@ class VoucherValidationLogsController extends ApiController
         $voucher_validation_log_data['value'] = (double)GeneralHelperTools::arrayKeySearchRecursively( $request->get( 'data'), 'value');
         $voucher_validation_log_data['user_id'] = JWTAuth::parseToken()->authenticate()->id;
         $voucher_object = Voucher::find($voucher_validation_log_data['voucher_id']);
+        $voucher_parameter_object = $voucher_object->voucherParameter;
         $voucher_object->balance = $voucher_validation_log_data['balance'] = $voucher_object->balance - $voucher_validation_log_data['value'];
-        if ( (1 ===  (int)$voucher_object->voucherParameter->no_of_uses) || (1 >= $voucher_validation_log_data['balance'])) {
+        $voucher_object->validation_times = (int)$voucher_object->validation_times + 1;
+        $is_validated = (bool)( ($voucher_parameter_object->is_single_use) || (1 >= $voucher_object->balance) || ($voucher_parameter_object->no_of_uses <= $voucher_object->validation_times) );
+        if ( $is_validated ) {
             $voucher_object->status = $voucher_validation_log_data['log'] = 'validated';
         }else{
             $voucher_object->status = $voucher_validation_log_data['log'] = 'valid';
-        }//if((1===(int)$voucher_object->voucherParameter->no_of_uses)||(1>=$voucher_validation_log_data['balance']))
-        $voucher_object->validation_times = (int)$voucher_object->validation_times + 1;
+        }//if ( $is_validated )
         DB::beginTransaction();
         $voucher_validation_log_object = VoucherValidationLog::create($voucher_validation_log_data);
         if ( is_object( $voucher_validation_log_object ) ) {
