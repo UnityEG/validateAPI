@@ -15,14 +15,12 @@ class ContactUsController extends ApiController
      */
     public function contactUs(ContactUsRequest $request){
         $data = $request->get('data');
-//        todo modify message body like the pictrue contactus in validate project
 //        sanitize message
-        $data['message'] = preg_replace('/(?:\<script\>|\<\/script\>)/', '', $data['message']);
-        $data['message'] = htmlspecialchars($data['message']);
-        $result = Mail::raw($data['message'], function($message) use ($data){
-            $message->to("info@validate.co.nz", "Validate Customer Service")
+        $data['comment'] = htmlspecialchars($data['message']);
+        $result = Mail::send('email.misc.ContactUs', $data, function($message) use ($data){
+            $message->to("en.mohamed.atef@gmail.com", "Validate Customer Service")
             	    ->from("donotreply@validate.co.nz", "donotreply@validate.co.nz")
-                    ->subject('Comments from '.$data['email'])
+                    ->subject("Message Via Validate Website")
                     ->replyTo($data['email']);
 //            Add custom header to the message if necessary
 //            $headers = $message->getHeaders();
