@@ -18,7 +18,7 @@ class ContactUsController extends ApiController
 //        sanitize message
         $data['comment'] = htmlspecialchars($data['message']);
         $result = Mail::send('email.misc.ContactUs', $data, function($message) use ($data){
-            $message->to("en.mohamed.atef@gmail.com", "Validate Customer Service")
+            $message->to("info@validate.co.nz", "Validate Customer Service")
             	    ->from("donotreply@validate.co.nz", "donotreply@validate.co.nz")
                     ->subject("Message Via Validate Website")
                     ->replyTo($data['email']);
