@@ -47,8 +47,9 @@ class VoucherValidationLogsController extends ApiController
         $voucher_parameter_object = $voucher_object->voucherParameter;
         $voucher_object->balance = $voucher_validation_log_data['balance'] = $voucher_object->balance - $voucher_validation_log_data['value'];
         $voucher_object->validation_times = (int)$voucher_object->validation_times + 1;
-        $is_validated = (bool)( ($voucher_parameter_object->is_single_use) || (1 >= $voucher_object->balance) || ($voucher_parameter_object->no_of_uses <= $voucher_object->validation_times) );
-        if ( $is_validated ) {
+        $is_validated = (bool)( ($voucher_parameter_object->is_single_use) || (1 >= $voucher_object->balance) );
+        $validation_times_finished = (bool)((!$voucher_parameter_object->is_single_use) && (0 !== $voucher_parameter_object->no_of_uses) && ($voucher_parameter_object->no_of_uses <= $voucher_object->validation_times) );
+        if ( $is_validated || $validation_times_finished) {
             $voucher_object->status = $voucher_validation_log_data['log'] = 'validated';
         }else{
             $voucher_object->status = $voucher_validation_log_data['log'] = 'valid';
