@@ -34,7 +34,7 @@ class GeneralHelperTools {
      * @return string Formated datetime
      */
     public static function formatDateTime( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
-        return (strtotime($utc_date_time))? self::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone ) : '0000-00-00 00:00:00';
+        return (0 < strtotime($utc_date_time))? self::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone ) : '0000-00-00 00:00:00';
     }
     
     /**
