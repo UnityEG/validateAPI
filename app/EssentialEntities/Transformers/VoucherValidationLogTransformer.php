@@ -3,6 +3,7 @@
 namespace App\EssentialEntities\Transformers;
 
 use App\EssentialEntities\Transformers\Transformer;
+use GeneralHelperTools;
 
 class VoucherValidationLogTransformer extends Transformer {
 
@@ -19,6 +20,7 @@ class VoucherValidationLogTransformer extends Transformer {
             "value"     => ( string ) $item[ "value" ],
             "balance"   => ( string ) $item[ "balance" ],
             "log"       => ( string ) $item[ "log" ],
+            "created_at" => (string)GeneralHelperTools::formatDateTime($item['created_at']),
             "relations" => [
                 "voucher"  => $voucher,
                 "business" => $business,

@@ -29,27 +29,28 @@ class GeneralHelperTools {
     
     /**
      * Return with Formated datetime object default time zone is "Pacific/Auchland" and default format is "d/m/y H:i:s"
-     * @param \Carbon\Carbon $utc_date_time
+     * @param string $utc_date_time
      * @param string $local_time_zone time zone to deal with
      * @return string Formated datetime
      */
     public static function formatDateTime( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
-        return self::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone );
+        return (strtotime($utc_date_time))? self::fDT( $utc_date_time, 'd/m/Y H:i:s', $local_time_zone ) : '';
     }
     
     /**
      * Return formatted date from UTC to different time zone by default "Pacific/Auckland" and format 'd/m/Y'
-     * @param \Carbon\Carbon $utc_date_time
+     * @param string $utc_date_time
      * @param string $local_time_zone time zone to convert UTC time into it default is "Pacific/Auckland"
      * @return string
      */
     public static function formatDate( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
+//        todo return with empty string if $utc_date_time is invalid time
         return self::fDT( $utc_date_time, 'd/m/Y', $local_time_zone );
     }
 
 //    todo Modify formatTime method to change g with self and document method
     public static function formatTime( $utc_date_time, $local_time_zone = 'Pacific/Auckland' ) {
-        //
+        //todo return with empty string if $utc_date_time is invalid time
         return g::fDT( $utc_date_time, 'H:i:s', $local_time_zone );
     }
 
