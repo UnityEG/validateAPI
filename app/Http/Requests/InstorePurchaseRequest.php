@@ -32,8 +32,13 @@ class InstorePurchaseRequest extends Request
             $rules["data.vouchers.{$key}.relations.voucher_parameter.data.voucher_parameter_id"] = ['required', 'integer', 'exists:voucher_parameters,id', 'expire_voucher'];
             $rules = array_merge($rules, $this->voucherTypeSpecificValidationRules($voucher_to_purchase['relations']['voucher_parameter']['data']['voucher_parameter_id'], $key));
         }
-        dd($rules);
         return $rules;
+    }
+    
+    public function messages() {
+        return [
+            'expire_voucher' => 'Expired Voucher Parameter'
+        ];
     }
     
     /**
@@ -43,9 +48,9 @@ class InstorePurchaseRequest extends Request
      * @return string
      */
     private function voucherTypeSpecificValidationRules($voucher_parameter_id, $key){
-        $Voucher_parameter_object = VoucherParameter::findOrFail((int)$voucher_parameter_id);
+        $voucher_parameter_object = VoucherParameter::findOrFail((int)$voucher_parameter_id);
         $rules = [];
-        switch ( $Voucher_parameter_object->voucher_type ) {
+        switch ( $voucher_parameter_object->voucher_type ) {
             case 'gift':
                 $rules["data.vouchers.{$key}.value"] = ['required', 'numeric', "between:{$voucher_parameter_object->min_value},{$voucher_parameter_object->max_value}"];
                 break;

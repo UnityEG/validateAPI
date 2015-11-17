@@ -53,6 +53,7 @@ class PurchaseController extends ApiController{
      * @param PurchaseRequest $request
      */
     public function instorePurchase(  \App\Http\Requests\InstorePurchaseRequest $request) {
+        return "instore purchasing in progress";
 //        toto Create InstorePurchaseRequest class.
 //        todo Create validation rules for online purchase data {voucher_parameter_id, value, tax}
 //        todo Create purchased voucher object, save it in the database and return with purchased voucher object
