@@ -68,12 +68,23 @@ Route::group(['prefix' => 'v1'], function() {
         Route::resource('UserGroups', 'UsersControllers\UserGroupsController');
     
 //    Business Routes
+    Route::get('Business/listPartners', [
+        'uses' => 'BusinessController@listPartners',
+        'as' => 'Business.listPartners'
+    ]);
+    
+    Route::get('Business/listFeatured', [
+        'uses' => 'BusinessController@listFeatured',
+        'as' => 'Business.listFeatured'
+    ]);
+    
+    Route::get('Business/showDisplayBusiness/{id}', [
+        'uses' => 'BusinessController@showDisplayBusiness',
+        'as' => 'BusinessController.showDisplayBusiness'
+    ]);
+    
     Route::resource('Business', 'BusinessController');
     
-    Route::get('Business/showActiveBusiness/{id}', [
-        'uses' => 'BusinessController@showActiveBusiness',
-        'as' => 'BusinessController.showActiveBusiness'
-    ]);
     //    BusinessLogos
         Route::resource('BusinessLogos', 'BusinessControllers\BusinessLogosController');
     //      BusinessTypes

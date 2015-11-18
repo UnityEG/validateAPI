@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Models;
-
+//todo use Facades instead of instantiating objects from transformers inside methods
 use Illuminate\Database\Eloquent\Model;
 use App\EssentialEntities\Transformers\BusinessLogoTransformer;
 use App\EssentialEntities\Transformers\BusinessTransformer;
@@ -15,8 +15,22 @@ use App\EssentialEntities\Transformers\UserTransformer;
 
 class Business extends Model {
     
+    /**
+     * Table name in the database
+     * @var string
+     */
     protected $table = 'business';
+    
+    /**
+     * Timestamps columns in the database to be instantiated as Carbon objects
+     * @var array
+     */
     protected $dates = ['deleted_at'];
+    
+    /**
+     * Whitelist of the fillable columns of the table in the database
+     * @var array
+     */
     protected $fillable = [
         'logo_id',
         'city_id',
@@ -41,23 +55,15 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and User Model (many to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users() {
         return $this->belongsToMany('App\User', 'users_business_rel', 'business_id', 'user_id');
     }
     
     /**
-     * 
-     * @return object
-     */
-    public function GiftVoucherParameter() {
-        return $this->hasMany('App\Http\Models\GiftVoucherParameter', 'MerchantID');
-    }
-    
-    /**
      * Relationship between Business Model and VoucherParameter Model (one to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function voucherParameter( ) {
         return $this->hasMany('App\Http\Models\VoucherParameter', 'business_id', 'id');
@@ -65,7 +71,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and VoucherValidationLog Model (one to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function voucherValidationLogs( ) {
         return $this->hasMany('App\Http\VoucherValidationLog', 'business_id', 'id');
@@ -73,7 +79,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and BusinessLogo Model (one to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function businessLogos( ) {
         return $this->hasMany('App\Http\Models\BusinessLogo', 'business_id', 'id');
@@ -81,7 +87,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and BusinessType Model (many to many)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function businessTypes() {
         return $this->belongsToMany('App\Http\Models\BusinessType', 'business_business_types_rel', 'business_id', 'business_type_id');
@@ -89,7 +95,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and City Model (many to one)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function city( ) {
         return $this->belongsTo('App\Http\Models\City', 'city_id', 'id');
@@ -97,7 +103,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and Region Model (many to one)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function region( ) {
         return $this->belongsTo('App\Http\Models\Region', 'region_id', 'id');
@@ -105,7 +111,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and Town Model (many to one)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function town( ) {
         return $this->belongsTo('App\Http\Models\Town', 'town_id', 'id');
@@ -113,7 +119,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and Postcode Model (many to one)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function postcode( ) {
         return $this->belongsTo('App\Http\Models\Postcode', 'postcode_id', 'id');
@@ -121,7 +127,7 @@ class Business extends Model {
     
     /**
      * Relationship between Business Model and Industry Model (many to one)
-     * @return object
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function industry( ) {
         return $this->belongsTo('App\Http\Models\Industry', 'industry_id', 'id');
@@ -130,7 +136,7 @@ class Business extends Model {
     
     /**
      * Get Active logo object for the business
-     * @return object
+     * @return \App\Http\Models\BusinessLogo
      */
     public function getActiveLogo( ) {
         return $this->businessLogos()->where('id', $this->logo_id)->first();
@@ -171,4 +177,18 @@ class Business extends Model {
     public function getBeforeStandardArray( ) {
         return (new BusinessTransformer())->beforeStandard($this->prepareBusinessGreedyData());
     }
+    
+    /**
+     * Get Standard Json Collection of all Businesses
+     * @return array
+     */
+    public function getStandardJsonCollection() {
+        $result["data"] = [];
+        $instance = new static;
+        foreach($instance->get() as $business_object){
+            $result["data"][] = $business_object->getBeforeStandardArray();
+        }//foreach($instance->get() as $business_object)
+        return $result;
+    }
+
 }
