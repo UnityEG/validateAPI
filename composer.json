@@ -11,7 +11,9 @@
         "intervention/image": "2.*",
         "intervention/imagecache": "^2.3",
         "firebase/php-jwt": "^3.0",
-        "guzzlehttp/guzzle": "5.2.0"
+        "guzzlehttp/guzzle": "5.2.0",
+        "barryvdh/laravel-ide-helper": "^2.1",
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

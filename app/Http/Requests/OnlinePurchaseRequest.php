@@ -23,6 +23,7 @@ class OnlinePurchaseRequest extends Request {
      * @return array
      */
     public function rules() {
+//        todo add rules to verify the purchasign has been done sucessfully
         $this->expireVoucherValidationRule();
 //        we use loop as we actually don't know how many items will be purchased
         $rules = ["tax" => ['numeric']];

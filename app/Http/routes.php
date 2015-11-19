@@ -101,11 +101,6 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherParameters.index'
         ]);
 
-        Route::get('VoucherParameters/show/{voucher_id}', [
-            'uses' => 'VouchersControllers\VoucherParametersController@show',
-            'as' => 'VoucherParameters.show'
-        ]);
-
         Route::get('VoucherParameters/listAllActiveVouchersParameters', [
             'uses' => 'VouchersControllers\VoucherParametersController@listAllActiveVouchersParameters',
             'as' => 'VoucherParameters.listAllActiveVouchersParameters'
@@ -126,6 +121,11 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherParameters.searchByBusinessName'
         ]);
         
+        Route::get('VoucherParameters/searchByBusinessId/{business_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@searchByBusinessId',
+            'as' => 'VoucherParameters.searchByBusinessId'
+        ]);
+        
         Route::get('VoucherParameters/listGiftVoucherParametersOfBusiness/{business_id}', [
             'uses' => 'VouchersControllers\VoucherParametersController@listGiftVoucherParametersOfBusiness',
             'as' => 'VoucherParameters.listGiftVoucherParametersOfBusiness'
@@ -134,6 +134,16 @@ Route::group(['prefix' => 'v1'], function() {
         Route::get('VoucherParameters/listDealVoucherParametersOfBusiness/{business_id}', [
             'uses' => 'VouchersControllers\VoucherParametersController@listDealVoucherParametersOfBusiness',
             'as' => 'VoucherParameters.listDealVoucherParametersOfBusiness'
+        ]);
+        
+        Route::get('VoucherParameters/show/{voucher_parameter_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@show',
+            'as' => 'VoucherParameters.show'
+        ]);
+        
+        Route::get('VoucherParameters/showActiveVoucherParameter/{voucher_parameter_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@showActiveVoucherParameter',
+            'as' => 'VoucherParameters.showActiveVouecherParameter'
         ]);
 
         Route::post('VoucherParameters/storeDealVoucherParameters', [

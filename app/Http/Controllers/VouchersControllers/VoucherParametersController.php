@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\VouchersControllers;
 
-use GeneralHelperTools;
 use App\Http\Controllers\ApiController;
 use App\Http\Models\Business;
 use App\Http\Models\VoucherParameter;
 use App\Http\Requests\Vouchers\VoucherParameters\CreateVoucherParametersRequest;
 use App\Http\Requests\Vouchers\VoucherParameters\UpdateVoucherParametersRequest;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Psy\Util\Json;
-use Symfony\Component\HttpFoundation\Response;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use GeneralHelperTools;
+use DB;
+use JWTAuth;
 
 class VoucherParametersController extends ApiController
 {
@@ -27,7 +25,6 @@ class VoucherParametersController extends ApiController
     private $voucherParameterModel;
 
     public function __construct(VoucherParameter $voucher_parameter_model) {
-//        Apply the jwt.auth middleware to all methods in this controller
         $this->middleware('jwt.auth', ['only'=>['storeDealVoucherParameters', 'storeGiftVoucherParameters', 'updateDealVoucherParameters', 'updateGiftVoucherParameters']]);
 //        todo apply jwt.refresh middleware to refresh token every request
         $this->voucherParameterModel = $voucher_parameter_model;
@@ -110,23 +107,6 @@ class VoucherParametersController extends ApiController
     }
     
     /**
-     * Display a voucher parameters by ID.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        return $this->voucherParameterModel->findOrFail((int)$id)->getStandardJsonFormat();
-    }
-    
-    
-    
-//    todo create showGiftVoucherParameters method
-//    todo Create showDealVoucherParameters method
-//    todo Create showActiveVoucherParameters method to show single ACTIVE voucher parameters only
-    
-    /**
      * Search for voucher parameters by title
      * @param string $voucher_title
      * @return array
@@ -151,20 +131,63 @@ class VoucherParametersController extends ApiController
      * @param string $business_name
      * @return array
      */
-    public function searchByBusinessName( $business_name) {
-        $optimized_business_name = strtolower(urlencode($business_name));
-        $business_exist = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->exists();
-        if ( !$business_exist ) {
+    public function searchByBusinessName( $business_name, Business $business_model, VoucherParameter $voucher_parameter_model) {
+        $optimized_business_name = strtolower(urldecode($business_name));
+        $business_object = $business_model->where('business_name', 'like', "%{$optimized_business_name}%")->first(['id']);
+        if ( !is_object($business_object) ) {
             return $this->respond([]);
-        }//if ( !$business_exist )
-        $business_object = Business::where('business_name', 'like', '%'.$optimized_business_name.'%')->first(['id']);
-        $voucher_parameter_objects = VoucherParameter::where('business_id', $business_object->id)->get();
-        $response = [];
-        foreach ( $voucher_parameter_objects as $voucher_parameter_object) {
+        }//if ( !is_object($business_object) )
+        $response["data"] = [];
+        foreach ( $voucher_parameter_model->where('business_id', (int)$business_object->id)->get() as $voucher_parameter_object) {
+            $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
+        }//foreach($voucher_parameter_model->where('business_id', (int)$business_object->id)->get() as $voucher_parameter_object)
+        return $response;
+    }
+    
+    /**
+     * Search for Voucher Parameters by Business ID
+     * @param integer $business_id
+     * @param VoucherParameter $voucher_parameter_model
+     * @return array
+     */
+    public function searchByBusinessId ($business_id, VoucherParameter $voucher_parameter_model){
+        $response["data"] = [];
+        foreach ( $voucher_parameter_model->where('business_id', (int)$business_id)->get() as $voucher_parameter_object ) {
             $response["data"][] = $voucher_parameter_object->getBeforeStandardArray();
         }
         return $response;
     }
+    
+    /**
+     * Display a voucher parameters by ID.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        return $this->voucherParameterModel->findOrFail((int)$id)->getStandardJsonFormat();
+    }
+    
+    /**
+     * Show Active Voucher Parameters that cross these conditions (is_expire=>0, is_display=>1, is_limited_quantity=>0 || (is_limited_quantity=>1 && stock_quantity >= 1))
+     * @param type $voucher_parameter_id
+     * @param VoucherParameter $voucher_parameter_model
+     * @return array
+     */
+    public function showActiveVoucherParameter($voucher_parameter_id, VoucherParameter $voucher_parameter_model){
+        $voucher_parameter_object = $voucher_parameter_model->where(['id'=>(int)$voucher_parameter_id, 'is_expire'=>0, 'is_display'=>1])->first();
+        if(!is_object( $voucher_parameter_object )){
+            return $this->respondNotFound();
+        }elseif((bool)$voucher_parameter_object->is_limited_quantity && 1 <= $voucher_parameter_object->stock_quantity){
+            return $voucher_parameter_object->getStandardJsonFormat();
+        }elseif(!(bool)$voucher_parameter_object->is_limited_quantity){
+            return $voucher_parameter_object->getStandardJsonFormat();
+        }//if(!is_object( $voucher_parameter_object ))
+        return $this->respondNotFound();
+    }
+//    todo create showGiftVoucherParameters method
+//    todo Create showDealVoucherParameters method
 
     /**
      * Store Deal voucher parameters

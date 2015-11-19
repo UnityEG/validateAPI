@@ -25,6 +25,7 @@
         "Illuminate\\View\\ViewServiceProvider",
         "Tymon\\JWTAuth\\Providers\\JWTAuthServiceProvider",
         "Intervention\\Image\\ImageServiceProvider",
+        "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider",
         "App\\Providers\\AppServiceProvider",
         "App\\Providers\\EventServiceProvider",
         "App\\Providers\\RouteServiceProvider",
@@ -135,7 +136,9 @@
         "auth.password": "Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider",
         "auth.password.tokens": "Illuminate\\Auth\\Passwords\\PasswordResetServiceProvider",
         "translator": "Illuminate\\Translation\\TranslationServiceProvider",
-        "translation.loader": "Illuminate\\Translation\\TranslationServiceProvider"
+        "translation.loader": "Illuminate\\Translation\\TranslationServiceProvider",
+        "command.ide-helper.generate": "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider",
+        "command.ide-helper.models": "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider"
     },
     "when": {
         "Illuminate\\Foundation\\Providers\\ArtisanServiceProvider": [
@@ -172,6 +175,9 @@
 
         ],
         "Illuminate\\Translation\\TranslationServiceProvider": [
+
+        ],
+        "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider": [
 
         ]
     }
