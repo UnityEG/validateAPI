@@ -112,9 +112,6 @@ class VouchersController extends ApiController {
                 break;
         }//switch ( $voucher_param_type )
         $code .= mt_rand(00000001, 99999999);
-        if (Voucher::where('code', '=', $code)->exists() || (9 > strlen( $code)) ) {
-            return $this->generateVoucherCode($voucher_param_type);
-        }//if (Voucher::where('code', '=', $code)->exists())
-        return $code;
+        return ((Voucher::where('code', $code)->exists()) || (9 > strlen($code))) ? $this->generateVoucherCode( $voucher_param_type ) : $code;
     }
 }
