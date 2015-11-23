@@ -68,6 +68,24 @@ class VoucherParametersController extends ApiController
     }
     
     /**
+     * List Active Voucher Parameters For specific Business using business ID
+     * @param integer $business_id
+     * @param VoucherParameter $voucher_parameter_model
+     * @return array
+     */
+    public function listActiveVoucherParametersForBusiness($business_id, VoucherParameter $voucher_parameter_model){
+        $response["data"] = [];
+        $active_voucher_parameters_objects = $voucher_parameter_model->where(['business_id'=>(int)$business_id, 'is_expire'=>0, 'is_display'=>1])->where(function ($query){
+            $query->where('is_limited_quantity', 0);
+            $query->orWhere('is_limited_quantity', 1)->where('stock_quantity', '>=', 1);
+        })->get();
+        foreach($active_voucher_parameters_objects as $active_voucher_parameters_object){
+            $response["data"][] = $active_voucher_parameters_object->getBeforeStandardArray();
+        }//foreach($active_voucher_parameters_objects as $active_voucher_parameters_object)
+        return $response;
+    }
+    
+    /**
      * List all types and IDs of Voucher parameters
      * @param VoucherParameter $voucher_parameter_model
      * @return array
