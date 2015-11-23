@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\PurchaseControllers;
 
-use GeneralHelperTools;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\PurchaseControllers\OrdersController;
 use App\Http\Controllers\VouchersControllers\VouchersController;
 use App\Http\Models\Voucher;
+use App\Http\Requests\InstorePurchaseRequest;
 use App\Http\Requests\OnlinePurchaseRequest;
+use GeneralHelperTools;
 use JWTAuth;
+use Mail;
 
 /**
  * PurchaseController Responsible for purchasing voucher process
@@ -53,13 +55,19 @@ class PurchaseController extends ApiController{
      * Purchase vouchers instore
      * @param PurchaseRequest $request
      */
-    public function instorePurchase(  \App\Http\Requests\InstorePurchaseRequest $request) {
-        return "instore purchasing in progress";
-//        toto Create InstorePurchaseRequest class.
-//        todo Create validation rules for online purchase data {voucher_parameter_id, value, tax}
-//        todo Create purchased voucher object, save it in the database and return with purchased voucher object
-//        todo Create virtual voucher and get stream as base64
-//        todo return with response 
+    public function instorePurchase(  InstorePurchaseRequest $request, VouchersController $vouchers_controller) {
+        $response = [];
+        $i = 0;
+        foreach($request->get('data[vouchers]', [], TRUE) as $purchased_voucher){
+            $purchased_voucher['order_id'] = 0;
+            $purchased_voucher['is_instore'] = TRUE;
+            $purchased_voucher_object = $this->createPurchasedVoucher($purchased_voucher, $vouchers_controller);
+            $virtual_voucher_base64 = $this->createVirtualVoucherBase64($purchased_voucher_object);
+//            file_put_contents(public_path('1.txt'), $virtual_voucher_base64);
+            $response[$i] = $virtual_voucher_base64;
+            $i++;
+        }//foreach($request->get('data[vouchers]', [], TRUE) as $purchased_voucher)
+        return $this->respond($response);
     }
     
     /**
@@ -75,8 +83,8 @@ class PurchaseController extends ApiController{
             'voucher_parameter_id'=>(int)GeneralHelperTools::arrayKeySearchRecursively( $purchased_voucher, 'voucher_parameter_id'),
             'order_id' => $purchased_voucher['order_id'],
             'is_instore' => $purchased_voucher['is_instore'],
-            'recipient_email'=>$purchased_voucher['recipient_email'],
-            'message'=>$purchased_voucher['message']
+            'recipient_email'=>  (empty($purchased_voucher['recipient_email'])) ? '' : $purchased_voucher['recipient_email'],
+            'message'=>  (empty($purchased_voucher['message'])) ? '' : $purchased_voucher['message']
         ];
         (!isset($purchased_voucher['value'])) ? : $purchased_voucher_to_create['value'] = $purchased_voucher['value'];
         (!isset($purchased_voucher['delivery_date'])) ?  : $purchased_voucher_to_create['delivery_date'] = $purchased_voucher['delivery_date'];
@@ -99,7 +107,7 @@ class PurchaseController extends ApiController{
             ini_set('max_execution_time', 300);
         }
         // Send Mail with virtual voucher image attached
-        \Mail::queue($MailBodyView, $data, function($message) use ($data, $voucher_filename) {
+        Mail::queue($MailBodyView, $data, function($message) use ($data, $voucher_filename) {
             //
             $message->to($data['email_to_email'], $data['email_to_name'])->subject('Validate Voucher');
             //$message->to('shadymag@gmail.com', 'customer_name')->subject('Voucher Purchased'); // for Testing
@@ -161,10 +169,7 @@ class PurchaseController extends ApiController{
      * @param string $voucher_filename
      */
     private function unlinkVirtualVoucher($voucher_filename) {
-        // For security delete virtual voucher file after use it
-        if (file_exists($voucher_filename)) {
-            unlink($voucher_filename);
-        }//if (file_exists($voucher_filename))
+        (!file_exists( $voucher_filename )) ?  : unlink( $voucher_filename );
     }
     
     /**
@@ -194,10 +199,23 @@ class PurchaseController extends ApiController{
             'total_value'   => GeneralHelperTools::formatCurrency( $total_value ),
             'customer_mail' => JWTAuth::parseToken()->authenticate()->email
         ];
-        \Mail::queue('email.vouchers.receipt', $data, function($message) use ($data) {
+        Mail::queue('email.vouchers.receipt', $data, function($message) use ($data) {
             extract($data);
             $message->to($customer_mail)->subject('Validate Vouchers Receipt');
         });
+    }
+    
+    /**
+     * Create enconded Virtual Voucher with Base64 encode
+     * @param Voucher $purchased_voucher_object
+     * @return string
+     */
+    private function createVirtualVoucherBase64(Voucher $purchased_voucher_object){
+        $virtual_voucher = $this->generateVirtualVoucher($purchased_voucher_object);
+        $virtual_voucher_content = file_get_contents($virtual_voucher['voucher_filename']);
+        $virtual_voucher_base64 = base64_encode($virtual_voucher_content);
+        $this->unlinkVirtualVoucher($virtual_voucher['voucher_filename']);
+        return $virtual_voucher_base64;
     }
 
 }

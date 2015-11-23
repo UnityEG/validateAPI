@@ -106,6 +106,11 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherParameters.listAllActiveVouchersParameters'
         ]);
         
+        Route::get('VoucherParameters/listActiveVoucherParametersForBusiness/{business_id}', [
+            'uses' => 'VouchersControllers\VoucherParametersController@listActiveVoucherParametersForBusiness',
+            'as' => 'VoucherParameters.listActiveVoucherParametersForBusiness'
+        ]);
+        
         Route::get('VoucherParameters/listVoucherParametersTypes', [
             'uses' => 'VouchersControllers\VoucherParametersController@listVoucherParametersTypes',
             'as' => 'VoucherParameters.listVoucherParametersTypes'

@@ -42,7 +42,7 @@ class VouchersController extends ApiController {
         $purchased_voucher_to_create['balance'] = $purchased_voucher_to_create['value'];
         $purchased_voucher_to_create['code'] = self::generateVoucherCode($voucher_parameter_object->voucher_type);
         // Convert local time to UTC time in order to save it in DB
-        $purchased_voucher_to_create['delivery_date'] = ('gift' == $voucher_parameter_object->voucher_type) ? GeneralHelperTools::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s') : Carbon::today();
+        $purchased_voucher_to_create['delivery_date'] = ('gift' == $voucher_parameter_object->voucher_type && !$purchased_voucher_to_create['is_instore']) ? GeneralHelperTools::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s') : Carbon::today();
 //        expiry date -1 second
             $purchased_voucher_to_create['expiry_date'] = $voucher_parameter_object->valid_until->subSeconds(1);
         DB::beginTransaction();
