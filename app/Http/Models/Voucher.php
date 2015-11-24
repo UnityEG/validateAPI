@@ -103,6 +103,8 @@ class Voucher extends Model
         (empty($voucher_greedy_array['order'])) ?  : $voucher_greedy_array['order'] = OrderTransformer::transform($voucher_greedy_array['order']);
         (empty($voucher_greedy_array['user'])) ?  : $voucher_greedy_array['user'] = UserTransformer::transform($voucher_greedy_array['user']);
         (empty($voucher_greedy_array['voucher_validation_logs'])) ?  : $voucher_greedy_array['voucher_validation_logs'] = VoucherValidationLogTransformer::transformCollection($voucher_greedy_array['voucher_validation_logs']);
+//        add merchant name
+        $voucher_greedy_array['merchant_name'] = $this->voucherParameter->business->business_name;
         return $voucher_greedy_array;
     }
 }
