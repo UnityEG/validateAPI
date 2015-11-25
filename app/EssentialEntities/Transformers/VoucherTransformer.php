@@ -20,7 +20,7 @@ class VoucherTransformer extends Transformer{
             'code'                 => ( string ) $item[ 'code' ],
             'value'                => ( string ) $item[ 'value' ],
             'balance'              => ( string ) $item[ 'balance' ],
-            'is_gift'              => ( bool ) $item[ 'is_gift' ],
+            'is_mail_sent'         => ( bool ) $item[ 'is_mail_sent' ],
             'is_instore'           => ( bool ) $item[ 'is_instore' ],
             'created_at'           => ( string ) GeneralHelperTools::formatDateTime( $item[ 'created_at' ] ),
             'delivery_date'        => ( string ) GeneralHelperTools::formatDateTime( $item[ 'delivery_date' ] ),
