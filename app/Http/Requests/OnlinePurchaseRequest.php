@@ -23,7 +23,6 @@ class OnlinePurchaseRequest extends Request {
      * @return array
      */
     public function rules() {
-//        todo add rules to verify the purchasign has been done sucessfully
         $this->expireVoucherValidationRule();
 //        we use loop as we actually don't know how many items will be purchased
         $rules = ["tax" => ['numeric']];
@@ -81,7 +80,8 @@ class OnlinePurchaseRequest extends Request {
     private function expireVoucherValidationRule( ) {
         Validator::extend('expire_voucher', function($attribute, $value, $parameters){
           $voucher_parameter_object = VoucherParameter::findOrFail((int)$value);
-          if(!(bool)$voucher_parameter_object->is_expire){
+          $now_object = \Carbon\Carbon::now();
+          if(!(bool)$voucher_parameter_object->is_expire && $now_object->gt($voucher_parameter_object->purchase_start) && $voucher_parameter_object->purchase_expiry->gt($now_object)){
               return TRUE;
           }//if((bool)$voucher_parameter_object->is_expire)
           return FALSE;

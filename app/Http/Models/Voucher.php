@@ -22,7 +22,7 @@ class Voucher extends Model
         'code',
         'value',
         'balance',
-        'is_gift',
+        'is_mail_sent',
         'is_instore',
         'delivery_date',
         'recipient_email',

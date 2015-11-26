@@ -64,7 +64,9 @@ class InstorePurchaseRequest extends Request
      */
     private function expireVoucherValidationRule(){
         Validator::extend('expire_voucher', function($attribute, $value, $parameters){
-            return(!(bool)VoucherParameter::findOrFail((int)$value)->is_expire) ? TRUE : FALSE;
+            $voucher_parameter_object = VoucherParameter::findOrFail((int)$value);
+            $now_object = \Carbon\Carbon::now();
+            return(!(bool)$voucher_parameter_object->is_expire && $now_object->gt($voucher_parameter_object->purchase_start) && $voucher_parameter_object->purchase_expiry->gt($now_object)) ? TRUE : FALSE;
         });
     }
 }

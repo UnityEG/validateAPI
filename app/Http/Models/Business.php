@@ -39,6 +39,7 @@ class Business extends Model {
         'postcode_id',
         'industry_id',
         'facebook_page_id',
+        'is_new',
         'is_active',
         'business_name',
         'trading_name',

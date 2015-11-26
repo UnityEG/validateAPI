@@ -30,6 +30,7 @@ class BusinessTransformer extends Transformer{
         $response = [
             "id" => (string)$item['id'],
             "facebook_page_id" => (isset($item['facebook_page_id'])) ? (string)$item['facebook_page_id'] : '',
+            "is_new" => (boolean)$item['is_new'],
             "is_active" => (boolean)$item['is_active'],
             "business_name" => (string)$item['business_name'],
             "trading_name" => (string)$item['trading_name'],

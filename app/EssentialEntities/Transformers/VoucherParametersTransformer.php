@@ -28,7 +28,7 @@ class VoucherParametersTransformer extends Transformer {
             'valid_until'           => (isset($item['valid_until']))?( string ) GeneralHelperTools::formatDateTime($item[ 'valid_until' ]):'',
             'is_limited_quantity' => (bool) $item['is_limited_quantity'],
             'quantity'              => (isset($item['quantity'])) ? ( string ) $item[ 'quantity' ] : '',
-            'purchased_quantity'    => (isset($item['purchased_quantity']))?( string ) $item[ 'purchased_quantity' ]:'',
+            'purchased_quantity'    => (isset($item['purchased_quantity']))?( string ) $item[ 'purchased_quantity' ]:"0",
             'stock_quantity'        => (isset($item['stock_quantity']))?( string ) $item[ 'stock_quantity' ]:'',
             'short_description'     => (isset($item['short_description'])) ? ( string ) $item[ 'short_description' ] : '',
             'long_description'      => (isset($item['long_description'])) ? ( string ) $item[ 'long_description' ] : '',

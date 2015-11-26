@@ -225,6 +225,12 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'Vouchers.listAllVouchersPurchasedByCustomer'
         ]);
         
+    //  VirtualVouchers
+        Route::get('VirtualVouchers/showVirtualVoucherImage/{code}', [
+            'uses' => 'VouchersControllers\VirtualVouchersController@showVirtualVoucherImage',
+            'as' => 'VirtualVouchers.showVirtualVoucherImage'
+        ]);
+        
     //    VoucherValidationLog Routes
         Route::get('VoucherValidationLogs/getAllLogs/{voucher_id}', [
             'uses' => 'VouchersControllers\VoucherValidationLogsController@getAllLogs',

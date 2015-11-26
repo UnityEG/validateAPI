@@ -10,6 +10,7 @@ bootstrap/compiled.php
 .env.php
 .env
 public/*.png
+public/VirtualVouchers/
 public/images/
 public/voucher/images/
 public/voucher/images/default/

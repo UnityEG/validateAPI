@@ -12,12 +12,10 @@ class OrderTransformer extends Transformer{
         $user = (empty($item['user'])) ? ["data"=>["user_id"=>(string)$item['user_id']]] : $item['user'];
         $vouchers = (empty($item['vouchers'])) ? ["data"=>[]] : $item['vouchers'];
         $response = [
-            "number" => (string)$item['number'],
-            "tax" => (double)$item['tax'],
-            "relations" => [
-                "user" => $user,
-                "vouchers" => $vouchers
-            ]
+            "number"   => ( string ) $item[ 'number' ],
+            "tax"      => ( double ) $item[ 'tax' ],
+            "user"     => $user,
+            "vouchers" => $vouchers
         ];
         return $response;
     }

@@ -34,4 +34,18 @@ class Order extends Model
         return $this->hasMany('App\Http\Models\Voucher', 'order_id', 'id');
     }
     
+    public function getBeforeStandardArray(){
+        return \OrderTransformer::beforeStandard($this->prepareOrderGreedyData());
+    }
+
+    private function prepareOrderGreedyData() {
+        $order_greedy_data = $this->load( ['user', 'vouchers'])->toArray();
+        (empty($order_greedy_data['user'])) ?  : $order_greedy_data['user'] = \UserTransformer::beforeStandard( $order_greedy_data['user']);
+        (empty($order_greedy_data['vouchers'])) ?  : $order_greedy_data['vouchers'] = \VoucherTransformer::transformCollection( $order_greedy_data['vouchers']);
+        return $order_greedy_data;
+            }
+    
+//    todo Create getBeforeStandardArray method in Order Model class
+//    todo Create prepareOrderGreedyData method in Order Model
+    
 }

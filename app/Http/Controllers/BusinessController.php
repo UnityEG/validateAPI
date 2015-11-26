@@ -18,14 +18,17 @@ class BusinessController extends ApiController {
      */
     private $BusinessModel;
     
+    private $GeneralHelperTools;
+    
     /**
      * 
      * @param Business $business_model
      */
-    public function __construct(Business $business_model) {
+    public function __construct(Business $business_model, \App\EssentialEntities\GeneralHelperTools\GeneralHelperTools $general_helper_tools) {
         $this->middleware( 'jwt.auth', ['except'=>['showDisplayBusiness', 'listPartners', 'listFeatured']] );
 //        todo apply jwt.refresh middleware to refresh token every request
         $this->BusinessModel = $business_model;
+        $this->GeneralHelperTools = $general_helper_tools;
     }
 
     /**
@@ -63,6 +66,8 @@ class BusinessController extends ApiController {
         return $response;
     }
     
+//    todo listCreateRequest method
+    
     /**
      * Display the specified resource.
      *
@@ -98,11 +103,12 @@ class BusinessController extends ApiController {
 //        todo apply authentication rules in the StoreBusinessRequest class
         $modified_input = $this->prepareDataForStoringHelper( $request->json( "data" ) );
         DB::beginTransaction();
-        $created_business_object = $this->businessModel->create($modified_input);
+        $created_business_object = $this->BusinessModel->create($modified_input);
         if ( is_object( $created_business_object ) ) {
             $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
-            $current_user_object = JWTAuth2::parseToken()->authenticate();
+            $current_user_object = JWTAuth::parseToken()->authenticate();
             $created_business_object->users()->attach([$current_user_object->id]);
+            /* move to acceptCreateRequest method
 //            get business types array
             foreach($created_business_object->businessTypes()->get(['type']) as $business_type){
 //                todo Add "s" at the end of eacy business type to match the name of user groups
@@ -116,6 +122,7 @@ class BusinessController extends ApiController {
             foreach( $user_groups_objects as $user_group_object){
                 ($current_user_object->userGroups()->where('user_group_id', $user_group_object->id)->exists()) ? : $current_user_object->userGroups()->attach([$user_group_object->id]);
             }//foreach( $user_groups_objects as $user_group_object)
+             */
             DB::commit();
             $response = $created_business_object->getStandardJsonFormat();
         }else{
@@ -147,6 +154,8 @@ class BusinessController extends ApiController {
         return $this->respondInternalError();
     }
     
+//    todo acceptCreateRequest($business_id, Request $request) + add user to appropriate user_groups after activate business
+    
 //    Helpers
     /**
      * Prepare data for store method
@@ -169,9 +178,10 @@ class BusinessController extends ApiController {
         ($business_email = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'business_email')) ? $modified_input['business_email'] = (string)$business_email : FALSE;
         ($contact_name = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'contact_name')) ? $modified_input['contact_name'] = (string)$contact_name : FALSE;
         ($contact_mobile = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'contact_mobile')) ? $modified_input['contact_mobile'] = (string)$contact_mobile : FALSE;
-          $modified_input['is_active'] = FALSE;
-          $modified_input['is_featured'] = FALSE;
-          $modified_input['is_display'] = TRUE;
+        $modified_input[ 'is_new' ]            = TRUE;
+        $modified_input[ 'is_active' ]         = FALSE;
+        $modified_input[ 'is_featured' ]       = FALSE;
+        $modified_input[ 'is_display' ]        = TRUE;
           return $modified_input;
     }
     

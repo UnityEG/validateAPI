@@ -32,11 +32,12 @@ class PurchaseController extends ApiController{
      */
     public function onlinePurchase(
             OnlinePurchaseRequest $request,
-            VouchersController $vouchers_controller
+            VouchersController $vouchers_controller,
+            OrdersController $orders_controller
 //            todo continue injecting all the dependencies that we will need until the end of the request
     ) {
 //        todo go with the request to the payment gateway and wait for the response
-        $order_object = (new OrdersController())->store((double)$request->get('data[tax]', 0, TRUE));
+        $order_object = $orders_controller->store((double)$request->get('data[tax]', 0, TRUE));
         foreach ( $request->get('data[vouchers]', [], TRUE) as $purchased_voucher) {
             $purchased_voucher['order_id'] = (int)$order_object->id;
             $purchased_voucher['is_instore'] = FALSE;
@@ -47,8 +48,7 @@ class PurchaseController extends ApiController{
         }//foreach ( $request->get('data') as $purchased_voucher)
         $total_value_with_tax = $total_value + (double)$order_object->tax;
         $this->sendReceiptMailToCustomer($receipt_data, $total_value_with_tax);
-//        return $receipt_data;
-        return $this->respond('Successful purchasing process and the receipt has been sent to your email address');
+        return $order_object->getBeforeStandardArray();
     }
     
     /**
@@ -114,7 +114,8 @@ class PurchaseController extends ApiController{
             $message->attach($voucher_filename);
         });
         // For security delete virtual voucher file after use it
-        $this->unlinkVirtualVoucher($voucher_filename);
+//        stop deleting virtual voucher for testing purposes
+//        $this->unlinkVirtualVoucher($voucher_filename);
     }
     
     /**
@@ -217,5 +218,7 @@ class PurchaseController extends ApiController{
         $this->unlinkVirtualVoucher($virtual_voucher['voucher_filename']);
         return $virtual_voucher_base64;
     }
+    
+//    todo create regenerateVirtualVoucherBase64 method
 
 }

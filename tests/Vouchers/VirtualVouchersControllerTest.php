@@ -11,8 +11,16 @@ class VirtualVouchersControllerTest extends TestCase
      *
      * @return void
      */
-    public function testExample()
+    public function testShowVirtualVoucherImage()
     {
-        $this->assertTrue(true);
+        $virtual_voucher_object = new \App\Http\Controllers\VouchersControllers\VirtualVouchersController();
+        $result = $virtual_voucher_object->showVirtualVoucherImage('574649665');
+        $this->assertStringStartsWith('http://', $result);
+    }
+    
+    public function testShowVirtualVoucherImageWithInvalidCode( ) {
+        $virtual_voucher_object = new \App\Http\Controllers\VouchersControllers\VirtualVouchersController();
+        $result = $virtual_voucher_object->showVirtualVoucherImage('123548');
+        $this->assertEquals('Invalid code or not found Image', $result);
     }
 }

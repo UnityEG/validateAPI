@@ -13,6 +13,7 @@ class CreateVoucherParametersRequest extends Request {
      * @return bool
      */
     public function authorize() {
+//        todo restrict creating new voucher parameters to business belongs to current user (except has rules)
         return ($this->CurrentUserObject->hasRule( 'voucher_parameter_store')) ? TRUE : FALSE;
     }
 

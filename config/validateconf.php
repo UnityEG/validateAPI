@@ -16,7 +16,7 @@ return [
     | Default relative business logos path 
     |--------------------------------------------------------------------------
     |
-    | use this path to get business logos uri for showing.
+    | use this path to get business logos URL for showing.
     |
     */
     'default_business_logos_uri' => ($app->runningInConsole()) ?  'images/business/logos/' : asset('images/business/logos/'),
@@ -36,7 +36,7 @@ return [
     | Default relative voucher images path 
     |--------------------------------------------------------------------------
     |
-    | use this path to get voucher images uri for showing.
+    | use this path to get voucher images URL for showing.
     |
     */
     'default_voucher_images_uri' => ($app->runningInConsole()) ? 'voucher/images/default' : asset('voucher/images/default'),

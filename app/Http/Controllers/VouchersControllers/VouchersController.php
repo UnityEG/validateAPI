@@ -35,14 +35,14 @@ class VouchersController extends ApiController {
         $voucher_parameter_object = VoucherParameter::find($purchased_voucher_to_create['voucher_parameter_id']);
         $current_user_object = JWTAuth::parseToken()->authenticate();
         $purchased_voucher_to_create['user_id'] = $current_user_object->id;
-        $purchased_voucher_to_create['is_gift'] = ($voucher_parameter_object->voucher_type == 'gift') ? TRUE : FALSE;
+        $purchased_voucher_to_create['is_mail_sent'] = 0;
         $purchased_voucher_to_create['recipient_email'] = (!empty($purchased_voucher_to_create['recipient_email'])) ? $purchased_voucher_to_create['recipient_email'] : $current_user_object->email;
         $purchased_voucher_to_create['status'] = 'valid';
         ('gift' == $voucher_parameter_object->voucher_type) ?: $purchased_voucher_to_create['value'] = $voucher_parameter_object->value;
         $purchased_voucher_to_create['balance'] = $purchased_voucher_to_create['value'];
         $purchased_voucher_to_create['code'] = self::generateVoucherCode($voucher_parameter_object->voucher_type);
         // Convert local time to UTC time in order to save it in DB
-        $purchased_voucher_to_create['delivery_date'] = ('gift' == $voucher_parameter_object->voucher_type && !$purchased_voucher_to_create['is_instore']) ? GeneralHelperTools::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s') : Carbon::today();
+        $purchased_voucher_to_create['delivery_date'] = (!empty($purchased_voucher_to_create['delivery_date']) && !$purchased_voucher_to_create['is_instore']) ? GeneralHelperTools::utcDateTime($purchased_voucher_to_create['delivery_date'] . ' 00:00:00', 'd/m/Y H:i:s') : Carbon::today();
 //        expiry date -1 second
             $purchased_voucher_to_create['expiry_date'] = $voucher_parameter_object->valid_until->subSeconds(1);
         DB::beginTransaction();
