@@ -40,6 +40,13 @@ class StoreBusinessRequest extends Request
             "data.business_email" => ['email'],
             "data.contact_name" => ['string'],
             "data.contact_mobile" => ['string'],
+            "data.available_hours_mon" => ['string'],
+            "data.available_hours_tue" => ['string'],
+            "data.available_hours_wed" => ['string'],
+            "data.available_hours_thu" => ['string'],
+            "data.available_hours_fri" => ['string'],
+            "data.available_hours_sat" => ['string'],
+            "data.available_hours_sun" => ['string'],
         ];
     }
 }

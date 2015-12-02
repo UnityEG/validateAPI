@@ -67,6 +67,7 @@ class UserGroupsController extends ApiController
         if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_group_show') ) {
             return $this->setStatusCode(403)->respondWithError('Forbidden');
         }//if ( !JWTAuth::parseToken()->authenticate()->hasRule('user_group_show') )
+//        todo Modify response with 404 not found in case of user group not found in the database instead of throwing exception
         $user_group_object = $user_group_model->findOrFail((int) $id);
         return ('developers' == $user_group_object->group_name) ? $this->respond("success") : $user_group_object->getStandardJsonFormat();
     }

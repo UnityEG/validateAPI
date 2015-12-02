@@ -78,9 +78,19 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'Business.listFeatured'
     ]);
     
+    Route::get('Business/listCreateRequest', [
+        'uses' => 'BusinessController@listCreateRequest',
+        'as' => 'Business.listCreateRequest'
+    ]);
+    
     Route::get('Business/showDisplayBusiness/{id}', [
         'uses' => 'BusinessController@showDisplayBusiness',
         'as' => 'BusinessController.showDisplayBusiness'
+    ]);
+    
+    Route::get('Business/acceptCreateRequest/{id}', [
+        'uses' => 'BusinessController@acceptCreateRequest',
+        'as' => 'BusinessController.acceptCreateRequest'
     ]);
     
     Route::resource('Business', 'BusinessController');
@@ -178,14 +188,14 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherImages.index'
         ]);
 
-        Route::get('VoucherImages/showGiftImages', [
-            'uses' => 'VoucherImagesController@showGiftImages',
-            'as' => 'VoucherImages.showGiftImages'
+        Route::get('VoucherImages/listGiftImages', [
+            'uses' => 'VoucherImagesController@listGiftImages',
+            'as' => 'VoucherImages.listGiftImages'
         ]);
 
-        Route::get('VoucherImages/showDealImages', [
-            'uses' => 'VoucherImagesController@showDealImages',
-            'as' => 'VoucherImages.showDealImages'
+        Route::get('VoucherImages/listDealImages', [
+            'uses' => 'VoucherImagesController@listDealImages',
+            'as' => 'VoucherImages.listDealImages'
         ]);
 
         Route::post('VoucherImages/storeGiftImage', [

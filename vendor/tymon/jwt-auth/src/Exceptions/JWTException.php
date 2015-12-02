@@ -16,7 +16,7 @@ class JWTException extends \Exception
     public function __construct($message = 'An error occurred', $statusCode = null)
     {
         parent::__construct($message);
-        
+
         if (! is_null($statusCode)) {
             $this->setStatusCode($statusCode);
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\EssentialEntities\GeneralHelperTools\GeneralHelperTools;
 use App\Http\Models\Business;
 use App\Http\Models\UserGroup;
+use App\Http\Requests\Business\AcceptCreateBusinessRequest;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
 use DB;
@@ -24,7 +25,7 @@ class BusinessController extends ApiController {
      * 
      * @param Business $business_model
      */
-    public function __construct(Business $business_model, \App\EssentialEntities\GeneralHelperTools\GeneralHelperTools $general_helper_tools) {
+    public function __construct(Business $business_model, GeneralHelperTools $general_helper_tools) {
         $this->middleware( 'jwt.auth', ['except'=>['showDisplayBusiness', 'listPartners', 'listFeatured']] );
 //        todo apply jwt.refresh middleware to refresh token every request
         $this->BusinessModel = $business_model;
@@ -66,8 +67,19 @@ class BusinessController extends ApiController {
         return $response;
     }
     
-//    todo listCreateRequest method
-    
+    /**
+     * List all new businesses with contition (is_new => 1)
+     * @param Business $business_model
+     * @return array
+     */
+    public function listCreateRequest( Business $business_model ) {
+        $response["data"] = [];
+        $business_objects = $business_model->where('is_new', 1)->get();
+        foreach ( $business_objects as $business_object) {
+            $response["data"][] = $business_object->getBeforeStandardArray();
+        }
+        return $response;
+    }    
     /**
      * Display the specified resource.
      *
@@ -108,21 +120,6 @@ class BusinessController extends ApiController {
             $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
             $current_user_object = JWTAuth::parseToken()->authenticate();
             $created_business_object->users()->attach([$current_user_object->id]);
-            /* move to acceptCreateRequest method
-//            get business types array
-            foreach($created_business_object->businessTypes()->get(['type']) as $business_type){
-//                todo Add "s" at the end of eacy business type to match the name of user groups
-//                todo rename $business_types_arry to be $user_groups_array
-                $business_types_array[] = $business_type->type;
-            }//foreach($created_business_object->businessTypes()->get(['type']) as $business_type)
-            $business_types_array[] = 'customers';
-//            get user groups according to business_types array
-            $user_groups_objects = UserGroup::whereIn('group_name', $business_types_array)->get(['id']);
-//            loop on user_group_objects and attach with current user if not attached
-            foreach( $user_groups_objects as $user_group_object){
-                ($current_user_object->userGroups()->where('user_group_id', $user_group_object->id)->exists()) ? : $current_user_object->userGroups()->attach([$user_group_object->id]);
-            }//foreach( $user_groups_objects as $user_group_object)
-             */
             DB::commit();
             $response = $created_business_object->getStandardJsonFormat();
         }else{
@@ -154,7 +151,34 @@ class BusinessController extends ApiController {
         return $this->respondInternalError();
     }
     
-//    todo acceptCreateRequest($business_id, Request $request) + add user to appropriate user_groups after activate business
+    /**
+     * Accept create business request and activate the business
+     * @param integer $id
+     * @param AcceptCreateBusinessRequest $request
+     * @param \App\User $user_model
+     * @return array
+     */
+    public function acceptCreateRequest($id, AcceptCreateBusinessRequest $request, \App\User $user_model ) {
+        $business_object = $this->BusinessModel->find((int)$id);
+        if ( !is_object( $business_object ) ) {
+            return $this->respondNotFound();
+        }//if ( !is_object( $business_object ) )
+        $business_object->update(['is_new'=>0, 'is_active'=>1]);
+        $user_created_business = $user_model->find((int)$business_object->created_by);
+//            get business types array
+            foreach($business_object->businessTypes()->get(['type']) as $business_type){
+                $user_groups_array[] = $business_type->type.'s';
+            }//foreach($created_business_object->businessTypes()->get(['type']) as $business_type)
+            $user_groups_array[] = 'customers';
+//            get user groups according to business_types array
+            $user_groups_objects = UserGroup::whereIn('group_name', $user_groups_array)->get(['id']);
+//            get users belongs to
+//            loop on user_group_objects and attach with user created the business if not attached
+            foreach( $user_groups_objects as $user_group_object){
+                ($user_created_business->userGroups()->where('user_group_id', $user_group_object->id)->exists()) ? : $user_created_business->userGroups()->attach([$user_group_object->id]);
+            }//foreach( $user_groups_objects as $user_group_object)
+            return $business_object->getStandardJsonFormat();
+    }
     
 //    Helpers
     /**
@@ -178,10 +202,19 @@ class BusinessController extends ApiController {
         ($business_email = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'business_email')) ? $modified_input['business_email'] = (string)$business_email : FALSE;
         ($contact_name = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'contact_name')) ? $modified_input['contact_name'] = (string)$contact_name : FALSE;
         ($contact_mobile = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'contact_mobile')) ? $modified_input['contact_mobile'] = (string)$contact_mobile : FALSE;
-        $modified_input[ 'is_new' ]            = TRUE;
-        $modified_input[ 'is_active' ]         = FALSE;
+        (!$available_hours_mon = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_mon')) ? : $modified_input['available_hours_mon'] = (string)$available_hours_mon;
+        (!$available_hours_tue = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_tue')) ? : $modified_input['available_hours_tue'] = (string)$available_hours_tue;
+        (!$available_hours_wed = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_wed')) ? : $modified_input['available_hours_wed'] = (string)$available_hours_wed;
+        (!$available_hours_thu = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_thu')) ? : $modified_input['available_hours_thu'] = (string)$available_hours_thu;
+        (!$available_hours_fri = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_fri')) ? : $modified_input['available_hours_fri'] = (string)$available_hours_fri;
+        (!$available_hours_sat = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_sat')) ? : $modified_input['available_hours_sat'] = (string)$available_hours_sat;
+        (!$available_hours_sun = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_sun')) ? : $modified_input['available_hours_sun'] = (string)$available_hours_sun;
+        $modified_input[ 'is_new' ]            = 1;
+        $modified_input[ 'is_active' ]         = 0;
         $modified_input[ 'is_featured' ]       = FALSE;
         $modified_input[ 'is_display' ]        = TRUE;
+        $modified_input['code'] = '';
+        $modified_input['created_by'] = \JWTAuth::parseToken()->authenticate()->id;
           return $modified_input;
     }
     
@@ -191,6 +224,7 @@ class BusinessController extends ApiController {
      * @return array
      */
     private function prepareDataForUpdatingHelper( array $raw_input, GeneralHelperTools $general_helper_tools ) {
+//        todo Modify prepareDataForUpdatingHelper method to suit new changes in Business database table
         (!$logo_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'logo_id')) ?  : $modified_input['logo_id'] = (int)$logo_id;
         (!$city_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'city_id')) ?  : $modified_input['city_id'] = (int)$city_id;
         (!$region_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'region_id')) ?  : $modified_input['region_id'] = (int)$region_id;
@@ -221,4 +255,7 @@ class BusinessController extends ApiController {
         }
         return $modified_input;
     }
+
+    
+
 }
