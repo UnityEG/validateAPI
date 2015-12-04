@@ -263,7 +263,7 @@ class GeneralHelperTools {
         // =============================================================================
         // Save img to file and return filename
         $img->encode( 'png' );
-        $filename      = public_path( 'VirtualVouchers/'.md5( $qr_code ) . '.png' );
+        $filename      = config( 'validateconf.default_virtual_vouchers_images_path').md5( $qr_code ) . '.png' ;
         $img->save( $filename );
         return $filename;
     }
