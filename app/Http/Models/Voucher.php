@@ -94,6 +94,38 @@ class Voucher extends Model
     }
     
     /**
+     * get Virtual Voucher Data
+     * @return array
+     */
+    public function getVirtualVoucherData( ) {
+        $voucher_parameter_object = $this->voucherParameter;
+        $business_object = $voucher_parameter_object->business;
+        $customer_object = $this->user;
+        $business_logo_object = $business_object->getActiveLogo();
+        $business_logo_filename = (is_object($business_logo_object)) ? config( 'validateconf.default_business_logos_path') . $business_logo_object->name . '.png' : 'voucher/images/voucher_m_logo.png';
+        // get Gift Vouchers Parameter Terms Of Use
+        $terms_of_use_objects = $voucher_parameter_object->useTerms()->get(['name'])->toArray();
+        $terms_of_use = implode(' ● ', array_pluck($terms_of_use_objects, 'name'));
+        //
+        return[
+            'm_logo_filename' => $business_logo_filename,
+            'qr_code' => $this->code,
+            'delivery_date' => $this->delivery_date,
+            'expiry_date' => $this->expiry_date,
+            'voucher_value' => $this->value,
+            'merchant_business_name' => $business_object->business_name,
+            'voucher_title' => $business_object->title,
+            'TermsOfUse' => $terms_of_use,
+            'merchant_business_address1' => $business_object->address1,
+            'merchant_business_phone' => $business_object->phone,
+            'merchant_business_website' => $business_object->website,
+            'recipient_email' => $this->recipient_email,
+            'customer_name' => $customer_object->getName(),
+            'customer_email' => $customer_object->email,
+        ];
+    }
+    
+    /**
      * Prepare Data to be used in Json response
      * @return array
      */
@@ -104,7 +136,7 @@ class Voucher extends Model
         (empty($voucher_greedy_array['user'])) ?  : $voucher_greedy_array['user'] = UserTransformer::transform($voucher_greedy_array['user']);
         (empty($voucher_greedy_array['voucher_validation_logs'])) ?  : $voucher_greedy_array['voucher_validation_logs'] = VoucherValidationLogTransformer::transformCollection($voucher_greedy_array['voucher_validation_logs']);
 //        add merchant name
-        $voucher_greedy_array['merchant_name'] = $this->voucherParameter->business->business_name;
+//        $voucher_greedy_array['merchant_name'] = $this->voucherParameter->business->business_name;
         return $voucher_greedy_array;
     }
 }

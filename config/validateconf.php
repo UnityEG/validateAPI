@@ -9,7 +9,7 @@ return [
     | use this path to store and delete business logos.
     |
     */
-    'default_business_logos_path' => ($app->runningInConsole()) ? 'images/business/logos/' : public_path('images/business/logos/'),
+    'default_business_logos_path' => ($app->runningInConsole()) ? '/home/mohamed/www/validateapi/public/images/business/logos/' : public_path('images/business/logos/'),
     
     /*
     |--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ return [
     | use this path to get business logos URL for showing.
     |
     */
-    'default_business_logos_uri' => ($app->runningInConsole()) ?  'images/business/logos/' : asset('images/business/logos/'),
+    'default_business_logos_uri' => ($app->runningInConsole()) ?  'http://www.validateapi.dev/public/images/business/logos/' : asset('images/business/logos/'),
     
     /*
     |--------------------------------------------------------------------------
@@ -40,5 +40,15 @@ return [
     |
     */
     'default_voucher_images_uri' => ($app->runningInConsole()) ? 'voucher/images/default' : asset('voucher/images/default'),
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Default relative voucher images path 
+    |--------------------------------------------------------------------------
+    |
+    | use this path to get voucher images URL for showing.
+    |
+    */
+    'default_virtual_vouchers_images_path' => ($app->runningInConsole()) ? '/home/mohamed/www/validateapi/storage/VirtualVouchers/' : storage_path('VirtualVouchers/'),
 ];
 

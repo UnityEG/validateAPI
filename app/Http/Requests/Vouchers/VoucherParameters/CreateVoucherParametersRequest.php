@@ -38,7 +38,6 @@ class CreateVoucherParametersRequest extends Request {
             'data.quantity'                                      => ['integer', 'min:0' ],
             'data.short_description'                             => 'required|string',
             'data.long_description'                              => 'required|string',
-//            todo modify no_of_uses rule to accept 0
             'data.no_of_uses'                                    => 'integer|min:0',
         ];
         (!$this->request->get('data[valid_until]', FALSE, TRUE))? : $common_rules['data.valid_from'][] = 'before:data.valid_until';
@@ -51,7 +50,7 @@ class CreateVoucherParametersRequest extends Request {
                     $common_rules['data.valid_for_amount'][] = 'max:365';
                     break;
                 case 'w':
-                    $common_rules['data.valid_for_amount'][] = 'max:48';
+                    $common_rules['data.valid_for_amount'][] = 'max:52';
                     break;
                 case 'm':
                     $common_rules['data.valid_for_amount'][] = 'max:12';

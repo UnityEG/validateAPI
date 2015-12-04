@@ -1,6 +1,7 @@
 #laravel
 composer.lock
 config/mail.php
+storage/VirtualVouchers/
 storage/logs/
 storage/framework/sessions/
 storage/framework/views/
