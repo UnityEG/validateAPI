@@ -104,6 +104,14 @@ class UsersController extends ApiController {
         }//if ( !($current_user_object->isActiveUser() && ($id==$current_user_object->id)) && !($current_user_object->hasRule('user_show')) )
         return $this->UserModel->findOrFail($id)->getStandardJsonFormat();
     }
+    
+    /**
+     * Search for users by first name or last name
+     * @param string $username
+     */
+    public function searchUserByName( $username) {
+        return $this->UserModel->searchUserByName((string)$username);
+    }
 
     /**
      * Show the form for editing the specified resource.

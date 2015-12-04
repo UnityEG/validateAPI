@@ -44,6 +44,11 @@ Route::group(['prefix' => 'v1'], function() {
     
 //    Users Routes
     
+    Route::get('Users/searchUserByName/{username}', [
+        'uses' => 'UsersControllers\UsersController@searchUserByName',
+        'as' => 'UsersController.searchUserByName'
+    ]);
+    
     Route::resource('Users', 'UsersControllers\UsersController');
     
     // login, logout and authentication

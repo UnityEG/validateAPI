@@ -164,6 +164,18 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->hasMany('App\Http\Models\Order', 'user_id', 'id');
     }
     
+    /**
+     * Search for users by first name or last name
+     * @param string $username
+     */
+    public function searchUserByName( $username) {
+        $response["data"] = [];
+        foreach ( static::where('first_name', 'like', "%$username%")->orWhere('last_name', 'like', "%$username%")->get() as $user_object) {
+            $response["data"][] = $user_object->getBeforeStandardArray();
+        }
+        return $response;
+    }
+    
     
 //    Helpers
     

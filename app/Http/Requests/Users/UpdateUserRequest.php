@@ -40,7 +40,7 @@ class UpdateUserRequest extends Request
             "data.relations.town.data.town_id" => ['sometimes', 'required', 'integer', 'min:1', 'exists:lu_nz_towns,id'],
             "data.relations.postcode.data.postcode_id" => ['sometimes', 'required', 'integer', 'min:1', 'exists:lu_nz_postcodes,id'],
             "data.attributes.is_active" => ['sometimes', 'required', 'boolean'],
-            "data.attributes.email" => ['sometimes', 'required', 'email', 'unique:users,email'],
+            "data.attributes.email" => ['sometimes', 'required', 'email', 'unique:users,email,'.$this->route()->parameter('')],
             "data.attributes.password" => ['sometimes', 'required', 'string', 'min:8', 'regex:/^(?=.*[0-9])(?=.*[a-zA-Z])(?:[a-zA-Z0-9]+)$/'],
             "data.attributes.title" => ['sometimes', 'required', 'max:5'],
             "data.attributes.first_name" => ['sometimes', 'required', 'string'],

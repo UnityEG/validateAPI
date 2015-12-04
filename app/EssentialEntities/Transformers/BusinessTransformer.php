@@ -43,6 +43,13 @@ class BusinessTransformer extends Transformer{
             "contact_mobile" => (isset($item['contact_mobile'])) ? (string)$item['contact_mobile'] : '',
             "is_featured" => (boolean)$item['is_featured'],
             "is_display" => (boolean)$item['is_display'],
+            "available_hours_mon"=>(string)$item['available_hours_mon'],
+            "available_hours_tue"=>(string)$item['available_hours_tue'],
+            "available_hours_wed"=>(string)$item['available_hours_wed'],
+            "available_hours_thu"=>(string)$item['available_hours_thu'],
+            "available_hours_fri"=>(string)$item['available_hours_fri'],
+            "available_hours_sat"=>(string)$item['available_hours_sat'],
+            "available_hours_sun"=>(string)$item['available_hours_sun'],
             "relations"=>[
                 "city" => $city,
                 "region" => $region,

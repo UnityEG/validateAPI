@@ -81,10 +81,7 @@ class OnlinePurchaseRequest extends Request {
         Validator::extend('expire_voucher', function($attribute, $value, $parameters){
           $voucher_parameter_object = VoucherParameter::findOrFail((int)$value);
           $now_object = \Carbon\Carbon::now();
-          if(!(bool)$voucher_parameter_object->is_expire && $now_object->gt($voucher_parameter_object->purchase_start) && $voucher_parameter_object->purchase_expiry->gt($now_object)){
-              return TRUE;
-          }//if((bool)$voucher_parameter_object->is_expire)
-          return FALSE;
+          return(!(bool)$voucher_parameter_object->is_expire && $now_object->gt($voucher_parameter_object->purchase_start) && $voucher_parameter_object->purchase_expiry->gt($now_object)) ? TRUE : FALSE;
         });
     }
 

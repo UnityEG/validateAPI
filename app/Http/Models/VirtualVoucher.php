@@ -115,8 +115,7 @@ class VirtualVoucher
         $img           = $this->writeOnImage( $img, $textData, 270, 210, 710, 55 );
         // =============================================================================
         // Voucher Dates
-        $dates         = 'Date Issued: ' . \GeneralHelperTools::formatDateTime( $data['delivery_date'] ) . '     ' .
-                'Expiry Date: ' . \GeneralHelperTools::formatDateTime( $data['expiry_date'] );
+        $dates         = 'Date Issued: ' . \GeneralHelperTools::formatDate( $data['delivery_date'] ) . '     ' .'Expiry Date: ' . \GeneralHelperTools::formatDate( $data['expiry_date'] );
         $textData      = array(
             'text' => $dates,
             'size' => 21,

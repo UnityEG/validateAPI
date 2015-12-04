@@ -114,7 +114,7 @@ class Voucher extends Model
             'expiry_date' => $this->expiry_date,
             'voucher_value' => $this->value,
             'merchant_business_name' => $business_object->business_name,
-            'voucher_title' => $business_object->title,
+            'voucher_title' => $voucher_parameter_object->title,
             'TermsOfUse' => $terms_of_use,
             'merchant_business_address1' => $business_object->address1,
             'merchant_business_phone' => $business_object->phone,

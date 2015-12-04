@@ -229,8 +229,7 @@ class GeneralHelperTools {
         $img           = self::writeOnImage( $img, $textData, 270, 210, 710, 55 );
         // =============================================================================
         // Voucher Dates
-        $dates         = 'Date Issued: ' . self::formatDateTime( $delivery_date ) . '     ' .
-                'Expiry Date: ' . self::formatDateTime( $expiry_date );
+        $dates         = 'Date Issued: ' . self::formatDate( $delivery_date ) . '     ' .'Expiry Date: ' . self::formatDate( $expiry_date );
         $textData      = array(
             'text' => $dates,
             'size' => 21,
