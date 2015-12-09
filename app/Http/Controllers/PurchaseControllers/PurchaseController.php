@@ -127,7 +127,7 @@ class PurchaseController extends ApiController{
         // Gathering Data for email
         $data = $this->getDataForEmail($purchased_voucher_object);
         // Generate virtual voucher image 
-        $voucher_filename = GeneralHelperTools::voucher($data);
+        $voucher_filename = (new \App\Http\Models\VirtualVoucher())->create( $purchased_voucher_object );
         // Add $voucher_filename to $data array
         $data['voucher_filename'] = $voucher_filename;
         return $data;
@@ -215,10 +215,7 @@ class PurchaseController extends ApiController{
         $virtual_voucher = $this->generateVirtualVoucher($purchased_voucher_object);
         $virtual_voucher_content = file_get_contents($virtual_voucher['voucher_filename']);
         $virtual_voucher_base64 = base64_encode($virtual_voucher_content);
-        $this->unlinkVirtualVoucher($virtual_voucher['voucher_filename']);
+//        $this->unlinkVirtualVoucher($virtual_voucher['voucher_filename']);
         return $virtual_voucher_base64;
     }
-    
-//    todo create regenerateVirtualVoucherBase64 method
-
 }

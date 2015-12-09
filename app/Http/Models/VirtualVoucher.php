@@ -45,7 +45,6 @@ class VirtualVoucher
      * @return string
      */
     private function generateVirtualVoucher( array $data ) {
-//        todo fix missing g class in voucher method inside GeneralHelperTools class
         // Get variable names and values from data array
         extract( $data );
         // Set fonts 
