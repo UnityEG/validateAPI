@@ -117,6 +117,7 @@ class Voucher extends Model
             'voucher_title' => $voucher_parameter_object->title,
             'TermsOfUse' => $terms_of_use,
             'merchant_business_address1' => $business_object->address1,
+            'business_suburb' => $business_object->postcode->suburb,
             'merchant_business_phone' => $business_object->phone,
             'merchant_business_website' => $business_object->website,
             'recipient_email' => $this->recipient_email,

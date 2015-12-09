@@ -89,7 +89,7 @@ class VirtualVoucher
         $img           = $this->writeOnImage( $img, $textData, 270, 20, 710, 80 );
         // =============================================================================
         // Merchant info
-        $merchant_info = $data['merchant_business_address1'] . '  ' . $data['merchant_business_phone'];
+        $merchant_info = $data['merchant_business_address1'] . ',  '.$data['business_suburb'] . ',  ' . $data['merchant_business_phone'];
         $textData      = array(
             'text' => $merchant_info,
             'size' => 20,
@@ -105,7 +105,7 @@ class VirtualVoucher
         );
         $img           = $this->writeOnImage( $img, $textData, 270, 150, 710, 60 );
         // =============================================================================
-        // Voucher title
+        // Voucher amount
         $textData      = array(
             'text' => 'Amount: ' . \GeneralHelperTools::formatCurrency( $data['voucher_value'] ),
             'size' => 33,
