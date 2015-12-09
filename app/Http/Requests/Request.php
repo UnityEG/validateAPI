@@ -15,6 +15,9 @@ abstract class Request extends FormRequest
      */
     public $CurrentUserObject;
     
+    protected $ForbiddenMessage='Forbidden';
+
+
     public function __construct( ) {
         parent::__construct();
         (!JWTAuth::getToken()) ?  : $this->CurrentUserObject = JWTAuth::parseToken()->authenticate();
@@ -41,8 +44,10 @@ abstract class Request extends FormRequest
      */
     public function forbiddenResponse( ) {
         if ( $this->ajax() || $this->wantsJson() ) {
-            return (new ApiController())->setStatusCode(403)->respondWithError('Forbidden');
+            return (new ApiController())->setStatusCode(403)->respondWithError($this->ForbiddenMessage);
         }//if ( $this->ajax() || $this->wantsJson() )
         return parent::forbiddenResponse();
     }
+    
+    
 }

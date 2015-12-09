@@ -15,8 +15,17 @@ class ValidateVoucherRequest extends Request {
      * @return bool
      */
     public function authorize() {
-//        todo add authorization rules for validation vouchers
-        return true;
+//        todo add authorization rules that the business created voucher will be allowed to validate it
+        $voucher_parameter_object = Voucher::find($this->request->getInt('data[relations][voucher][data][voucher_id]', 0, true));
+        if ( !is_object( $voucher_parameter_object ) ) {
+            $this->ForbiddenMessage = "Invalid Voucher Parameter";
+            return false;
+        }//if ( !is_object( $voucher_parameter_object ) )
+        if ( $voucher_parameter_object->business->id != $this->request->getInt( 'data[relations][business][data][business_id]', 0, TRUE) ) {
+            $this->ForbiddenMessage = 'Voucher code is not valid for this merchant';
+            return false;
+        }//if ( $voucher_parameter_object->business->id != $this->request->getInt( 'data[relations][business][data][business_id]', 0, TRUE) )
+        return TRUE;
     }
 
     /**
@@ -48,7 +57,7 @@ class ValidateVoucherRequest extends Request {
             'data.value.numeric'                         => 'Value must be a valid number',
             'data.value.min'                             => 'Value must be greater than zero',
             'max_redeem_value'                           => 'not enough balance',
-            'voucher_expire' => 'This voucher is invalid',
+            'voucher_expire'                             => 'This voucher is invalid',
             'data.relations.voucher.voucher_id.required' => 'voucher_id is required',
             'data.relations.voucher.voucher_id.integer'  => 'voucher_id must be integer',
             'data.relations.voucher.voucher_id.exists'   => 'voucher_id does not exist'
