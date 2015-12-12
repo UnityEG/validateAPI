@@ -220,6 +220,7 @@ return [
         'OrderTransformer' => \App\EssentialEntities\Transformers\Facades\OrderTransformer::class,
         'UseTermTransformer' => \App\EssentialEntities\Transformers\Facades\UseTermTransformer::class,
         'VoucherImageTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherImageTransformer::class,
+        'RegionTransformer' => \App\EssentialEntities\Transformers\Facades\RegionTransformer::class,
     ],
 
 ];

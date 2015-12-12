@@ -23,4 +23,48 @@ class Region extends Model
     public function business( ) {
         return $this->hasMany('App\Http\Models\Business', 'region_id', 'id');
     }
+    
+    /**
+     * Get Transformed Collection of Region objects
+     * @return array
+     */
+    public function getTransformedCollection(){
+        $instance = new static;
+        $response["data"] = [];
+        foreach ( $instance->get() as $region_object) {
+            $response["data"][] = $region_object->getBeforeStandard();
+        }
+        return $response;
+    }
+    
+    /**
+     * Get Before Standard Array for single Region object
+     * @return array
+     */
+    public function getBeforeStandard(){
+        return \RegionTransformer::beforeStandard($this->prepareRegionGreedyData());
+    }
+    
+    /**
+     * Get HTML response for Region objects
+     * @return string
+     */
+    public function getHtmlCollection(){
+        $instance = new static;
+        $response = '<select>';
+        foreach ( $instance->get() as $region_object) {
+            $response .= "<option value={$region_object->id}>{$region_object->region}</option>";
+        }
+        $response .= '</select>';
+        return $response;
+    }
+    
+    /**
+     * Prepare Greedy data for Region object and its relationships
+     * @return array
+     */
+    private function prepareRegionGreedyData(){
+        $region_greedy_array = $this->toArray();
+        return $region_greedy_array;
+    }
 }

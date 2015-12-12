@@ -19,3 +19,11 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'remember_token' => str_random(10),
     ];
 });
+
+//Region Factory
+$factory->define( App\Http\Models\Region::class, function (Faker\Generator $faker){
+    return[
+        'id' => $faker->numberBetween( 0, 6000),
+        'region' => $faker->city
+    ];
+});

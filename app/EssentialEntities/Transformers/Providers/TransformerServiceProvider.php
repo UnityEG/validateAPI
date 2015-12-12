@@ -4,6 +4,7 @@ namespace App\EssentialEntities\Transformers\Providers;
 
 use App\EssentialEntities\Transformers\BusinessTransformer;
 use App\EssentialEntities\Transformers\OrderTransformer;
+use App\EssentialEntities\Transformers\RegionTransformer;
 use App\EssentialEntities\Transformers\UserTransformer;
 use App\EssentialEntities\Transformers\UseTermTransformer;
 use App\EssentialEntities\Transformers\VoucherImageTransformer;
@@ -28,6 +29,7 @@ class TransformerServiceProvider extends ServiceProvider{
         $this->orderTransformer();
         $this->useTermTransformer();
         $this->voucherImageTransformer();
+        $this->regionTransformer();
     }
     
     protected function voucherValidationLogTransformer(){
@@ -77,5 +79,10 @@ class TransformerServiceProvider extends ServiceProvider{
             return new VoucherImageTransformer();
         });
     }
-
+    
+    public function regionTransformer(){
+        $this->app->singleton('RegionTransformer', function($app){
+            return new RegionTransformer();
+        });
+    }
 }

@@ -284,6 +284,11 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'Regions.index'
     ]);
     
+    Route::get('Regions/renderHtmlCollection', [
+        'uses' => 'RegionsController@renderHtmlCollection',
+        'as' => 'Regions.renderHtmlCollection'
+    ]);
+    
 //    Postcodes
     Route::get('Postcodes', [
         'uses' => 'PostcodesController@index',
