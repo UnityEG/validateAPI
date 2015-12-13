@@ -79,10 +79,11 @@ class VouchersController extends ApiController {
      * @return array
      */
     public function listAllVouchersPurchasedByCustomer($customer_id, Voucher $voucher_model){
+//        todo show only valid vouchers in the vault
         $response["data"] = [];
         foreach ( $voucher_model->where('user_id', (int)$customer_id)->get() as $voucher_object) {
             $response["data"][] = $voucher_object->getBeforeStandardArray();
-        }
+        }//foreach ( $voucher_model->where('user_id', (int)$customer_id)->get() as $voucher_object)
         return $response;
     }
     

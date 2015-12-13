@@ -33,7 +33,7 @@ class Region extends Model
         $response["data"] = [];
         foreach ( $instance->get() as $region_object) {
             $response["data"][] = $region_object->getBeforeStandard();
-        }
+        }//foreach ( $instance->get() as $region_object)
         return $response;
     }
     
@@ -54,7 +54,7 @@ class Region extends Model
         $response = '<select>';
         foreach ( $instance->get() as $region_object) {
             $response .= "<option value={$region_object->id}>{$region_object->region}</option>";
-        }
+        }//foreach ( $instance->get() as $region_object)
         $response .= '</select>';
         return $response;
     }

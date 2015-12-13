@@ -113,20 +113,22 @@ class BusinessController extends ApiController {
      */
     public function store( StoreBusinessRequest $request ) {
 //        todo apply authentication rules in the StoreBusinessRequest class
-        $modified_input = $this->prepareDataForStoringHelper( $request->json( "data" ) );
-        DB::beginTransaction();
-        $created_business_object = $this->BusinessModel->create($modified_input);
-        if ( is_object( $created_business_object ) ) {
-            $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
-            $current_user_object = JWTAuth::parseToken()->authenticate();
-            $created_business_object->users()->attach([$current_user_object->id]);
-            DB::commit();
-            $response = $created_business_object->getStandardJsonFormat();
-        }else{
-            DB::rollBack();
-            $response = $this->respondInternalError();
-        }//if ( is_object( $created_business_object ) )
-        return $response;
+        $stored_business = $this->BusinessModel->createNewBusiness($request->json("data"));
+        return (is_array( $stored_business ) && array_key_exists( "data", $stored_business)) ? $stored_business : $this->respondWithError( "Faild Creating new Business");
+//        $modified_input = $this->prepareDataForStoringHelper( $request->json( "data" ) );
+//        DB::beginTransaction();
+//        $created_business_object = $this->BusinessModel->create($modified_input);
+//        if ( is_object( $created_business_object ) ) {
+//            $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
+//            $current_user_object = JWTAuth::parseToken()->authenticate();
+//            $created_business_object->users()->attach([$current_user_object->id]);
+//            DB::commit();
+//            $response = $created_business_object->getStandardJsonFormat();
+//        }else{
+//            DB::rollBack();
+//            $response = $this->respondInternalError();
+//        }//if ( is_object( $created_business_object ) )
+//        return $response;
     }
 
     /**

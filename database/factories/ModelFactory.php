@@ -13,11 +13,81 @@
 
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     return [
-        'name' => $faker->name,
+        'id' => $faker->numberBetween(1, 100),
+        'city_id' => factory(App\Http\Models\City::class)->make(),
+        'region_id' => factory(App\Http\Models\Region::class)->make(),
+        'town_id' => factory(App\Http\Models\Town::class)->make(),
+        'postcode_id' => factory(App\Http\Models\Postcode::class)->make(),
+        'facebook_user_id' => $faker->uuid,
+        'is_active' => 1,
         'email' => $faker->email,
         'password' => bcrypt(str_random(10)),
         'remember_token' => str_random(10),
+        'title' => $faker->title,
+        'first_name' => $faker->firstName,
+        'last_name' => $faker->lastName,
+        'gender' => $faker->randomElement( ['male', 'female']),
+        'dob' => $faker->dateTimeBetween( '-60 years', '-18 years'),
+        'address1' => $faker->address,
+        'address2' => $faker->address,
+        'phone' => $faker->phoneNumber,
+        'mobile' => $faker->phoneNumber,
+        'is_notify_deal' => 0,
+        'created_at' => $faker->dateTime,
+        'updated_at' => $faker->dateTime
     ];
+});
+
+//Business Factory
+$factory->define(App\Http\Models\Business::class, function(Faker\Generator $faker){
+    $id = $faker->numberBetween( 1, 100);
+    return [
+        'id' => $id,
+        'logo_id' => factory( App\Http\Models\BusinessLogo::class)->create(['business_id'=>$id])->id,
+        'city_id' => factory( App\Http\Models\City::class)->make()->id,
+        'region_id' => factory( App\Http\Models\Region::class)->make()->id,
+        'town_id' => factory(App\Http\Models\Region::class)->make()->id,
+        'postcode_id' => factory( App\Http\Models\Postcode::class)->make()->id,
+        'industry_id' => factory( App\Http\Models\Industry::class)->make()->id,
+        'facebook_page_id' => $faker->uuid,
+        'code' => $faker->numberBetween( 10000000, 99999999),
+        'is_new' => 0,
+        'is_active' => 1,
+        'is_display' => 1,
+        'is_featured' => 0,
+        'business_name' => $faker->company,
+        'trading_name' => $faker->companySuffix,
+        'address1' => $faker->address,
+        'address2' => $faker->address,
+        'phone' => $faker->phoneNumber,
+        'website' => $faker->domainName,
+        'business_email' => $faker->email,
+        'contact_name' => $faker->name,
+        'contact_mobile' => $faker->phoneNumber,
+        'available_hours_mon' => 'Monday: 10:00am - 21:00pm',
+        'available_hours_tue' => 'Tuesday: 10:00am - 21:00pm',
+        'available_hours_wed' => 'Wednesday: 10:00am - 21:00pm',
+        'available_hours_thu' => 'Thursday: 10:00am - 21:00pm',
+        'available_hours_fri' => 'Friday: 10:00am - 21:00pm',
+        'available_hours_sat' => 'Saturday: 10:00am - 21:00pm',
+        'available_hours_sun' => 'Sunday: 10:00am - 21:00pm',
+        'created_by' => factory(App\User::class)->make()->id,
+        'created_at' => $faker->dateTime,
+        'updated_at' => $faker->dateTime,
+    ];
+});
+
+//BusinessLogo Factory
+$factory->define( App\Http\Models\BusinessLogo::class, function(Faker\Generator $faker){
+    return [
+        'id' => $faker->numberBetween( 1000, 10000),
+        'business_id' => $faker->numberBetween( 1, 100),
+        'user_id' => factory(App\User::class)->make()->id,
+        'name' => $faker->numberBetween( 10000000, 99999999),
+        'created_at' => $faker->dateTime,
+        'updated_at' => $faker->dateTime
+    ];
+    
 });
 
 //Region Factory
@@ -25,5 +95,37 @@ $factory->define( App\Http\Models\Region::class, function (Faker\Generator $fake
     return[
         'id' => $faker->numberBetween( 0, 6000),
         'region' => $faker->city
+    ];
+});
+
+//City Factory
+$factory->define( App\Http\Models\City::class, function(Faker\Generator $faker){
+    return[
+        'id' => $faker->numberBetween( 1, 17),
+        'nz_city' => $faker->city
+    ];
+});
+
+//Town Factory
+$factory->define( App\Http\Models\Town::class, function(Faker\Generator $faker){
+    return [
+        'id' => $faker->numberBetween( 1, 445),
+        'nz_town' => $faker->city
+    ];
+});
+
+//Postcode Factory
+$factory->define( App\Http\Models\Postcode::class, function(Faker\Generator $faker){
+    return[
+        'id' => $faker->numberBetween( 1, 4999),
+        'postcode' => $faker->postcode
+    ];
+});
+
+//Industry Factory
+$factory->define( App\Http\Models\Industry::class, function(Faker\Generator $faker){
+    return[
+        'id' => $faker->numberBetween( 1, 22),
+        'industry' => $faker->word
     ];
 });

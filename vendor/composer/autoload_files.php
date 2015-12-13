@@ -20,4 +20,5 @@ return array(
     $vendorDir . '/herrera-io/phar-update/src/lib/constants.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Support/helpers.php',
+    $baseDir . '/app/Http/GeneralHelpers.php',
 );
