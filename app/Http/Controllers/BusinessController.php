@@ -115,20 +115,6 @@ class BusinessController extends ApiController {
 //        todo apply authentication rules in the StoreBusinessRequest class
         $stored_business = $this->BusinessModel->createNewBusiness($request->json("data"));
         return (is_array( $stored_business ) && array_key_exists( "data", $stored_business)) ? $stored_business : $this->respondWithError( "Faild Creating new Business");
-//        $modified_input = $this->prepareDataForStoringHelper( $request->json( "data" ) );
-//        DB::beginTransaction();
-//        $created_business_object = $this->BusinessModel->create($modified_input);
-//        if ( is_object( $created_business_object ) ) {
-//            $created_business_object->businessTypes()->attach($modified_input['business_type_ids']);
-//            $current_user_object = JWTAuth::parseToken()->authenticate();
-//            $created_business_object->users()->attach([$current_user_object->id]);
-//            DB::commit();
-//            $response = $created_business_object->getStandardJsonFormat();
-//        }else{
-//            DB::rollBack();
-//            $response = $this->respondInternalError();
-//        }//if ( is_object( $created_business_object ) )
-//        return $response;
     }
 
     /**
@@ -138,19 +124,13 @@ class BusinessController extends ApiController {
      * @param  int  $id
      * @return array
      */
-    public function update( UpdateBusinessRequest $request, $id, GeneralHelperTools $general_helper_tools ) {
+    public function update( UpdateBusinessRequest $request, $id ) {
 //        todo Modify authenticate method in UpdateBusinessRequest class to apply authentication rules
-        $business_object = $this->BusinessModel->findOrFail($id);
-        $modified_input = $this->prepareDataForUpdatingHelper($request->json("data"), $general_helper_tools);
-        DB::beginTransaction();
-        if ( $business_object->update($modified_input) ) {
-            (empty($modified_input['business_type_ids'])) ?  : $business_object->businessTypes()->sync($modified_input['business_type_ids']);
-//            todo update relationships between business and users
-//            todo update relationships between users and user groups according to updated business types
-            DB::commit();
-            return $business_object->getStandardJsonFormat();
-        }//if ( $business_object->update($modified_input) )
-        return $this->respondInternalError();
+        $business_object = $this->BusinessModel->find((int)$id);
+        if ( !is_object( $business_object ) ) {
+            return $this->respondNotFound();
+        }//if ( !is_object( $business_object ) )
+        return ($updated_business_object = $business_object->updateBusiness($request->json("data"))) ? $updated_business_object : $this->respondInternalError( 'Error while updating Business');
     }
     
     /**
@@ -181,83 +161,4 @@ class BusinessController extends ApiController {
             }//foreach( $user_groups_objects as $user_group_object)
             return $business_object->getStandardJsonFormat();
     }
-    
-//    Helpers
-    /**
-     * Prepare data for store method
-     * @param array $raw_input
-     * @return array
-     */
-    private function prepareDataForStoringHelper( array $raw_input ) {
-        $modified_input['city_id'] = (int)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'city_id');
-        $modified_input['region_id'] = (int)$this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'region_id');
-        $modified_input['town_id'] = (int)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'town_id');
-        $modified_input['postcode_id'] = (int)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'postcode_id');
-        $modified_input['industry_id'] = (int)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'industry_id');
-        $modified_input['business_type_ids'] = array_map('intval', $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'business_type_ids'));
-        $modified_input['business_name'] = (string)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'business_name');
-        $modified_input['trading_name'] = (string)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'trading_name');
-        $modified_input['address1'] = (string)  $this->GeneralHelperTools->arrayKeySearchRecursively($raw_input, 'address1');
-        ($address2 = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'address2')) ? $modified_input['address2'] = (string)$address2 : FALSE;
-        ($phone = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'phone')) ? $modified_input['phone'] = (string)$phone : FALSE;
-        ($website = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'website')) ? $modified_input['website'] = (string)$website : FALSE;
-        ($business_email = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'business_email')) ? $modified_input['business_email'] = (string)$business_email : FALSE;
-        ($contact_name = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'contact_name')) ? $modified_input['contact_name'] = (string)$contact_name : FALSE;
-        ($contact_mobile = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'contact_mobile')) ? $modified_input['contact_mobile'] = (string)$contact_mobile : FALSE;
-        (!$available_hours_mon = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_mon')) ? : $modified_input['available_hours_mon'] = (string)$available_hours_mon;
-        (!$available_hours_tue = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_tue')) ? : $modified_input['available_hours_tue'] = (string)$available_hours_tue;
-        (!$available_hours_wed = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_wed')) ? : $modified_input['available_hours_wed'] = (string)$available_hours_wed;
-        (!$available_hours_thu = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_thu')) ? : $modified_input['available_hours_thu'] = (string)$available_hours_thu;
-        (!$available_hours_fri = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_fri')) ? : $modified_input['available_hours_fri'] = (string)$available_hours_fri;
-        (!$available_hours_sat = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_sat')) ? : $modified_input['available_hours_sat'] = (string)$available_hours_sat;
-        (!$available_hours_sun = $this->GeneralHelperTools->arrayKeySearchRecursively( $raw_input, 'available_hours_sun')) ? : $modified_input['available_hours_sun'] = (string)$available_hours_sun;
-        $modified_input[ 'is_new' ]            = 1;
-        $modified_input[ 'is_active' ]         = 0;
-        $modified_input[ 'is_featured' ]       = FALSE;
-        $modified_input[ 'is_display' ]        = TRUE;
-        $modified_input['code'] = '';
-        $modified_input['created_by'] = \JWTAuth::parseToken()->authenticate()->id;
-          return $modified_input;
-    }
-    
-    /**
-     * Prepare Data for update method
-     * @param array $raw_input
-     * @return array
-     */
-    private function prepareDataForUpdatingHelper( array $raw_input, GeneralHelperTools $general_helper_tools ) {
-//        todo Modify prepareDataForUpdatingHelper method to suit new changes in Business database table
-        (!$logo_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'logo_id')) ?  : $modified_input['logo_id'] = (int)$logo_id;
-        (!$city_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'city_id')) ?  : $modified_input['city_id'] = (int)$city_id;
-        (!$region_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'region_id')) ?  : $modified_input['region_id'] = (int)$region_id;
-        (!$town_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'town_id')) ?  : $modified_input['town_id'] = (int)$town_id;
-        (!$postcode_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'postcode_id')) ?  : $modified_input['postcode_id'] = (int)$postcode_id;
-        (!$industry_id = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'industry_id')) ?  : $modified_input['industry_id'] = (int)$industry_id;
-        (!$business_type_ids = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'business_type_ids')) ? : $modified_input['business_type_ids'] = array_map( 'intval', $business_type_ids);
-        $is_active = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_active');
-        if ( $is_active ) {
-            $modified_input['is_active'] = ("false" !== $is_active) ? TRUE : FALSE;
-        }//if ( $is_active )
-        (!$business_name = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'business_name')) ?  : $modified_input['business_name'] = (string)$business_name;
-        (!$trading_name = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'trading_name')) ?  : $modified_input['tranding_name'] = (string)$trading_name;
-        (!$address1 = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'address1')) ?  : $modified_input['address1'] = (string)$address1;
-        (!$address2 = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'address2')) ?  : $modified_input['address2'] = (string)$address2;
-        (!$phone = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'phone')) ?  : $modified_input['phone'] = (string)$phone;
-        (!$website = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'website')) ?  : $modified_input['website'] = (string)$website;
-        (!$business_email = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'business_email')) ?  : $modified_input['business_email'] = (string)$business_email;
-        (!$contact_name = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'contact_name')) ?  : $modified_input['contact_name'] = (string)$contact_name;
-        (!$mobile = $general_helper_tools->arrayKeySearchRecursively( $raw_input, 'mobile')) ?  : $modified_input['mobile'] = (string)$mobile;
-        $is_featured = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_featured');
-        if ( $is_featured ) {
-            $modified_input['is_featured'] = ("false" !== $is_featured) ? TRUE : FALSE;
-        }//if ( $is_featured )
-        $is_display = $general_helper_tools->arrayKeySearchRecursively($raw_input, 'is_display');
-        if ( $is_display ) {
-            $modified_input['is_display'] = ("false" !== $is_display) ? TRUE : FALSE;
-        }
-        return $modified_input;
-    }
-
-    
-
 }

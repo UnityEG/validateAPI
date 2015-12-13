@@ -147,7 +147,6 @@ class Business extends Model {
     public function industry( ) {
         return $this->belongsTo('App\Http\Models\Industry', 'industry_id', 'id');
     }
-//    Helpers
     
     /**
      * Get Active logo object for the business
@@ -221,8 +220,10 @@ class Business extends Model {
     public function updateBusiness(array $raw_data){
         $modified_data = $this->commonStoreUpdate($raw_data);
         \DB::beginTransaction();
-        if ( $this->save( $modified_data) ) {
+        if ( $this->update( $modified_data) ) {
             (empty($modified_data['business_type_ids'])) ?  : $this->businessTypes()->sync( $modified_data['business_type_ids']);
+//            todo update relationships between business and users
+//            todo update relationships between users and user groups according to updated business types
             \DB::commit();
             return $this->getStandardJsonFormat();
         }else{

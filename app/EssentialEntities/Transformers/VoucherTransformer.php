@@ -9,6 +9,12 @@ use GeneralHelperTools;
  * @author mohamed
  */
 class VoucherTransformer extends Transformer{
+    
+    /**
+     * Prepare Data for standard
+     * @param array $item
+     * @return array
+     */
     public function beforeStandard( array $item ) {
         $voucher_parameter = (empty($item['voucher_parameter'])) ? ["data"=>["voucher_parameter_id"=>(string)$item['voucher_parameter_id']]] : $item['voucher_parameter'];
         $order = (empty($item['order'])) ? ["data"=>["order_id"=>(string)$item['order_id']]] : $item['order'];
@@ -29,6 +35,7 @@ class VoucherTransformer extends Transformer{
             'expiry_date'          => ( string ) GeneralHelperTools::formatDateTime( $item[ 'expiry_date' ] ),
             'validation_times'     => ( string ) $item[ 'validation_times' ],
             'last_validation_date' => ( string ) GeneralHelperTools::formatDateTime( $item[ 'last_validation_date' ] ),
+            "business_name" => (string)$item['business_name'],
             'relations'            => [
                 'voucher_parameter'       => $voucher_parameter,
                 'order'                   => $order,
