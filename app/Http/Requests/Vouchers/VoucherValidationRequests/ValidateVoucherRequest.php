@@ -16,7 +16,7 @@ class ValidateVoucherRequest extends Request {
      */
     public function authorize() {
 //        todo add authorization rules that the business created voucher will be allowed to validate it
-        $voucher_parameter_object = Voucher::find($this->request->getInt('data[relations][voucher][data][voucher_id]', 0, true));
+        $voucher_parameter_object = Voucher::find($this->request->getInt('data[relations][voucher][data][voucher_id]', 0, true))->voucherParameter;
         if ( !is_object( $voucher_parameter_object ) ) {
             $this->ForbiddenMessage = "Invalid Voucher Parameter";
             return false;
