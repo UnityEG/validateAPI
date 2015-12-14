@@ -221,6 +221,7 @@ return [
         'UseTermTransformer' => \App\EssentialEntities\Transformers\Facades\UseTermTransformer::class,
         'VoucherImageTransformer' => \App\EssentialEntities\Transformers\Facades\VoucherImageTransformer::class,
         'RegionTransformer' => \App\EssentialEntities\Transformers\Facades\RegionTransformer::class,
+        'IndustryTransformer' => \App\EssentialEntities\Transformers\Facades\IndustryTransformer::class,
     ],
 
 ];

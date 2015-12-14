@@ -218,54 +218,54 @@ Route::group(['prefix' => 'v1'], function() {
             'as' => 'VoucherImages.destroy'
         ]);
         
-    //  UseTerms
-        Route::get('UseTerms', [
-            'uses' => 'VouchersControllers\UseTermsController@index',
-            'as' => 'UseTerms.index'
-        ]);
+//  UseTerms
+    Route::get('UseTerms', [
+        'uses' => 'VouchersControllers\UseTermsController@index',
+        'as' => 'UseTerms.index'
+    ]);
         
-    //  Vouchers
-        Route::get('Vouchers', [
-            'uses' => 'VouchersControllers\VouchersController@index',
-            'as' => 'Vouchers.index'
-        ]);
+//  Vouchers
+    Route::get('Vouchers', [
+        'uses' => 'VouchersControllers\VouchersController@index',
+        'as' => 'Vouchers.index'
+    ]);
+
+    Route::get('Vouchers/{id}', [
+        'uses' => 'VouchersControllers\VouchersController@show',
+        'as' => 'Vouchers.show'
+    ]);
+
+    Route::get('Vouchers/listAllVouchersPurchasedByCustomer/{customer_id}', [
+        'uses' => 'VouchersControllers\VouchersController@listAllVouchersPurchasedByCustomer',
+        'as' => 'Vouchers.listAllVouchersPurchasedByCustomer'
+    ]);
         
-        Route::get('Vouchers/{id}', [
-            'uses' => 'VouchersControllers\VouchersController@show',
-            'as' => 'Vouchers.show'
-        ]);
+//  VirtualVouchers
+    Route::get('VirtualVouchers/showVirtualVoucherImage/{code}', [
+        'uses' => 'VouchersControllers\VirtualVouchersController@showVirtualVoucherImage',
+        'as' => 'VirtualVouchers.showVirtualVoucherImage'
+    ]);
         
-        Route::get('Vouchers/listAllVouchersPurchasedByCustomer/{customer_id}', [
-            'uses' => 'VouchersControllers\VouchersController@listAllVouchersPurchasedByCustomer',
-            'as' => 'Vouchers.listAllVouchersPurchasedByCustomer'
-        ]);
-        
-    //  VirtualVouchers
-        Route::get('VirtualVouchers/showVirtualVoucherImage/{code}', [
-            'uses' => 'VouchersControllers\VirtualVouchersController@showVirtualVoucherImage',
-            'as' => 'VirtualVouchers.showVirtualVoucherImage'
-        ]);
-        
-    //    VoucherValidationLog Routes
-        Route::get('VoucherValidationLogs/getAllLogs/{voucher_id}', [
-            'uses' => 'VouchersControllers\VoucherValidationLogsController@getAllLogs',
-            'as' => 'VoucherValidationLogs.getAllLogs'
-        ]);
-        
-        Route::get('VoucherValidationLogs/{voucher_validation_log_id}', [
-            'uses' => 'VouchersControllers\VoucherValidationLogsController@show',
-            'as' => 'VoucherValidationLogs.show'
-        ]);
-        
-        Route::post('VoucherValidationLogs/validateVoucher', [
-            'uses' => 'VouchersControllers\VoucherValidationLogsController@validateVoucher',
-            'as' => 'VoucherValidationLogs.validateVoucher'
-        ]);
-        
-        Route::post('VoucherValidationLogs/checkVoucher', [
-            'uses' => 'VouchersControllers\VoucherValidationLogsController@checkVoucher',
-            'as' => 'VoucherValidationLogs.checkVoucher'
-        ]);
+//    VoucherValidationLog Routes
+    Route::get('VoucherValidationLogs/getAllLogs/{voucher_id}', [
+        'uses' => 'VouchersControllers\VoucherValidationLogsController@getAllLogs',
+        'as' => 'VoucherValidationLogs.getAllLogs'
+    ]);
+
+    Route::get('VoucherValidationLogs/{voucher_validation_log_id}', [
+        'uses' => 'VouchersControllers\VoucherValidationLogsController@show',
+        'as' => 'VoucherValidationLogs.show'
+    ]);
+
+    Route::post('VoucherValidationLogs/validateVoucher', [
+        'uses' => 'VouchersControllers\VoucherValidationLogsController@validateVoucher',
+        'as' => 'VoucherValidationLogs.validateVoucher'
+    ]);
+
+    Route::post('VoucherValidationLogs/checkVoucher', [
+        'uses' => 'VouchersControllers\VoucherValidationLogsController@checkVoucher',
+        'as' => 'VoucherValidationLogs.checkVoucher'
+    ]);
 
 //    Purchase Routes
     Route::post('Purchase/onlinePurchase', [
@@ -305,5 +305,11 @@ Route::group(['prefix' => 'v1'], function() {
     Route::post('ContactUs', [
         'uses' => 'ContactUsController@contactUs',
         'as' => 'ContactUs.contactUs'
+    ]);
+    
+//    Industries
+    Route::get('Industries', [
+        'uses' => 'IndustriesController@index',
+        'as' => 'Industries.index'
     ]);
 });
