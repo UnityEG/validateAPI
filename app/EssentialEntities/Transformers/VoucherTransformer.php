@@ -35,7 +35,7 @@ class VoucherTransformer extends Transformer{
             'expiry_date'          => ( string ) GeneralHelperTools::formatDateTime( $item[ 'expiry_date' ] ),
             'validation_times'     => ( string ) $item[ 'validation_times' ],
             'last_validation_date' => ( string ) GeneralHelperTools::formatDateTime( $item[ 'last_validation_date' ] ),
-            "business_name" => (string)$item['business_name'],
+            "business_name" => (empty($item['business_name'])) ? '' : (string)$item['business_name'],
             'relations'            => [
                 'voucher_parameter'       => $voucher_parameter,
                 'order'                   => $order,
