@@ -53,23 +53,17 @@ class BusinessLogosController extends ApiController
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  StoreBusinessLogoRequest  $request
      * @return mixed
      */
-    public function store(StoreBusinessLogoRequest $request)
+    public function store(StoreBusinessLogoRequest $request, $business_id)
     {
+        $business_object = \App\Http\Models\Business::find((int)$business_id);
+        if ( !is_object( $business_object ) ) {
+            return $this->respondInternalError('Busienss is not valid');
+        }//if ( !is_object( $business_object ) )
         $image_name = $this->generateImageName();
         $image_path = $this->DefaultBusinessLogosPath.$image_name.'.png';
         $resized_image = Image::make($request->file('business_logo'))->resize(310, 195);
@@ -77,12 +71,12 @@ class BusinessLogosController extends ApiController
             $store_data = [
                 "name"=>$image_name, 
                 "user_id"=>JWTAuth::parseToken()->authenticate()->id, 
-                "business_id"=>(int)$request->get("business_id"),
+                "business_id"=>$business_object->id,
             ];
             $created_business_object = $this->BusinessLogoModel->create($store_data);
             return (is_object( $created_business_object )) ? $created_business_object->getStandardJsonFormat() : $this->respondInternalError();
         }
-        return $this->respondInternalError();
+        return $this->respondInternalError("Failed Saving Logo");
     }
 
     /**
@@ -94,29 +88,6 @@ class BusinessLogosController extends ApiController
     public function show($id)
     {
         return $this->BusinessLogoModel->findOrFail((int)$id)->getStandardJsonFormat();
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  int  $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
     }
 
     /**

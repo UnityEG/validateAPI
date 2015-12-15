@@ -40,6 +40,7 @@ class UpdateBusinessRequest extends Request
             "data.attributes.is_active" => ['sometimes', 'required', 'boolean'],
             "data.attributes.business_name" => ['sometimes', 'required', 'string', 'unique:business,business_name,'.$business_id_from_URI],
             "data.attributes.trading_name" => ['sometimes', 'required', 'string', 'unique:business,trading_name,'.$business_id_from_URI],
+            "data.attributes.bank_account_number" => ['alpha_num', 'size:16'],
             "data.attributes.address1" => ['sometimes', 'required', 'string'],
             "data.attributes.address2" => ['string'],
             "data.attributes.phone" => ['string'],

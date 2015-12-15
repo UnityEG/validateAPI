@@ -28,7 +28,6 @@ class StoreBusinessLogoRequest extends Request
     public function rules()
     {
         return [
-//            todo how to send business_id with file to store them
             "business_logo" => ['required', 'image', 'max:2096']
         ];
     }

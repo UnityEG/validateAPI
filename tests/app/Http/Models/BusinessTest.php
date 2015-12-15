@@ -103,7 +103,10 @@ class BusinessTest extends \TestCase
      * @test
      */
     public function testGetActiveLogo(){
-        $this->assertInstanceOf('\App\Http\Models\BusinessLogo', factory(Business::class)->make()->getActiveLogo());
+        $fake_business_object = factory(Business::class)->create();
+        $fake_logo_object = factory( \App\Http\Models\BusinessLogo::class)->create(['business_id'=>$fake_business_object->id]);
+        $fake_business_object->logo_id = $fake_logo_object->id;
+        $this->assertInstanceOf('\App\Http\Models\BusinessLogo', $fake_business_object->getActiveLogo());
     }
 
     /**
@@ -113,7 +116,7 @@ class BusinessTest extends \TestCase
      */
     public function testGetStandardJsonFormat()
     {
-        $this->assertArrayHasKey("data", factory(Business::class)->make()->getStandardJsonFormat());
+        $this->assertArrayHasKey("data", factory(Business::class)->create()->getStandardJsonFormat());
     }
     
     /**
@@ -129,7 +132,7 @@ class BusinessTest extends \TestCase
      * @test
      */
     public function testGetBeforeStandardArray(){
-        $this->assertArrayHasKey("id", factory(Business::class)->make());
+        $this->assertArrayHasKey("id", factory(Business::class)->create());
     }
     
     /**
@@ -141,6 +144,7 @@ class BusinessTest extends \TestCase
             "data" => [
                 "business_name"       => "Mondelez foods8",
                 "trading_name"        => "borio8",
+                "bank_account_number" => "1234567891257489",
                 "address1"            => "21,Aliquam erat volutpat",
                 "address2"            => "10,Vestibulum dapibus nunc",
                 "phone"               => "03987423",
@@ -198,11 +202,12 @@ class BusinessTest extends \TestCase
      * @test
      */
     public function testUpdateBusiness(){
-        $business_model_fake = factory(Business::class)->make();
+        $business_model_fake = factory(Business::class)->create();
         $raw_data = [
             "data" => [
                 "business_name"       => "Mondelez foods8",
                 "trading_name"        => "borio8",
+                "bank_account_number" => "1234567891257489",
                 "address1"            => "21,Aliquam erat volutpat",
                 "address2"            => "10,Vestibulum dapibus nunc",
                 "phone"               => "03987423",

@@ -51,6 +51,7 @@ class Business extends Model {
         'is_featured',
         'business_name',
         'trading_name',
+        'bank_account_number',
         'address1',
         'address2',
         'phone',
@@ -271,6 +272,7 @@ class Business extends Model {
         }//if ( $is_active )
         (!$business_name = array_deep_search( $raw_data, 'business_name')) ?  : $modified_data['business_name'] = (string)$business_name;
         (!$trading_name = array_deep_search( $raw_data, 'trading_name')) ?  : $modified_data['trading_name'] = (string)$trading_name;
+        (!$bank_account_number = array_deep_search( $raw_data, 'bank_account_number')) ?  : $modified_data['bank_account_number'] = (string)$bank_account_number;
         (!$address1 = array_deep_search( $raw_data, 'address1')) ?  : $modified_data['address1'] = (string)$address1;
         (!$address2 = array_deep_search( $raw_data, 'address2')) ?  : $modified_data['address2'] = (string)$address2;
         (!$phone = array_deep_search( $raw_data, 'phone')) ?  : $modified_data['phone'] = (string)$phone;
@@ -301,7 +303,7 @@ class Business extends Model {
      * @return integer
      */
     private function generateBusinessCode() {
-        $code = mt_rand(10000000, 99999999);
+        $code = mt_rand(10000001, 99999999);
         return ((8 > strlen( $code)) || $this->where('code', $code)->exists()) ? $this->generateBusinessCode() : $code;
     }
 

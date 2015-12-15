@@ -33,6 +33,7 @@ class StoreBusinessRequest extends Request
             "data.relations.business_types.data.business_type_ids" => ['required', 'exists:business_types,id'],
             "data.business_name" => ['required', 'string', 'unique:business,business_name'],
             "data.trading_name" => ['required', 'string', 'unique:business,trading_name'],
+            "data.bank_account_number" => ['alpha_num', 'size:16'],
             "data.address1" => ['required', 'string'],
             "data.address2" => ['string'],
             "data.phone" => ['string'],

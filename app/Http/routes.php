@@ -101,7 +101,21 @@ Route::group(['prefix' => 'v1'], function() {
     Route::resource('Business', 'BusinessController');
     
     //    BusinessLogos
-        Route::resource('BusinessLogos', 'BusinessControllers\BusinessLogosController');
+        Route::get('BusinessLogos', [
+            'uses' => 'BusinessControllers\BusinessLogosController@index',
+            'as' => 'BusinessLogos.index'
+        ]);
+        
+        Route::get('BusinessLogos/{id}', [
+            'uses' => 'BusinessControllers\BusinessLogosController@show',
+            'as' => 'BusinessLogos.show'
+        ]);
+        
+        Route::post('BusinessLogos/{business_id}', [
+            'uses' => 'BusinessControllers\BusinessLogosController@store',
+            'as' => 'BusinessLogos.store'
+        ]);
+        
     //      BusinessTypes
         Route::get('BusinessTypes', [
             'uses' => 'BusinessControllers\BusinessTypesController@index',

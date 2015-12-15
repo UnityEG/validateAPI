@@ -35,6 +35,7 @@ class BusinessTransformer extends Transformer{
             "is_active" => (boolean)$item['is_active'],
             "business_name" => (string)$item['business_name'],
             "trading_name" => (string)$item['trading_name'],
+            "bank_account_number" => (empty($item['bank_account_number'])) ? '' : $item['bank_account_number'],
             "address1" => (string)$item['address1'],
             "address2" => (isset($item['address2'])) ? (string)$item['address2'] : '',
             "phone" => (isset($item['phone'])) ? (string)$item['phone'] : '',
