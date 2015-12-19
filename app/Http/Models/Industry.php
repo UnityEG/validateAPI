@@ -8,6 +8,10 @@ class Industry extends Model
 {
     protected $table = "lu_industries";
     
+    protected $fillable = [
+        "industry"
+    ];
+    
     /**
      * Relationship between Industry Model and Business Model (one to many)
      * @return object
@@ -32,8 +36,51 @@ class Industry extends Model
      * Get Before Standard Array
      * @return array
      */
+    public function getTransformedArray( ) {
+        return \IndustryTransformer::transform($this->prepareIndustryGreedyData());
+    }
+    
+    /**
+     * Get Before Standard Array
+     * @return array
+     */
     public function getBeforeStandard( ) {
         return \IndustryTransformer::beforeStandard($this->prepareIndustryGreedyData());
+    }
+    
+    /**
+     * Create New Business
+     * @param array $raw_data
+     * @return boolean | array
+     */
+    public function createNewIndustry(array $raw_data){
+        $modified_data = $this->commonStoreUpdate($raw_data);
+        \DB::beginTransaction();
+        $created_industry = $this->create($modified_data);
+        if ( is_object( $created_industry ) ) {
+            \DB::commit();
+            return $created_industry->getTransformedArray();
+        }else{
+            \DB::rollBack();
+            return FALSE;
+        }//if ( is_object( $created_business ) )
+    }
+    
+    /**
+     * Update existing Business
+     * @param array $raw_data
+     * @return boolean | array
+     */
+    public function updateIndustry(array $raw_data){
+        $modified_data = $this->commonStoreUpdate($raw_data);
+        \DB::beginTransaction();
+        if ( $this->update( $modified_data) ) {
+            \DB::commit();
+            return $this->getTransformedArray();
+        }else{
+            \DB::rollBack();
+            return FALSE;
+        }//if($this->save( $modified_data))
     }
 
     /**
@@ -45,4 +92,14 @@ class Industry extends Model
         return $industry_greedy_data;
     }
 
+    /**
+     * Prepare Data for storing and updating
+     * @param array $raw_data
+     * @return array 
+     */
+    private function commonStoreUpdate(array $raw_data){
+        $modified_data = [];
+        (!$industry = array_deep_search( $raw_data, 'industry')) ? : $modified_data['industry'] = (string)$industry;
+        return $modified_data;
+    }
 }

@@ -11,6 +11,7 @@
 |
 */
 
+//User Factory
 $factory->define(App\User::class, function (Faker\Generator $faker) {
     return [
         'city_id' => factory(App\Http\Models\City::class)->make(),
@@ -79,6 +80,78 @@ $factory->define( App\Http\Models\BusinessLogo::class, function(Faker\Generator 
         'name' => $faker->numberBetween( 10000000, 99999999),
     ];
     
+});
+
+//VoucherParameter Factory
+$factory->define( App\Http\Models\VoucherParameter::class, function(Faker\Generator $faker){
+    return[
+        'business_id' => factory(\App\Http\Models\Business::class)->create()->id,
+        'user_id' => factory(\App\User::class)->create()->id,
+        'voucher_image_id' => factory( \App\Http\Models\VoucherImage::class)->create()->id,
+        'voucher_type' => 'gift',
+        'title' => $faker->title,
+        'purchase_start' => $faker->dateTime,
+        'purchase_expiry' => $faker->dateTime,
+        'is_expire' => 0,
+        'is_display' => 1,
+        'is_purchased' => 0,
+        'valid_from' => $faker->dateTime,
+        'valid_for_amount' => $faker->numberBetween(),
+        'valid_for_units' => $faker->randomElement( ['h', 'd', 'w', 'm']),
+        'valid_until' => $faker->dateTime,
+        'is_limited_quantity' => 0,
+        'quantity' => 0,
+        'purchased_quantity' => 0,
+        'stock_quantity' => 0,
+        'short_description' => $faker->sentence,
+        'long_description' => $faker->paragraph,
+        'is_single_use' => 0,
+        'no_of_uses' => 3,
+        'retail_value' => 0,
+        'value' => 0,
+        'min_value' => 20.00,
+        'max_value' => 255.56,
+        'is_valid_during_month' => 0,
+        'discount_percentage' => 0
+    ];
+});
+
+//VoucherImage Factory
+$factory->define( App\Http\Models\VoucherImage::class, function(Faker\Generator $faker){
+    return[
+        'name' => $faker->numberBetween( 10000001, 99999999),
+        'voucher_type' => 'gift',
+    ];
+});
+
+//Voucher Factory
+$factory->define( App\Http\Models\Voucher::class, function(Faker\Generator $faker){
+    return[
+        'user_id' => factory(\App\User::class)->create()->id,
+        'voucher_parameter_id' => factory( \App\Http\Models\VoucherParameter::class)->create()->id,
+        'order_id' => factory(\App\Http\Models\Order::class)->create()->id,
+        'status' => 'valid',
+        'code' => $faker->numberBetween( 300000001, 399999999),
+        'value' => $faker->numberBetween( 20.00, 550.59),
+        'balance' => $faker->numberBetween( 20.00, 550.59),
+        'is_mail_sent' => 0,
+        'is_instore' => 0,
+        'delivery_date' => $faker->dateTime,
+        'recipient_email' => $faker->email,
+        'message' => $faker->paragraph,
+        'expiry_date' => $faker->dateTime,
+        'validation_times' => 1,
+        'last_validation_date' => $faker->dateTime
+    ];
+});
+
+//Order Factory
+$factory->define( App\Http\Models\Order::class, function(Faker\Generator $faker){
+    return[
+        'user_id' => factory(\App\User::class)->create()->id,
+        'number' => $faker->numberBetween( 1001 ),
+        'tax' => $faker->randomFloat(NULL, 0, 0.9),
+    ];
 });
 
 //Region Factory

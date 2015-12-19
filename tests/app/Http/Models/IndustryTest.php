@@ -37,10 +37,45 @@ class IndustryTest extends \TestCase
     }
     
     /**
+     * Test getTransformedArray method 
+     * @test
+     */
+    public function testGetTransformedArray( ) {
+        $this->assertArrayHasKey("data", factory(Industry::class)->create()->getTransformedArray());
+    }
+    
+    /**
      * Test getBeforeStandard method
      * @test
      */
     public function testGetBeforeStandard( ) {
-        $this->assertArrayHasKey("id", factory(Industry::class)->make()->getBeforeStandard());
+        $this->assertArrayHasKey("id", factory(Industry::class)->create()->getBeforeStandard());
+    }
+    
+    /**
+     * Test createNewBusiness method
+     * @test
+     */
+    public function testCreateNewIndustry(){
+        $raw_data = [
+            "data" => [
+                "industry"       => "cut",
+            ]
+        ];
+        $this->assertArrayHasKey("data", $this->IndustryModelObject->createNewIndustry($raw_data));
+    }
+    
+    /**
+     * Test updateBusiness method
+     * @test
+     */
+    public function testUpdateIndustry(){
+        $industry_model_fake = factory(Industry::class)->create();
+        $raw_data = [
+            "data" => [
+                "industry"       => "Fix",
+            ]
+        ];
+        $this->assertArrayHasKey("data", $industry_model_fake->updateIndustry($raw_data));
     }
 }

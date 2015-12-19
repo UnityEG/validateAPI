@@ -11,9 +11,22 @@ use VoucherValidationLogTransformer;
 
 class Voucher extends Model
 {
-//    todo modify @return documentation to be the correct type for all relationship methods
+    /**
+     *
+     *  table name
+     */
     protected $table = "vouchers";
+    
+    /**
+     *
+     *  datetime fields
+     */
     protected $dates = ['delivery_date', 'expiry_date', 'last_validation_date'];
+    
+    /**
+     *
+     * fillable columns
+     */
     protected $fillable = [
         'user_id',
         'voucher_parameter_id',
@@ -108,21 +121,21 @@ class Voucher extends Model
         $terms_of_use = implode(' ● ', array_pluck($terms_of_use_objects, 'name'));
         //
         return[
-            'm_logo_filename' => $business_logo_filename,
-            'qr_code' => $this->code,
-            'delivery_date' => $this->delivery_date,
-            'expiry_date' => $this->expiry_date,
-            'voucher_value' => $this->value,
-            'merchant_business_name' => $business_object->business_name,
-            'voucher_title' => $voucher_parameter_object->title,
-            'TermsOfUse' => $terms_of_use,
+            'm_logo_filename'            => $business_logo_filename,
+            'qr_code'                    => $this->code,
+            'delivery_date'              => $this->delivery_date,
+            'expiry_date'                => $this->expiry_date,
+            'voucher_value'              => $this->value,
+            'merchant_business_name'     => $business_object->business_name,
+            'voucher_title'              => $voucher_parameter_object->title,
+            'TermsOfUse'                 => $terms_of_use,
             'merchant_business_address1' => $business_object->address1,
-            'business_suburb' => $business_object->postcode->suburb,
-            'merchant_business_phone' => $business_object->phone,
-            'merchant_business_website' => $business_object->website,
-            'recipient_email' => $this->recipient_email,
-            'customer_name' => $customer_object->getName(),
-            'customer_email' => $customer_object->email,
+            'business_suburb'            => $business_object->postcode->suburb,
+            'merchant_business_phone'    => $business_object->phone,
+            'merchant_business_website'  => $business_object->website,
+            'recipient_email'            => $this->recipient_email,
+            'customer_name'              => $customer_object->getName(),
+            'customer_email'             => $customer_object->email,
         ];
     }
     

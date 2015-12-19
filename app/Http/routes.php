@@ -326,4 +326,19 @@ Route::group(['prefix' => 'v1'], function() {
         'uses' => 'IndustriesController@index',
         'as' => 'Industries.index'
     ]);
+    
+    Route::get('Industries/{id}', [
+        'uses' => 'IndustriesController@show',
+        'as' => 'Industries.show'
+    ]);
+    
+    Route::post('Industries', [
+        'uses' => 'IndustriesController@store',
+        'as' => 'Industries.store'
+    ]);
+    
+    Route::patch('Industries/{id}', [
+        'uses' => 'IndustriesController@update',
+        'as' => 'Industries.update'
+    ]);
 });

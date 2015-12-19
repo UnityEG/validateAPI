@@ -79,7 +79,8 @@ class BusinessController extends ApiController {
             $response["data"][] = $business_object->getBeforeStandardArray();
         }
         return $response;
-    }    
+    } 
+    
     /**
      * Display the specified resource.
      *
