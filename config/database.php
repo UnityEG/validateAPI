@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'default' => 'mysql', //env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -54,10 +54,10 @@ return [
 
         'mysql' => [
             'driver'    => 'mysql',
-            'host'      => 'localhost', //'localhost', //env('DB_HOST', 'localhost'),
-            'database'  => 'validau7_v2', //'jot-bot', //env('DB_DATABASE', 'forge'),
-            'username'  => 'validau7_test', //'root', //env('DB_USERNAME', 'forge'),
-            'password'  => '5&oGwLTs+_*p', //'', //env('DB_PASSWORD', ''),
+            'host'      => env('DB_HOST', 'localhost'),
+            'database'  => env('DB_DATABASE', 'forge'),
+            'username'  => env('DB_USERNAME', 'forge'),
+            'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
