@@ -9,6 +9,12 @@ class UseTerm extends Model {
 
     protected $table   = 'use_terms';
     
+    protected $fillable = [
+        'name',
+        'list_order'
+    ];
+
+
     /**
      * Relationship method between UseTerm Model and Voucher Model (many to many)
      * @return object
@@ -21,11 +27,11 @@ class UseTerm extends Model {
      * Get Standard Json API collection format for muti use term objects
      * @return array
      */
-    public static function getStandardJsonCollection( ) {
+    public static function getTransformedCollection( ) {
         $instance = new static;
         $response["data"] = [];
         foreach ( $instance->get() as $use_term_object) {
-            $response['data'][] = $use_term_object->getBeforeStandardArray();
+            $response['data'][] = $use_term_object->getBeforeTransform();
         }
         return $response;
     }
@@ -34,7 +40,7 @@ class UseTerm extends Model {
      * Get Standard Json API format for single object
      * @return array
      */
-    public function getStandardJsonFormat( ) {
+    public function getTransformedArray( ) {
         return UseTermTransformer::transform($this->prepareUseTermGreedyData());
     }
     
@@ -42,8 +48,39 @@ class UseTerm extends Model {
      * Get Before Standard Json API format to form a collection of Json objects
      * @return array
      */
-    public function getBeforeStandardArray( ) {
+    public function getBeforeTransform( ) {
         return UseTermTransformer::beforeStandard($this->prepareUseTermGreedyData());
+    }
+    
+    /**
+     * Create new Use Term
+     * @param type $raw_data
+     * @return boolean | array
+     */
+    public function createNewUseTerm( $raw_data) {
+        \DB::beginTransaction();
+        $created_use_term = $this->create($this->commonStoreUpdate($raw_data));
+        if ( is_object( $created_use_term ) ) {
+            \DB::commit();
+            return $created_use_term->getTransformedArray();
+        }
+        \DB::rollBack();
+        return FALSE;
+    }
+    
+    /**
+     * Update existing object
+     * @param array $raw_data
+     * @return boolean | array
+     */
+    public function updateUseTerm( array $raw_data) {
+        \DB::beginTransaction();
+        if ( $this->update( $this->commonStoreUpdate($raw_data)) ) {
+            \DB::commit();
+            return $this->getTransformedArray();
+        }
+        \DB::rollBack();
+        return FALSE;
     }
 
     /**
@@ -55,4 +92,15 @@ class UseTerm extends Model {
         return $use_term_greedy_array;
     }
 
+    /**
+     * Prepare Data for storing and updating process
+     * @param array $raw_data
+     * @return array
+     */
+    private function commonStoreUpdate( array $raw_data) {
+        $modified_array = [];
+        (!$name = array_deep_search( $raw_data, 'name')) ?  : $modified_array['name'] = (string)$name;
+        (!$list_order = array_deep_search( $raw_data, 'list_order')) ?  : $modified_array['list_order'] = (int)$list_order;
+        return $modified_array;
+    }
 }

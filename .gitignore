@@ -5,7 +5,7 @@ storage/VirtualVouchers/
 storage/logs/
 storage/framework/sessions/
 storage/framework/views/
-storage/framework/cache/
+storage/framework/cache/*
 bootstrap/compiled.php
 .env.*.php
 .env.php

@@ -237,6 +237,21 @@ Route::group(['prefix' => 'v1'], function() {
         'uses' => 'VouchersControllers\UseTermsController@index',
         'as' => 'UseTerms.index'
     ]);
+    
+    Route::get('UseTerms/{id}', [
+        'uses' => 'VouchersControllers\UseTermsController@show',
+        'as' => 'UseTerms.show'
+    ]);
+    
+    Route::post('UseTerms', [
+        'uses' => 'VouchersControllers\UseTermsController@store',
+        'as' => 'UseTerms.store'
+    ]);
+    
+    Route::patch('UseTerms/{id}', [
+        'uses' => 'VouchersControllers\UseTermsController@update',
+        'as' => 'UseTerms.update'
+    ]);
         
 //  Vouchers
     Route::get('Vouchers', [

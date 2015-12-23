@@ -1062,7 +1062,7 @@ class Validator implements ValidatorContract
         }
 
         $extra = $this->getUniqueExtra($parameters);
-
+        
         return $verifier->getCount(
 
             $table, $column, $value, $id, $idColumn, $extra

@@ -124,6 +124,14 @@ $factory->define( App\Http\Models\VoucherImage::class, function(Faker\Generator 
     ];
 });
 
+//UseTerm Factory
+$factory->define( App\Http\Models\UseTerm::class, function(Faker\Generator $faker){
+    return [
+        'name' => $faker->word,
+        'list_order' => $faker->numberBetween( 1, 5),
+    ];
+});
+
 //Voucher Factory
 $factory->define( App\Http\Models\Voucher::class, function(Faker\Generator $faker){
     return[
