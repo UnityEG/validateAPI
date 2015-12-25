@@ -31,6 +31,16 @@ class IndustriesController extends ApiController
     }
     
     /**
+     * Show single record
+     * @param integer $id
+     * @return array
+     */
+    public function show($id){
+        $industry = $this->IndustryModel->find((int)$id);
+        return (is_object( $industry )) ? $industry->getTransformedArray() : $this->respondNotFound();
+    }
+    
+    /**
      * Store a newly created resource in storage.
      *
      * @param  StoreBusinessRequest  $request
