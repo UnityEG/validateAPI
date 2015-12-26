@@ -8,8 +8,7 @@ use App\Http\Models\UserGroup;
 use App\Http\Requests\Business\AcceptCreateBusinessRequest;
 use App\Http\Requests\Business\StoreBusinessRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
-use DB;
-use JWTAuth;
+use \JWTAuth;
 
 class BusinessController extends ApiController {
 
@@ -26,7 +25,7 @@ class BusinessController extends ApiController {
      * @param Business $business_model
      */
     public function __construct(Business $business_model, GeneralHelperTools $general_helper_tools) {
-        $this->middleware( 'jwt.auth', ['except'=>['showDisplayBusiness', 'listPartners', 'listFeatured']] );
+        $this->middleware( 'jwt.auth', ['except'=>['showDisplayBusiness', 'listPartners', 'listFeatured', 'searchActiveBusinessByBusinessName']] );
 //        todo apply jwt.refresh middleware to refresh token every request
         $this->BusinessModel = $business_model;
         $this->GeneralHelperTools = $general_helper_tools;
@@ -80,6 +79,15 @@ class BusinessController extends ApiController {
         }
         return $response;
     } 
+    
+    /**
+     * Search for Active Business By Business Name
+     * @param string $business_name
+     * @return array
+     */
+    public function searchActiveBusinessByBusinessName($business_name){
+        return $this->BusinessModel->searchActiveBusinessByBusinessName(strtolower((string)$business_name)) ;
+    }
     
     /**
      * Display the specified resource.

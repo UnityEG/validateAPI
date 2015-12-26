@@ -103,7 +103,7 @@ class BusinessTest extends \TestCase
      * @test
      */
     public function testGetActiveLogo(){
-        $fake_business_object = factory(Business::class)->create();
+        $fake_business_object = factory(Business::class)->make(['id'=>1, 'created_at'=>NULL, 'updated_at'=>NULL]);
         $fake_logo_object = factory( \App\Http\Models\BusinessLogo::class)->create(['business_id'=>$fake_business_object->id]);
         $fake_business_object->logo_id = $fake_logo_object->id;
         $this->assertInstanceOf('\App\Http\Models\BusinessLogo', $fake_business_object->getActiveLogo());
@@ -116,7 +116,7 @@ class BusinessTest extends \TestCase
      */
     public function testGetStandardJsonFormat()
     {
-        $this->assertArrayHasKey("data", factory(Business::class)->create()->getStandardJsonFormat());
+        $this->assertArrayHasKey("data", factory(Business::class)->make(['id'=>1])->getStandardJsonFormat());
     }
     
     /**
@@ -128,11 +128,18 @@ class BusinessTest extends \TestCase
     }
     
     /**
+     * Test getStandardJsonCollection method with condition parameter
+     */
+    public function testSearchActiveBusinessByBusinessName( ) {
+        $this->assertArrayHasKey("data", $this->BusinessModelObject->searchActiveBusinessByBusinessName('M'));
+    }
+    
+    /**
      * Test getBeforeStandardArray method
      * @test
      */
     public function testGetBeforeStandardArray(){
-        $this->assertArrayHasKey("id", factory(Business::class)->create());
+        $this->assertArrayHasKey("id", factory(Business::class)->make(['id'=>1]));
     }
     
     /**
@@ -187,7 +194,7 @@ class BusinessTest extends \TestCase
                     ],
                     "business_types" => [
                         "data" => [
-                            "business_type_ids" => ["1" ]
+                            "business_type_ids" => ["1", "2"]
                         ]
                     ]
                 ]

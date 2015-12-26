@@ -180,9 +180,23 @@ class Business extends Model {
     public function getStandardJsonCollection() {
         $result["data"] = [];
         $instance = new static;
-        foreach($instance->get() as $business_object){
+        $collection = $instance->get();
+        foreach($collection as $business_object){
             $result["data"][] = $business_object->getBeforeStandardArray();
         }//foreach($instance->get() as $business_object)
+        return $result;
+    }
+    
+    /**
+     * Search for Active busienss by business name
+     * @param string $business_name
+     * @return array
+     */
+    public function searchActiveBusinessByBusinessName( $business_name) {
+        $result['data'] = [];
+        foreach ( $this->where(['is_active'=>1, 'is_display'=>1])->where('business_name', 'like', "%{$business_name}%")->get() as $object ) {
+            $result['data'][] = $object->getBeforeStandardArray();
+        }
         return $result;
     }
     

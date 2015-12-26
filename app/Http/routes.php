@@ -88,6 +88,11 @@ Route::group(['prefix' => 'v1'], function() {
         'as' => 'Business.listCreateRequest'
     ]);
     
+    Route::get('Business/searchActiveBusinessByBusinessName/{business_name}', [
+        'uses' => 'BusinessController@searchActiveBusinessByBusinessName',
+        'as' => 'Business.searchActiveBusinessByBusinessName'
+    ]);
+    
     Route::get('Business/showDisplayBusiness/{id}', [
         'uses' => 'BusinessController@showDisplayBusiness',
         'as' => 'BusinessController.showDisplayBusiness'

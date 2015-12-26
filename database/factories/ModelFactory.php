@@ -13,11 +13,12 @@
 
 //User Factory
 $factory->define(App\User::class, function (Faker\Generator $faker) {
+    $essential = ['id'=>1, 'created_at'=>NULL, 'updated_at'=>NULL];
     return [
-        'city_id' => factory(App\Http\Models\City::class)->make(),
-        'region_id' => factory(App\Http\Models\Region::class)->make(),
-        'town_id' => factory(App\Http\Models\Town::class)->make(),
-        'postcode_id' => factory(App\Http\Models\Postcode::class)->make(),
+        'city_id' => factory(App\Http\Models\City::class)->make($essential)->id,
+        'region_id' => factory(App\Http\Models\Region::class)->make($essential)->id,
+        'town_id' => factory(App\Http\Models\Town::class)->make($essential)->id,
+        'postcode_id' => factory(App\Http\Models\Postcode::class)->make($essential)->id,
         'facebook_user_id' => $faker->uuid,
         'is_active' => 1,
         'email' => $faker->email,
@@ -38,13 +39,14 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
 
 //Business Factory
 $factory->define(App\Http\Models\Business::class, function(Faker\Generator $faker){
+    $essential = ['id'=>1, 'created_at'=>NULL, 'updated_at'=>NULL];
     return [
         'logo_id' => 1,
-        'city_id' => factory( App\Http\Models\City::class)->create()->id,
-        'region_id' => factory( App\Http\Models\Region::class)->create()->id,
-        'town_id' => factory(App\Http\Models\Region::class)->create()->id,
-        'postcode_id' => factory( App\Http\Models\Postcode::class)->create()->id,
-        'industry_id' => factory( App\Http\Models\Industry::class)->create()->id,
+        'city_id' => factory( App\Http\Models\City::class)->make($essential)->id,
+        'region_id' => factory( App\Http\Models\Region::class)->make($essential)->id,
+        'town_id' => factory(App\Http\Models\Region::class)->make($essential)->id,
+        'postcode_id' => factory( App\Http\Models\Postcode::class)->make($essential)->id,
+        'industry_id' => factory( App\Http\Models\Industry::class)->make($essential)->id,
         'facebook_page_id' => $faker->uuid,
         'code' => $faker->numberBetween( 10000000, 99999999),
         'is_new' => 0,
@@ -68,7 +70,7 @@ $factory->define(App\Http\Models\Business::class, function(Faker\Generator $fake
         'available_hours_fri' => 'Friday: 10:00am - 21:00pm',
         'available_hours_sat' => 'Saturday: 10:00am - 21:00pm',
         'available_hours_sun' => 'Sunday: 10:00am - 21:00pm',
-        'created_by' => factory(App\User::class)->create()->id,
+        'created_by' => factory(App\User::class)->make($essential)->id,
     ];
 });
 
@@ -76,7 +78,7 @@ $factory->define(App\Http\Models\Business::class, function(Faker\Generator $fake
 $factory->define( App\Http\Models\BusinessLogo::class, function(Faker\Generator $faker){
     return [
         'business_id' => $faker->numberBetween( 1, 100),
-        'user_id' => factory(App\User::class)->create()->id,
+        'user_id' => factory(App\User::class)->make(['id'=>1])->id,
         'name' => $faker->numberBetween( 10000000, 99999999),
     ];
     

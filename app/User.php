@@ -192,7 +192,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @return boolean
      */
     public function isActiveUser( ) {
-        return ((bool)  $this->is_active) ? TRUE : FALSE;
+        return ((bool)$this->is_active) ? TRUE : FALSE;
     }
     
     /**
